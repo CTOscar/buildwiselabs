@@ -1,11 +1,6 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="expo/assets/buildwise-light.png">
-  <img alt="BuildWise Labs" src="expo/assets/buildwise-dark.png" width="360">
-</picture>
-
-### Automatización, desarrollo web y móvil, redes y ciberseguridad para PyMEs
+<img src="assets/readme/buildwise-banner.png" alt="BuildWise Labs: soluciones digitales seguras, eficientes y escalables" width="100%">
 
 [![Sitio web](https://img.shields.io/badge/Web-buildwiselabs.net-9d6b99?style=for-the-badge&logo=googlechrome&logoColor=white)](https://buildwiselabs.net)
 [![Labs](https://img.shields.io/badge/Docs-Labs-7088b3?style=for-the-badge&logo=docusaurus&logoColor=white)](https://buildwiselabs.net/labs)
