@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 /**
  * Boton Carbon (IBM): rectangular, texto a la izquierda e icono a la derecha.
- * @param {'primary'|'tertiary'|'ghost'|'outlineWhite'} variant
+ * @param {'primary'|'tertiary'|'ghost'|'outlineWhite'|'pill'|'pillDark'|'pillInk'} variant
  *   outlineWhite: borde y texto blancos; al hover se rellena de blanco con
  *   texto oscuro (pensado para fondos oscuros, p. ej. el hero).
  */
@@ -24,9 +24,11 @@ export default function Button({
     // Pildoras estilo "Astra" (para fondos espaciales oscuros).
     pill: 'rounded-full bg-white hover:bg-carbon-gray20',
     pillDark: 'rounded-full border border-white/15 bg-white/10 hover:bg-white/20',
+    // Pildora oscura para fondos claros.
+    pillInk: 'rounded-full bg-carbon-black hover:bg-carbon-gray70',
   };
 
-  const isPill = variant === 'pill' || variant === 'pillDark';
+  const isPill = variant === 'pill' || variant === 'pillDark' || variant === 'pillInk';
 
   const text = {
     primary: 'text-white',
@@ -35,12 +37,13 @@ export default function Button({
     outlineWhite: 'text-white hover:text-carbon-black',
     pill: 'text-carbon-black',
     pillDark: 'text-white',
+    pillInk: 'text-white',
   };
 
   const iconColor =
     variant === 'pill'
       ? '#161616'
-      : variant === 'primary' || variant === 'outlineWhite' || variant === 'pillDark'
+      : variant === 'primary' || variant === 'outlineWhite' || variant === 'pillDark' || variant === 'pillInk'
       ? '#ffffff'
       : variant === 'tertiary'
         ? '#7088b3'

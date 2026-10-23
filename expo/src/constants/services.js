@@ -508,25 +508,83 @@ export async function ask(messages, system = '') {
   {
     id: 'automatizacion',
     icon: 'git-network-outline',
-    title: 'Automatizacion Inteligente',
-    tagline: 'Flujos autonomos con n8n + IA',
+    title: 'Automatización Inteligente',
+    tagline: 'Procesos que corren solos, con IA donde aporta',
     description:
-      'Flujos de trabajo que conectan tus herramientas y ejecutan tareas repetitivas sin intervencion humana.',
+      'Conectamos tus herramientas y dejamos corriendo solos los procesos que hoy tu equipo hace a mano.',
     image: IMAGES.automation,
     intro:
-      'Conectamos las herramientas que ya usas y disenamos flujos que trabajan por ti las 24 horas. Cuando una tarea necesita criterio, un agente de IA toma la decision siguiendo tus reglas.',
+      'Hay tareas que tu equipo repite todos los días: pasar datos de un correo a una hoja, avisarle a un cliente, armar el reporte del lunes. Las convertimos en procesos que corren solos, conectados a las herramientas que ya usas, y ponemos inteligencia artificial solo donde de verdad ahorra horas. Tú ves el resultado; nosotros nos encargamos de que siga funcionando.',
     features: [
-      { icon: 'sync-outline', title: 'Integraciones', text: 'Conecta CRM, correo, hojas de calculo, ERP y mas con n8n.' },
-      { icon: 'sparkles-outline', title: 'Agentes de IA', text: 'Automatiza decisiones y respuestas con modelos de lenguaje.' },
-      { icon: 'time-outline', title: 'Ahorro real', text: 'Recupera horas cada semana eliminando el trabajo manual.' },
+      { icon: 'sync-outline', title: 'Integraciones', text: 'Correo, WhatsApp, hojas de cálculo, tu CRM y tu sistema contable, hablando entre sí.' },
+      { icon: 'sparkles-outline', title: 'IA aplicada', text: 'Lee facturas, clasifica mensajes y redacta respuestas, con una persona revisando lo delicado.' },
+      { icon: 'time-outline', title: 'Horas de vuelta', text: 'Lo que hoy se hace a mano cada semana pasa a hacerse solo.' },
+      { icon: 'shield-checkmark-outline', title: 'Bajo control', text: 'Cada ejecución queda registrada y te avisamos si algo falla.' },
     ],
     deliverables: [
-      'Diagnostico de procesos automatizables',
-      'Flujos configurados y documentados',
-      'Monitoreo y alertas',
-      'Capacitacion a tu equipo',
+      'Diagnóstico de los procesos que más tiempo consumen',
+      'Procesos automatizados funcionando con tus datos reales',
+      'Integración con las herramientas que ya usas',
+      'Tablero de ejecuciones y alertas',
+      'Capacitación y documentación para tu equipo',
+      'Ajustes y soporte después de la puesta en marcha',
     ],
-    bullets: ['Integraciones con n8n', 'Agentes con IA', 'Ahorro de horas/mes'],
+    bullets: ['Integraciones', 'IA aplicada', 'Horas de vuelta'],
+    // Contenido comercial de la pagina del servicio (ver components/ServiceSales.js).
+    venta: {
+      problemas: [
+        {
+          antes: 'Alguien copia a mano los datos de cada factura que llega por correo.',
+          despues: 'La factura se lee sola y sus datos aparecen en tu hoja o en tu sistema.',
+        },
+        {
+          antes: 'Los mensajes de WhatsApp se pierden entre el equipo y nadie sabe quién contestó.',
+          despues: 'Cada mensaje se clasifica, llega a la persona correcta y queda su seguimiento.',
+        },
+        {
+          antes: 'El reporte del lunes se arma a mano, juntando archivos de varias personas.',
+          despues: 'El reporte se genera solo y llega a tu correo a la hora que tú digas.',
+        },
+      ],
+      casos: [
+        { icon: 'mail-outline', titulo: 'Del correo a tu sistema', texto: 'Facturas, pedidos y cotizaciones que llegan por correo se leen y se registran sin que nadie los teclee.' },
+        { icon: 'logo-whatsapp', titulo: 'Atención por WhatsApp', texto: 'Respuestas a lo de siempre, registro del cliente y aviso al equipo cuando hace falta una persona.' },
+        { icon: 'document-text-outline', titulo: 'Reportes que se hacen solos', texto: 'Ventas, inventario o campo: el reporte llega listo, con sus gráficas, cada semana.' },
+        { icon: 'people-outline', titulo: 'Alta y seguimiento de clientes', texto: 'Del formulario a tu CRM, con correo de bienvenida y tareas asignadas al equipo.' },
+      ],
+      proceso: [
+        { titulo: 'Diagnóstico', texto: 'Revisamos contigo cómo se trabaja hoy y elegimos el proceso que más horas te quita.' },
+        { titulo: 'Primer proceso', texto: 'Lo construimos y lo probamos con tus datos reales, no con ejemplos.' },
+        { titulo: 'Puesta en marcha', texto: 'Lo dejamos funcionando, con alertas, y a tu equipo capacitado para usarlo.' },
+        { titulo: 'Crecer', texto: 'Sumamos procesos nuevos sobre lo que ya está dando resultado.' },
+      ],
+      paquetes: [
+        {
+          nombre: 'Arranque',
+          para: 'Un proceso que hoy te quita horas todas las semanas.',
+          incluye: ['Diagnóstico', 'Un proceso automatizado', 'Alertas por correo', 'Capacitación'],
+        },
+        {
+          nombre: 'Operación',
+          destacado: true,
+          para: 'Varios procesos conectados entre sí, con IA donde aporta.',
+          incluye: ['Todo lo de Arranque', 'Varios procesos conectados', 'IA para leer y clasificar', 'Tablero de ejecuciones', 'Soporte mensual'],
+        },
+        {
+          nombre: 'A la medida',
+          para: 'Automatización de punta a punta, integrada a tu sistema.',
+          incluye: ['Todo lo de Operación', 'Integración con tu ERP o sistema propio', 'Agentes de IA con herramientas', 'Acompañamiento continuo'],
+        },
+      ],
+      faq: [
+        { q: '¿Tengo que cambiar las herramientas que ya uso?', a: 'No. Conectamos lo que ya tienes: correo, WhatsApp, hojas de cálculo, tu CRM o tu sistema contable.' },
+        { q: '¿Qué pasa si un proceso falla?', a: 'Cada ejecución queda registrada y nos llega una alerta en cuanto algo no sale. Lo corregimos y te avisamos.' },
+        { q: '¿La IA toma decisiones sola?', a: 'Solo donde tú lo decidas. En lo delicado, la IA propone y una persona de tu equipo aprueba.' },
+        { q: '¿Por dónde conviene empezar?', a: 'Por el proceso que más se repite y más tiempo quita. En el diagnóstico lo identificamos juntos.' },
+      ],
+      cierre: '¿Qué proceso te gustaría dejar de hacer a mano? Cuéntanos y te decimos cómo se vería resuelto.',
+    },
+    // La guia tecnica de este servicio ya no se muestra aqui: vive en Labs.
     guide: [
       {
         step: 1,
@@ -1448,6 +1506,81 @@ ARP (Address Resolution Protocol, RFC 826):
       'Capacitacion del equipo',
     ],
     bullets: ['Diagnostico inicial', 'Roadmap tecnologico', 'Entrenamiento'],
+  },
+  {
+    id: 'monitoreo',
+    icon: 'pulse-outline',
+    title: 'Monitoreo Web',
+    tagline: 'Disponibilidad y flujo bajo control',
+    description:
+      'Vigilancia continua de tu sitio o tu aplicacion, con alertas cuando algo falla.',
+    image: IMAGES.automation,
+    intro:
+      'Dejamos tu aplicacion vigilada las 24 horas: si se cae, se pone lenta o un proceso deja de correr, lo sabemos antes que tus clientes y te avisamos por donde prefieras. Ademas medimos el flujo -- cuanta gente entra, por donde pasa y donde se atora -- para que las decisiones del producto se tomen con numeros y no con suposiciones.',
+    features: [
+      { icon: 'pulse-outline', title: 'Disponibilidad', text: 'Revisiones cada minuto desde varios puntos de la red.' },
+      { icon: 'notifications-outline', title: 'Alertas', text: 'Aviso por WhatsApp o correo apenas algo deja de responder.' },
+      { icon: 'speedometer-outline', title: 'Rendimiento', text: 'Tiempos de carga y de respuesta, con su historico.' },
+      { icon: 'git-network-outline', title: 'Flujo', text: 'Entradas, rutas recorridas y puntos donde se pierde la gente.' },
+    ],
+    deliverables: [
+      'Tablero de estado y metricas en vivo',
+      'Alertas por WhatsApp y correo',
+      'Registro de errores y de trafico de la aplicacion',
+      'Reporte mensual de disponibilidad y rendimiento',
+      'Revision de los flujos criticos del producto',
+    ],
+    bullets: ['Monitoreo 24/7', 'Alertas inmediatas', 'Reporte mensual'],
+  },
+  {
+    id: 'bank-central',
+    icon: 'cash-outline',
+    title: 'Bank Central',
+    tagline: 'Tipo de cambio e indicadores oficiales',
+    description:
+      'Conectamos tus sistemas con los datos del banco central: tipo de cambio, inflacion y tasas, al dia.',
+    image: IMAGES.automation,
+    intro:
+      'El tipo de cambio, la UDI, la inflacion y las tasas de referencia se publican todos los dias, y en la mayoria de las empresas alguien los copia a mano a una hoja de calculo. Conectamos tu sistema directo a la fuente oficial: los datos llegan solos, quedan guardados con su fecha y se pueden consultar, graficar o usar en tus facturas y reportes sin que nadie los teclee.',
+    features: [
+      { icon: 'swap-horizontal-outline', title: 'Tipo de cambio', text: 'El dato oficial de cada dia habil, sin capturarlo a mano.' },
+      { icon: 'trending-up-outline', title: 'Indicadores', text: 'Inflacion, UDIS y tasas de referencia con su historico.' },
+      { icon: 'server-outline', title: 'Historico propio', text: 'Cada dato se guarda en tu base y no dependes de la consulta en vivo.' },
+      { icon: 'alarm-outline', title: 'Avisos', text: 'Alerta cuando un indicador se mueve mas de lo que tu definas.' },
+    ],
+    deliverables: [
+      'Conexion con la fuente oficial de datos',
+      'Base de datos con el historico de cada indicador',
+      'Panel de consulta con graficas',
+      'Alertas por correo o WhatsApp',
+      'Endpoint propio para que tus sistemas lo consuman',
+    ],
+    bullets: ['Tipo de cambio diario', 'Indicadores con historico', 'Alertas configurables'],
+  },
+  {
+    id: 'cripto-world',
+    icon: 'logo-bitcoin',
+    title: 'Cripto World',
+    tagline: 'Precios, carteras y cobros en cripto',
+    description:
+      'Precios en vivo, seguimiento de carteras y cobros en criptomonedas dentro de tu plataforma.',
+    image: IMAGES.automation,
+    intro:
+      'Si tu negocio toca criptomonedas -- porque cobras en ellas, porque las tienes en tesoreria o porque tu producto las muestra -- el problema no es el blockchain, es tener el dato correcto en el momento correcto. Integramos precios en vivo de varios mercados, seguimiento de las carteras que nos indiques y, si lo necesitas, el cobro en cripto con su comprobante y su registro contable.',
+    features: [
+      { icon: 'stats-chart-outline', title: 'Precios en vivo', text: 'Cotizaciones de varios mercados, con conversion a pesos.' },
+      { icon: 'wallet-outline', title: 'Carteras', text: 'Saldos y movimientos de las direcciones que nos indiques.' },
+      { icon: 'card-outline', title: 'Cobros', text: 'Pago en cripto con comprobante y registro para contabilidad.' },
+      { icon: 'shield-checkmark-outline', title: 'Resguardo', text: 'Llaves y accesos separados del resto de la aplicacion.' },
+    ],
+    deliverables: [
+      'Integracion de precios con conversion a moneda local',
+      'Tablero de carteras y movimientos',
+      'Alertas de precio y de movimientos',
+      'Cobro en cripto (opcional) con su comprobante',
+      'Historico guardado para reportes y contabilidad',
+    ],
+    bullets: ['Precios en vivo', 'Seguimiento de carteras', 'Cobros en cripto'],
   },
 ];
 

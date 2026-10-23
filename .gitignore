@@ -1,0 +1,13 @@
+# Configuracion de servidores MCP: trae la API key de Stitch en texto plano.
+# Nunca debe ir al repositorio.
+.mcp.json
+
+# Variables de entorno reales (las plantillas .env.example SI se versionan)
+.env
+.env.local
+.env.*.local
+*.env.viejo
+
+# Credenciales de cuentas de servicio de Google
+*service-account*.json
+*-credentials.json

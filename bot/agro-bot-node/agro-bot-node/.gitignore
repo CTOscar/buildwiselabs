@@ -29,3 +29,16 @@ src/public/js/dist/
 .env
 .env.*
 !.env.example
+
+# Estado del modo mantenimiento (es de cada servidor, no del repo)
+estado/
+
+# Config de servidores MCP: trae la API key de Stitch en texto plano
+.mcp.json
+**/.mcp.json
+
+# Salida de PM2 (ver ecosystem.config.js)
+logs/
+
+# Estado en disco: fotos de perfil, bitacora de errores, modo mantenimiento
+estado/

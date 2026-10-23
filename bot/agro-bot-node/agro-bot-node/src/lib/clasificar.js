@@ -39,7 +39,7 @@ async function clasificarMensaje({ tipo, textoBody, audioBase64, mimeType, modo,
     const r = esAudio
       ? await gemini.extraerCamposTablaForzadaAudio(tabla, audioBase64, mimeType, modeloAudio)
       : await proveedorTexto.extraerCamposTablaForzada(tabla, textoBody || '', modeloTexto);
-    return { tabla, confianza: r.confianza, texto_transcrito: r.texto_transcrito, campos: r.campos };
+    return { tabla, confianza: r.confianza, texto_transcrito: r.texto_transcrito, campos: r.campos, registros: r.registros };
   }
 
   if (modo === 'leer') {

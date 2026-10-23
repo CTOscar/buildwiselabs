@@ -60,10 +60,15 @@ const TOOL_FORZADA = {
       texto_transcrito: { type: 'string' },
       campos: {
         type: 'object',
-        description: 'Unicamente los campos listados en las instrucciones, con las llaves EXACTAS.',
+        description: 'Unicamente los campos listados en las instrucciones, con las llaves EXACTAS. Igual al primer objeto de "registros".',
+      },
+      registros: {
+        type: 'array',
+        description: 'Un objeto por registro (fila) descrito en el mensaje, con las mismas llaves que "campos". Un solo objeto si el mensaje describe un solo registro.',
+        items: { type: 'object' },
       },
     },
-    required: ['confianza', 'texto_transcrito', 'campos'],
+    required: ['confianza', 'texto_transcrito', 'campos', 'registros'],
   },
 };
 
@@ -104,7 +109,9 @@ async function llamarClaudeConTool(prompt, tool, modelo, intento = 1) {
   try {
     const respuesta = await client.messages.create({
       model: modeloDe(modelo),
-      max_tokens: 1024,
+      // 4096 (antes 1024): un mensaje con varios registros devuelve un objeto por fila y
+      // con 1024 la respuesta se cortaba a la mitad.
+      max_tokens: 4096,
       tools: [tool],
       tool_choice: { type: 'tool', name: tool.name },
       messages: [{ role: 'user', content: prompt }],

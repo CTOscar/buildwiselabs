@@ -19,12 +19,20 @@ function parsearRespuestaAuto(data, raw) {
 }
 
 // --- Forzado (pagina web, botones "Agregar Datos"): ya se eligio tabla, solo extrae ---
+// Un mensaje puede traer VARIOS registros (ej. "cuadrilla 1 corto 40, cuadrilla 2
+// corto 35"): llegan en "registros", uno por fila. "campos" se sigue llenando con el
+// primero para no romper a quien solo lee un registro (WhatsApp, codigo viejo).
 function parsearRespuestaForzada(data, raw) {
-  if (!data) return { confianza: 'baja', texto_transcrito: raw || '', campos: {} };
+  if (!data) return { confianza: 'baja', texto_transcrito: raw || '', campos: {}, registros: [{}] };
+  const registros = Array.isArray(data.registros)
+    ? data.registros.filter((r) => r && typeof r === 'object' && !Array.isArray(r))
+    : [];
+  const campos = data.campos || registros[0] || {};
   return {
     confianza: data.confianza || 'baja',
     texto_transcrito: data.texto_transcrito || '',
-    campos: data.campos || {},
+    campos,
+    registros: registros.length ? registros : [campos],
   };
 }
 

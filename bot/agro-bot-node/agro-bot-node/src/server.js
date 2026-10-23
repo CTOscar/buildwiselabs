@@ -18,6 +18,17 @@ const enviarTabCorreoRoute = require('./routes/enviarTabCorreo');
 const actividadEnVivoRoute = require('./routes/actividadEnVivo');
 const monitoreoRoute = require('./routes/monitoreo');
 const usuariosRoute = require('./routes/usuarios');
+const mantenimientoRoute = require('./routes/mantenimiento');
+const bitacoraRoute = require('./routes/bitacora');
+const { compuertaMantenimiento } = require('./middleware/mantenimiento');
+const { capturarConsola, capturarProceso, middlewareErrores } = require('./middleware/errores');
+const { medirTrafico } = require('./middleware/trafico');
+
+// Registro de errores (ver services/errores.js). Se activa lo primero de todo, antes de
+// crear la app: asi tambien quedan registrados los fallos del arranque, que son los que
+// nadie ve porque pasan antes de que haya a quien contestarle.
+capturarConsola();
+capturarProceso();
 
 const app = express();
 
@@ -25,6 +36,11 @@ const app = express();
 // poder mantener las conexiones abiertas -- por eso de aqui para abajo se usa
 // "servidorHttp.listen(...)" en vez de "app.listen(...)".
 const servidorHttp = http.createServer(app);
+
+// Medidor de trafico entrante (ver middleware/trafico.js). Va ARRIBA de todo lo demas
+// para que cuente tambien lo que nunca llega a una ruta: peticiones rechazadas por el
+// modo mantenimiento, por falta de sesion, o direcciones que no existen.
+app.use(medirTrafico);
 
 // Limite alto porque el audio grabado en el navegador llega como base64 dentro del JSON.
 app.use(express.json({ limit: '25mb' }));
@@ -65,6 +81,15 @@ app.get('/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'img', 'favicon.ico'));
 });
 
+// Control del modo mantenimiento. Va ARRIBA de la compuerta a proposito: si estuviera
+// debajo, al activarlo se bloquearia a si mismo y nadie podria volver a encender la app.
+app.use(mantenimientoRoute);
+
+// Compuerta del modo mantenimiento: de aqui para abajo, si esta activo, solo pasan los
+// administradores. Queda despues de /login, del webhook de WhatsApp y de los assets
+// (ver middleware/mantenimiento.js para el porque de cada uno).
+app.use(compuertaMantenimiento);
+
 // De aqui para abajo, todo requiere sesion iniciada.
 app.use(requerirSesion);
 
@@ -74,6 +99,8 @@ app.use(guardarRoute);
 app.use(historialRoute);
 app.use(enviarTabCorreoRoute);
 app.use(actividadEnVivoRoute);
+// Bitacora diaria del campo (/bitacora y /bitacora-datos) -- lee de la base de datos.
+app.use(bitacoraRoute);
 // Panel de monitoreo de los modelos de IA (queda detras de requerirSesion, como todo
 // lo de arriba: expone el modelo configurado y contadores, no es para publico).
 app.use(monitoreoRoute);
@@ -128,8 +155,13 @@ function avisarVariablesFaltantes() {
   }
 }
 
+// Manejador de errores de Express: SIEMPRE al final, despues de todas las rutas. Atrapa
+// lo que truene a mitad de una peticion y que nadie haya atrapado antes, lo registra, y le
+// contesta a quien pregunto sin filtrarle el detalle del error.
+app.use(middlewareErrores);
+
 servidorHttp.listen(config.port, () => {
-  console.log(`Agro PYME bot corriendo en http://localhost:${config.port}/bot-web`);
+  console.log(`La Pedregoza - bot corriendo en http://localhost:${config.port}/bot-web`);
   avisarVariablesFaltantes();
   programarResumenDiario();
   programarResumenSemanal();

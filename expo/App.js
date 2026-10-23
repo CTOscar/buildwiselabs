@@ -34,6 +34,8 @@ const linking = {
       Servicio: 'servicios/:id',
       Docs: 'docs',
       Documento: 'docs/:id',
+      Nosotros: 'nosotros',
+      Labs: 'labs',
       Contacto: 'contacto',
       Login: 'login',
       Perfil: 'perfil',

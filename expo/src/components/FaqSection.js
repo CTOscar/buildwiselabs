@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, Text, View } from 'react-native';
 
-import Starfield from './ui/Starfield';
+import { useColorScheme } from 'nativewind';
 import Button from './ui/Button';
 import { FAQS } from '../constants/home';
 
 /**
  * "Preguntas frecuentes": texto + CTA a la izquierda y acordeon animado a la
  * derecha (altura y rotacion del icono). Diseno base: Stitch.
+ * Sin fondo propio: va sobre el color normal de la pagina, en modo claro y oscuro.
  */
 export default function FaqSection({ navigation }) {
   const [open, setOpen] = useState(0);
+  const { colorScheme } = useColorScheme();
+  const dark = colorScheme === 'dark';
 
   return (
-    <View className="mb-16 overflow-hidden rounded-3xl bg-carbon-night">
-      <Starfield count={50} seed={29} glow={false} />
+    <View className="mb-16">
       <View className="flex-row flex-wrap gap-12 px-5 pb-10 pt-12 md:px-10">
         {/* Columna izquierda */}
         <View className="min-w-[260px] flex-[5]">
@@ -24,20 +26,20 @@ export default function FaqSection({ navigation }) {
               FAQ
             </Text>
           </View>
-          <Text className="mb-4 font-plexlight text-3xl leading-10 text-white md:text-4xl md:leading-[48px]">
+          <Text className="mb-4 font-plexlight text-3xl leading-10 text-carbon-black dark:text-white md:text-4xl md:leading-[48px]">
             Preguntas frecuentes
           </Text>
-          <Text className="mb-8 font-plex text-base leading-7 text-carbon-gray50">
+          <Text className="mb-8 font-plex text-base leading-7 text-carbon-gray70 dark:text-carbon-gray50">
             Lo que necesitas saber sobre nuestros servicios de software a medida y automatización con
             IA para PyMEs.
           </Text>
-          <View className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-            <Text className="mb-4 font-plex text-sm text-carbon-gray20">
+          <View className="rounded-2xl border border-carbon-gray20 bg-carbon-gray10 p-6 dark:border-white/10 dark:bg-white/[0.02]">
+            <Text className="mb-4 font-plex text-sm text-carbon-gray70 dark:text-carbon-gray20">
               ¿Tienes un reto particular o una integración específica?
             </Text>
             <Button
               label="Contactar"
-              variant="pill"
+              variant={dark ? 'pill' : 'pillInk'}
               className="self-start"
               onPress={() => navigation.navigate('Contacto')}
             />
@@ -45,7 +47,7 @@ export default function FaqSection({ navigation }) {
         </View>
 
         {/* Acordeon */}
-        <View className="min-w-[280px] flex-[7] border-y border-carbon-gray90">
+        <View className="min-w-[280px] flex-[7] border-y border-carbon-gray20 dark:border-carbon-gray90">
           {FAQS.map((f, i) => (
             <FaqItem
               key={f.q}
@@ -78,22 +80,24 @@ function FaqItem({ item, open, first, onToggle }) {
   const rotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '45deg'] });
 
   return (
-    <View className={`py-6 ${first ? '' : 'border-t border-carbon-gray90'}`}>
+    <View className={`py-6 ${first ? '' : 'border-t border-carbon-gray20 dark:border-carbon-gray90'}`}>
       <Pressable
         onPress={onToggle}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         className="flex-row items-center justify-between gap-4"
       >
-        <Text className="flex-1 font-plexsemibold text-lg text-white">{item.q}</Text>
+        <Text className="flex-1 font-plexsemibold text-lg text-carbon-black dark:text-white">{item.q}</Text>
         <Animated.View
           style={{ transform: [{ rotate }] }}
           className={`h-8 w-8 items-center justify-center rounded-full border ${
-            open ? 'border-carbon-blue bg-carbon-blue/10' : 'border-white/20'
+            open ? 'border-carbon-blue bg-carbon-blue/10' : 'border-carbon-gray20 dark:border-white/20'
           }`}
         >
           <Text
-            className={`font-plex text-lg leading-5 ${open ? 'text-carbon-blue' : 'text-carbon-gray20'}`}
+            className={`font-plex text-lg leading-5 ${
+              open ? 'text-carbon-blue' : 'text-carbon-gray70 dark:text-carbon-gray20'
+            }`}
           >
             +
           </Text>
@@ -106,7 +110,7 @@ function FaqItem({ item, open, first, onToggle }) {
           className="absolute left-0 right-0 top-0"
           onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
         >
-          <Text className="pt-4 font-plexlight text-base leading-7 text-carbon-gray20">
+          <Text className="pt-4 font-plexlight text-base leading-7 text-carbon-gray70 dark:text-carbon-gray20">
             {item.a}
           </Text>
         </View>

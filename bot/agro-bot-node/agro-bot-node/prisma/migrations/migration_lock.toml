@@ -1,0 +1,3 @@
+# Este archivo le dice a Prisma con que motor se escribieron las migraciones de esta
+# carpeta. Si no coincide con el "provider" de schema.prisma, Prisma se niega a aplicarlas.
+provider = "mysql"

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>esbuild en el Navegador</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
+        pre { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        button { padding: 10px 15px; font-size: 16px; cursor: pointer; background: #007acc; color: white; border: none; border-radius: 4px; }
+        button:disabled { background: #ccc; }
+    </style>
+
+    <script src="https://cloudflare.com"></script>
+</head>
+<body>
+
+    <h1>Ejemplo de esbuild en el Navegador</h1>
+    <p>Este script inicializa el binario WebAssembly de esbuild y compila código dinámicamente.</p>
+    
+    <button id="btn-compilar" disabled>Inicializando esbuild...</button>
+
+    <h3>Resultado de la compilación (Bundled & Minified):</h3>
+    <pre id="output">Esperando inicialización...</pre>
+
+    <script>
+        const btn = document.getElementById('btn-compilar');
+        const output = document.getElementById('output');
+
+        // Código simulado que queremos compilar y empaquetar (soporta JSX y sintaxis moderna)
+        const codigoModulo = `
+            import { sumar } from './mates.js';
+            const Mensaje = () => <div className="box">Resultado: {sumar(10, 5)}</div>;
+            console.log(Mensaje());
+        `;
+
+        const codigoMates = `
+            export const sumar = (a, b) => a + b;
+        `;
+
+        async function iniciarEsbuild() {
+            try {
+                // 2. Inicializar el módulo WebAssembly
+                // Nota: Apuntamos al archivo .wasm que corresponde exactamente a la versión cargada
+                await esbuild.initialize({
+                    wasmURL: 'https://cloudflare.com',
+                });
+
+                btn.innerText = "Compilar Código";
+                btn.disabled = false;
+                output.innerText = "esbuild listo. Haz clic en 'Compilar Código'.";
+
+            } catch (error) {
+                output.innerText = "Error al inicializar esbuild: " + error.message;
+            }
+        }
+
+        async function compilar() {
+            output.innerText = "Compilando...";
+            try {
+                // 3. Crear un plugin simple para interceptar las rutas y servir los archivos desde memoria
+                const pluginEnMemoria = {
+                    name: 'archivos-en-memoria',
+                    setup(build) {
+                        // Intercepta las importaciones relativas
+                        build.onResolve({ filter: /.*/ }, args => {
+                            if (args.path === './main.js' || args.path === './mates.js') {
+                                return { path: args.path, namespace: 'memoria' };
+                            }
+                        });
+
+                        // Carga el código simulado según el archivo solicitado
+                        build.onLoad({ filter: /.*/, namespace: 'memoria' }, args => {
+                            if (args.path === './main.js') {
+                                return { contents: codigoModulo, loader: 'jsx' }; // Soporta JSX
+                            }
+                            if (args.path === './mates.js') {
+                                return { contents: codigoMates, loader: 'js' };
+                            }
+                        });
+                    },
+                };
+
+                // 4. Ejecutar el Bundler
+                const resultado = await esbuild.build({
+                    entryPoints: ['./main.js'],
+                    bundle: true,
+                    minify: true,
+                    format: 'iife', // Formato autoejecutable ideal para navegadores
+                    plugins: [pluginEnMemoria],
+                    write: false, // Evita intentar escribir en el disco local
+                });
+
+                // 5. Mostrar el código resultante en pantalla
+                output.innerText = resultado.outputFiles[0].text;
+
+            } catch (error) {
+                output.innerText = "Error en la compilación:\n" + error.message;
+            }
+        }
+
+        // Vincular el evento al botón
+        btn.addEventListener('click', compilar);
+
+        // Arrancar el proceso de inicialización al cargar la página
+        iniciarEsbuild();
+    </script>
+</body>
+</html>

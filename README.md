@@ -1,148 +1,226 @@
-# Buildwiselabs.net – Servicios IA, Automatización & Redes  <img width="1600" height="1600" alt="WhatsApp Image 2026-08-24 at 7 38 43 PM" src="https://github.com/user-attachments/assets/1871b149-99ce-4c1b-aba1-6ed932db7cf6" />
+<div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="expo/assets/buildwise-light.png">
+  <img alt="BuildWise Labs" src="expo/assets/buildwise-dark.png" width="360">
+</picture>
 
-# Infraesctructura 
+### Automatización, desarrollo web y móvil, redes y ciberseguridad para PyMEs
 
-<p align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="https://icon.icepanel.io/Technology/svg/Cloudflare.svg" alt="Cloudflare" width="50">
-        <br>
-        <strong>Cloudflare</strong>
-      </td>
-      <td align="center">
-        <img src="https://icon.icepanel.io/Technology/svg/Stack-Overflow.svg" alt="Stack Overflow" width="50">
-        <br>
-        <strong>Stack Overflow</strong>
-      </td>
-      <td align="center">
-        <img src="https://icon.icepanel.io/Technology/svg/Git.svg" alt="Git" width="50">
-        <br>
-        <strong>Git</strong>
-      </td>
-      <td align="center">
-        <img src="https://icon.icepanel.io/Technology/png-shadow-512/GitHub.png" alt="GitHub" width="50">
-        <br>
-        <strong>GitHub</strong>
-      </td>
-       <td align="center">
-        <img src="https://icon.icepanel.io/Technology/svg/Chrome.svg" alt="GitHub" width="50">
-        <br>
-        <strong>Chrome</strong>
-      </td>
-       <td align="center">
-        <img src="https://icon.icepanel.io/Technology/png-shadow-512/Apple.png" alt="GitHub" width="50">
-        <br>
-        <strong>Apple</strong>
-       </td>
-    </tr>
-  </table>
-</p>
+[![Sitio web](https://img.shields.io/badge/Web-buildwiselabs.net-9d6b99?style=for-the-badge&logo=googlechrome&logoColor=white)](https://buildwiselabs.net)
+[![Labs](https://img.shields.io/badge/Docs-Labs-7088b3?style=for-the-badge&logo=docusaurus&logoColor=white)](https://buildwiselabs.net/labs)
+[![Email](https://img.shields.io/badge/Contacto-Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contacto@buildwiselabs.net)
 
-**Impulsamos la transformación digital de tu PYME.**  
-Integramos inteligencia artificial, automatización inteligente e infraestructura de redes robusta para que tu negocio opere con la eficiencia y seguridad del siglo XXI.
+</div>
 
 ---
 
-## 🚀 ¿Qué hacemos?
+## 👋 ¿Quiénes somos?
 
-En **NexTech Solutions** (o el nombre de tu empresa), no solo vendemos tecnología; **optimizamos procesos**. Entendemos los desafíos diarios de una PYME y ofrecemos soluciones escalables que se adaptan a tu presupuesto y objetivos.
+**BuildWise Labs** es un laboratorio de soluciones digitales hecho en México. Construimos tecnología de punta a punta: **automatización con IA, desarrollo web y móvil, infraestructura de redes y ciberseguridad**, para que las empresas operen más rápido, conectadas y protegidas.
 
-### 1. 🤖 Inteligencia Artificial (IA)
-- **Chatbots Inteligentes:** Atención al cliente 24/7 vía web y WhatsApp.
-- **Análisis Predictivo:** Anticipa tendencias de ventas y comportamiento de clientes.
-- **Procesamiento de Lenguaje Natural (NLP):** Clasificación automática de correos, tickets y documentos.
-- **Visión por Computador:** Control de calidad automatizado y reconocimiento de patrones.
+> Convertimos procesos complejos en sistemas simples, seguros y escalables.
 
-### 2. ⚙️ Automatización de Procesos
-- **RPA (Robotic Process Automation):** Automatiza tareas repetitivas (facturación, ingreso de datos, reportes).
-- **Integraciones API:** Conectamos tu CRM, ERP y herramientas de marketing en un ecosistema fluido.
-- **Flujos de trabajo inteligentes:** Disparadores automáticos basados en eventos (ej: enviar correo cuando un cliente abandona el carrito).
-- **Automatización de Marketing:** Secuencias de email, segmentación y scoring de leads.
+**Cómo trabajamos**
 
-### 3. 🌐 Redes y Conectividad
-- **Diseño e implementación de redes LAN/WAN:** Para oficinas y sedes distribuidas.
-- **SD-WAN:** Optimización del tráfico y redundancia para trabajar sin interrupciones.
-- **Seguridad Perimetral:** Firewalls de nueva generación, VPNs y Zero Trust.
-- **Monitoreo proactivo:** Alertas tempranas ante caídas o cuellos de botella.
+1. **Primero entendemos.** Antes de proponer herramientas vemos cómo trabaja tu equipo hoy, con qué archivos y en qué pasos se pierde el tiempo.
+2. **Empezamos por lo que más duele.** Dejamos funcionando el proceso más urgente; lo demás se suma encima de algo que ya da resultado.
+3. **Entregamos con capacitación y documentación.** Tu equipo puede operar y cambiar la solución sin depender de nosotros.
 
 ---
 
-## 🎯 ¿Para quién es este servicio?
+## 🧩 Servicios
 
-- PYMES que quieren **reducir costos operativos**.
-- Negocios que buscan **escalar sin aumentar** proporcionalmente su equipo.
-- Empresas con **sedes múltiples** que necesitan conectividad estable y segura.
-- Equipos que desean **tomar decisiones basadas en datos**, no en intuición.
-
----
-
-## 💡 Ventajas competitivas
-
-| Área | Beneficio |
-|------|-----------|
-| **IA** | Respuesta inmediata a clientes y detección de oportunidades ocultas en tus datos. |
-| **Automatización** | Elimina errores humanos y libera a tu equipo para tareas estratégicas. |
-| **Redes** | Cero caídas, velocidad optimizada y protección contra ciberataques. |
-| **Soporte** | Equipo certificado con disponibilidad para resolver incidencias en tiempo real. |
+| | Servicio | Qué resuelve |
+|:-:|---|---|
+| 🤖 | **[Chatbot Inteligente para PyMEs](https://buildwiselabs.net/servicios/chatbot)** | Asistente con IA que atiende por texto y voz, analiza archivos Excel y automatiza consultas. |
+| ⚙️ | **[Automatización Inteligente](https://buildwiselabs.net/servicios/automatizacion)** | Conectamos tus herramientas y dejamos corriendo solos los procesos que hoy se hacen a mano. |
+| 📱 | **[Desarrollo Web / Apps con IA](https://buildwiselabs.net/servicios/apps)** | Aplicaciones web y móviles inteligentes, listas para escalar y desplegar en la nube. |
+| 🛡️ | **[Seguridad y Redes](https://buildwiselabs.net/servicios/redes)** | Servicios de red y evaluación de seguridad para mantener tu infraestructura protegida. |
+| 🧭 | **[Consultoría y Estrategia](https://buildwiselabs.net/servicios/consultoria)** | Diagnóstico, implementación y capacitación para adoptar tecnología. |
+| 📈 | **[Monitoreo Web](https://buildwiselabs.net/servicios/monitoreo)** | Vigilancia continua de tu sitio o aplicación, con alertas cuando algo falla. |
+| 🏦 | **[Bank Central](https://buildwiselabs.net/servicios/bank-central)** | Tus sistemas conectados a los datos del banco central: tipo de cambio, inflación y tasas. |
+| 🪙 | **[Cripto World](https://buildwiselabs.net/servicios/cripto-world)** | Precios en vivo, seguimiento de carteras y cobros en criptomonedas dentro de tu plataforma. |
 
 ---
 
-## 📦 Nuestro proceso de implementación
+## 📚 Labs: documentación
 
-1. **Diagnóstico (1 semana):** Auditoría de tus procesos actuales e infraestructura de red.
-2. **Diseño a medida:** Creamos un plan de ruta con hitos claros y costos transparentes.
-3. **Implementación ágil:** Despliegue en etapas para minimizar el impacto en tu operación.
-4. **Capacitación:** Entrenamos a tu equipo para que aproveche al máximo las nuevas herramientas.
-5. **Soporte continuo:** Mantenimiento, actualizaciones y mejoras constantes.
+**[Labs](https://buildwiselabs.net/labs)** reúne la documentación técnica de lo que construimos: **42 guías** hechas con Docusaurus y publicadas dentro del mismo sitio.
 
----
-
-## 🛠️ Tecnologías que utilizamos
-
-- **IA:** Python, TensorFlow, PyTorch, OpenAI API, LangChain.
-- **Automatización:** UiPath, Make (Integromat), Zapier, N8N, Power Automate.
-- **Redes:** Cisco, MikroTik, Ubiquiti, Palo Alto, Fortinet.
-- **Cloud:** AWS, Azure, Google Cloud (para despliegues híbridos o 100% cloud).
+| Sección | Contenido |
+|---|---|
+| **Primeros pasos** | Requisitos, instalación, cómo levantar un bot, configuración y primer mensaje |
+| **Tools** | APIs disponibles, integraciones n8n, plugins de voz, procesamiento de Excel, webhooks |
+| **Uso y operación** | Chat por texto y voz, reportes de campo, análisis de Excel, OpenWebUI, API, despliegue |
+| **Soporte** | Preguntas frecuentes, solución de problemas, reportar un problema, tiempos de respuesta |
+| **Aprende y comunidad** | Tutoriales, guía de prompts, ejemplos, glosario, casos de uso, hoja de ruta |
+| **Compatibilidad** | Sistemas operativos, kernels, procesadores, GPU, RAM y requisitos de red |
 
 ---
 
-## 📞 Contacto y soporte
+## ✨ Novedades
 
-¿Listo para dar el salto tecnológico?
-
-- 📧 **Email:** ceojesusvillabuildwiselabs@gmail.com (Cambia por tu correo real)
-- 📱 **WhatsApp:** +56 9 XXXX XXXX (Agrega tu número)
-- 🌐 **Web:** [buildwiselabs.net](https://buildwiselabs.net)
-- 🗓️ **Agenda una asesoría gratuita:** [Enlace a Calendly o formulario]
-
----
-
-## 📁 Estructura del repositorio (si aplica)
-
-Si este README pertenece a un proyecto específico (ej: un bot de automatización), aquí puedes detallar:
-
+- **Labs**: la documentación se integró al sitio, con menú lateral completo y enlace directo desde cada servicio.
+- **Tres servicios nuevos**: Monitoreo Web, Bank Central y Cripto World.
+- **Automatización** ahora es una página de venta: qué resolvemos, casos, proceso, paquetes y preguntas frecuentes.
+- **Página Nosotros** y un **footer** nuevo con accesos rápidos, enlaces a todas las guías de Labs y la compatibilidad del chatbot.
+- **Inicio renovado**: cinta de logos animada, sección de herramientas con las apps que usamos todos los días y portadas propias para cada servicio.
+- **Modo claro y oscuro** en todo el sitio, y asistente flotante con su propia pantalla de carga.
 
 ---
 
-## 🤝 ¿Cómo contribuir?
+## 🛠️ Stack tecnológico
 
-Si eres parte del equipo o un colaborador externo:
+<div align="center">
 
-1. Haz un fork del proyecto.
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-automatizacion`).
-3. Realiza tus cambios y haz commit (`git commit -m 'Agrega flujo de facturación'`).
-4. Sube los cambios (`git push origin feature/nueva-automatizacion`).
-5. Abre un Pull Request para revisión.
+**Web y móvil**<br/>
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-1C2024?style=for-the-badge&logo=expo&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Docusaurus](https://img.shields.io/badge/Docusaurus-3ECC5F?style=for-the-badge&logo=docusaurus&logoColor=white)
+
+**IA y automatización**<br/>
+![Claude](https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=claude&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+![Open WebUI](https://img.shields.io/badge/Open_WebUI-111111?style=for-the-badge)
+![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+
+**Backend y datos**<br/>
+![Node.js](https://img.shields.io/badge/Node.js-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-0A0A0A?style=for-the-badge&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+
+**Infraestructura, redes y seguridad**<br/>
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Debian](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white)
+![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Hostinger](https://img.shields.io/badge/Hostinger-673DE6?style=for-the-badge&logo=hostinger&logoColor=white)
+![PM2](https://img.shields.io/badge/PM2-2B037A?style=for-the-badge&logo=pm2&logoColor=white)
+![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=for-the-badge&logo=cisco&logoColor=white)
+![OWASP ZAP](https://img.shields.io/badge/OWASP_ZAP-00549E?style=for-the-badge)
+
+**Herramientas del día a día**<br/>
+![Git](https://img.shields.io/badge/Git-F03C2E?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![Jira](https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=jira&logoColor=white)
+![Notion](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)
+![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge)
+![TradingView](https://img.shields.io/badge/TradingView-131622?style=for-the-badge&logo=tradingview&logoColor=white)
+![MetaTrader 5](https://img.shields.io/badge/MetaTrader_5-22A06B?style=for-the-badge)
+
+</div>
 
 ---
 
-## 📄 Licencia
+## 🗂️ Estructura del repositorio
 
-© 2026 Buildwiselabs. Todos los derechos reservados.  
-Este repositorio y su contenido son propiedad de la empresa y están protegidos por leyes de propiedad intelectual.
+| Carpeta | Qué contiene |
+|---|---|
+| [`expo/`](expo) | Sitio web de BuildWise Labs: Expo + React Native Web + NativeWind, con modo claro y oscuro. Incluye `labs-docs/` (Docusaurus), que se compila dentro del sitio. |
+| [`backend/`](backend) | API en Node.js + Express: registro e inicio de sesión (JWT), formulario de contacto, servicios, likes y documentación por servicio en PostgreSQL. |
+| [`chatbot/`](chatbot) | Chatbot PyME: chat por texto y voz, análisis de archivos Excel y respuestas con IA. Corre con Docker. |
+| [`bot/`](bot) | Bot de reportes de campo: captura por WhatsApp (texto y audio), reportes en Excel y flujos de n8n; versión en Node.js para Hostinger. |
+| [`GUI/`](GUI) | Visor de reportes de campo para escritorio (Python). |
+| [`deploy/`](deploy) | Publicación del backend con Nginx o Caddy, HTTPS y DuckDNS (Linux y Windows/WSL). |
+| [`docker/`](docker) | Configuración de escaneos de seguridad con OWASP ZAP. |
+| [`md/`](md) | Notas técnicas: dominio, Vercel, Nginx, Cloudflare, Expo y más. |
 
 ---
 
-**Hecho con ❤️ para PYMES que quieren crecer sin límites.**
+## ⚡ Inicio rápido
+
+**Sitio web**
+
+```bash
+cd expo
+npm install
+npx expo start --web        # http://localhost:8081
+npm run labs:build          # compila Labs (Docusaurus) dentro del sitio
+```
+
+**API**
+
+```bash
+cd backend
+cp .env.example .env        # pon tus propios valores; nunca subas el .env
+npm install
+npm run db:up && npm run db:seed   # PostgreSQL para la documentación (opcional)
+npm run dev                         # http://localhost:3000
+```
+
+El sitio busca la API en `EXPO_PUBLIC_API_URL` (por defecto `http://localhost:3000`). Si vas a correr el chatbot al mismo tiempo, cambia el puerto de uno de los dos: ambos usan el 3000.
+
+**Chatbot**
+
+```bash
+cd chatbot
+cp .env.example .env
+docker compose up -d --build
+```
+
+**Despliegue**
+
+- **Sitio web** → Vercel (`expo/vercel.json`, compila con `expo export --platform web`). Define `EXPO_PUBLIC_API_URL` con la dirección pública de la API.
+- **API** → servidor propio; los pasos están en [`deploy/`](deploy).
+- **Bot de reportes** → Hostinger con PM2 y MySQL.
+
+---
+
+## 📊 Actividad en GitHub
+
+<div align="center">
+
+<img src="https://github-readme-stats.vercel.app/api?username=oscarmacias2000&show_icons=true&hide_border=true&bg_color=00000000&title_color=9d6b99&icon_color=7088b3&text_color=8d8d8d" alt="Estadísticas de GitHub" height="165">
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=oscarmacias2000&layout=compact&hide_border=true&bg_color=00000000&title_color=9d6b99&text_color=8d8d8d" alt="Lenguajes más usados" height="165">
+
+<img src="https://streak-stats.demolab.com?user=oscarmacias2000&hide_border=true&background=00000000&ring=9d6b99&fire=9d6b99&currStreakLabel=9d6b99&sideLabels=8d8d8d&dates=8d8d8d&sideNums=8d8d8d&currStreakNum=8d8d8d" alt="Racha de contribuciones">
+
+</div>
+
+---
+
+## 🔒 Seguridad
+
+- Los secretos viven solo en archivos `.env` locales; en el repositorio van únicamente las plantillas `.env.example`.
+- `.gitignore` excluye `.env`, `.mcp.json` y las credenciales de cuentas de servicio.
+- ¿Encontraste una vulnerabilidad? Escríbenos a [contacto@buildwiselabs.net](mailto:contacto@buildwiselabs.net) en lugar de abrir un issue público.
+
+---
+
+## 📫 Contacto
+
+<div align="center">
+
+[![Sitio web](https://img.shields.io/badge/Web-buildwiselabs.net-9d6b99?style=for-the-badge&logo=googlechrome&logoColor=white)](https://buildwiselabs.net)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-BuildWise_Labs-0A66C2?style=for-the-badge)](https://www.linkedin.com/company/buildwiselabs)
+[![Instagram](https://img.shields.io/badge/Instagram-@buildwiselabs-FF0069?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/buildwiselabs)
+[![Email](https://img.shields.io/badge/Email-contacto@buildwiselabs.net-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contacto@buildwiselabs.net)
+
+</div>
+
+---
+
+<div align="center">
+
+### *"Construimos sabiamente. Construimos seguro."*
+
+© 2026 BuildWise Labs · Hecho en México 🇲🇽 · Todos los derechos reservados.
+
+</div>

@@ -1,0 +1,10 @@
+Variables de entorno para los servidores MCP (Claude Code las lee del sistema, no de .env).
+En Windows, defínelas una vez con setx y abre una terminal nueva:
+
+  setx GITHUB_PERSONAL_ACCESS_TOKEN "ghp_..."            (GitHub: token personal con acceso al repo)
+  setx PG_DSN "postgres://usuario:clave@localhost:5432/rastreo?sslmode=disable"
+  setx MYSQL_DSN "mysql://usuario:clave@localhost:3306/rastreo"
+  setx STITCH_API_KEY "..."                              (opcional: o usa "npx @_davideast/stitch-mcp init")
+  setx CONTEXT7_API_KEY "..."                            (opcional: más límite de consultas en Context7)
+
+Cloudflare (workers y observability) pide iniciar sesión en el navegador la primera vez (OAuth).

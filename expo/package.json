@@ -35,7 +35,9 @@
     "dev": "nodemon",
     "docs:sync": "node scripts/sync-docs.js",
     "build:web": "expo export --platform web",
-    "vercel-build": "expo export --platform web"
+    "vercel-build": "expo export --platform web",
+    "labs": "npm --prefix labs-docs start",
+    "labs:build": "node scripts/build-labs.js"
   },
   "private": true,
   "devDependencies": {

@@ -7,6 +7,7 @@ module.exports = {
     login: './frontend/js/pages/login.js',
     actividad: './frontend/js/pages/actividad.js',
     monitoreo: './frontend/js/pages/monitoreo.js',
+    bitacora: './frontend/js/pages/bitacora.js',
   },
   output: {
     path: path.resolve(__dirname, 'src/public/js/dist'),

@@ -5,13 +5,11 @@ import { useColorScheme } from 'nativewind';
 
 import Screen from '../components/ui/Screen';
 import Button from '../components/ui/Button';
-import Starfield from '../components/ui/Starfield';
 import CarbonTile from '../components/CarbonTile';
 import HeroSpace from '../components/HeroSpace';
-import ToolsGrid from '../components/ToolsGrid';
 import LikeSection from '../components/LikeSection';
-import ProcessSteps from '../components/ProcessSteps';
 import FaqSection from '../components/FaqSection';
+import LogoCarrusel from '../components/LogoCarrusel';
 import { SERVICES, CARD_SERVICES, RECOMMENDED, PRODUCTS } from '../constants/services';
 
 export default function HomeScreen({ navigation }) {
@@ -19,6 +17,8 @@ export default function HomeScreen({ navigation }) {
   const arrow = colorScheme === 'dark' ? '#f4f4f4' : '#161616';
   return (
     <Screen
+      subfooter
+      prefooter={<LogoCarrusel />}
       hero={(scrollY) => (
         <HeroSpace scrollY={scrollY} navigation={navigation} />
       )}
@@ -60,9 +60,6 @@ export default function HomeScreen({ navigation }) {
       {/* VITRINA DE SERVICIOS (estilo Astra) */}
       <ServiceShowcase navigation={navigation} />
 
-      {/* COMO TRABAJAMOS (proceso paso a paso) */}
-      <ProcessSteps />
-
       {/* PRODUCTOS */}
       <SectionTitle eyebrow="Productos">Tecnologia de vanguardia para tu negocio</SectionTitle>
       <View className="mb-16 flex-row flex-wrap gap-3">
@@ -76,30 +73,26 @@ export default function HomeScreen({ navigation }) {
         ))}
       </View>
 
-      {/* HERRAMIENTAS */}
-      <ToolsGrid />
-
       {/* LIKES */}
       <LikeSection />
 
       {/* PREGUNTAS FRECUENTES */}
       <FaqSection navigation={navigation} />
 
-      {/* CTA FINAL */}
-      <View className="mb-16 overflow-hidden rounded-3xl border border-white/10 bg-carbon-night">
-        <Starfield count={60} seed={21} />
+      {/* CTA FINAL: sin fondo propio, solo el contorno sobre el color de la pagina */}
+      <View className="mb-16 overflow-hidden rounded-3xl border border-carbon-gray20 dark:border-white/10">
         <View className="flex-row flex-wrap items-center justify-between gap-6 p-10 md:p-14">
           <View className="max-w-[480px]">
-            <Text className="font-plex text-xs uppercase tracking-[2px] text-carbon-star">
+            <Text className="font-plex text-xs uppercase tracking-[2px] text-carbon-blue dark:text-carbon-star">
               Hablemos
             </Text>
-            <Text className="mt-3 font-plexlight text-3xl leading-10 text-white md:text-4xl md:leading-[48px]">
+            <Text className="mt-3 font-plexlight text-3xl leading-10 text-carbon-black dark:text-white md:text-4xl md:leading-[48px]">
               Empecemos a construir la proxima etapa de tu empresa
             </Text>
           </View>
           <Button
             label="Contactar"
-            variant="pill"
+            variant={colorScheme === 'dark' ? 'pill' : 'pillInk'}
             onPress={() => navigation.navigate('Contacto')}
           />
         </View>
@@ -119,16 +112,23 @@ const SHORT = {
 };
 
 /** Selector tipo pildora + panel espacial con el servicio elegido. */
+// Para el titulo de la vitrina: "Una plataforma, nueve capacidades".
+const NUMEROS = ['cero', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce'];
+
 function ServiceShowcase({ navigation }) {
   const [active, setActive] = useState(SERVICES[0].id);
   const s = SERVICES.find((x) => x.id === active) || SERVICES[0];
+  const { colorScheme } = useColorScheme();
+  const dark = colorScheme === 'dark';
+  // El numero sale de la lista de servicios, asi no se queda viejo al agregar uno.
+  const cuantos = NUMEROS[SERVICES.length] ?? SERVICES.length;
 
+  // Sin fondo propio: va sobre el color normal de la pagina (blanco u oscuro segun el tema).
   return (
-    <View className="mb-16 overflow-hidden rounded-3xl bg-carbon-night">
-      <Starfield count={70} seed={3} />
+    <View className="mb-16">
       <View className="items-center px-5 pb-10 pt-12 md:px-10">
-        <Text className="text-center font-plexlight text-3xl text-white md:text-4xl">
-          Una plataforma, seis capacidades
+        <Text className="text-center font-plexlight text-3xl text-carbon-black dark:text-white md:text-4xl">
+          Una plataforma, {cuantos} capacidades
         </Text>
 
         {/* Pestanas pildora */}
@@ -138,18 +138,20 @@ function ServiceShowcase({ navigation }) {
           className="mt-8 max-w-full"
           contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         >
-          <View className="flex-row gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+          <View className="flex-row gap-1 rounded-full border border-carbon-gray20 bg-carbon-gray10 p-1 dark:border-white/10 dark:bg-white/5">
             {SERVICES.map((x) => {
               const on = x.id === active;
               return (
                 <Pressable
                   key={x.id}
                   onPress={() => setActive(x.id)}
-                  className={`rounded-full px-4 py-2 ${on ? 'bg-white/15' : 'hover:bg-white/5'}`}
+                  className={`rounded-full px-4 py-2 ${
+                    on ? 'bg-carbon-black dark:bg-white/15' : 'hover:bg-carbon-gray20 dark:hover:bg-white/5'
+                  }`}
                 >
                   <Text
                     className={`font-plexsemibold text-[13px] ${
-                      on ? 'text-white' : 'text-carbon-gray50'
+                      on ? 'text-white' : 'text-carbon-gray70 dark:text-carbon-gray50'
                     }`}
                   >
                     {SHORT[x.id] || x.title}
@@ -161,22 +163,22 @@ function ServiceShowcase({ navigation }) {
         </ScrollView>
 
         {/* Tarjeta del servicio activo */}
-        <View className="mt-8 w-full max-w-3xl rounded-2xl border border-white/10 bg-carbon-nightcard p-8">
+        <View className="mt-8 w-full max-w-3xl rounded-2xl border border-carbon-gray20 bg-carbon-gray10 p-8 dark:border-white/10 dark:bg-carbon-gray90">
           <View className="flex-row items-center gap-3">
-            <View className="h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-              <Ionicons name={s.icon} size={20} color="#93a4c2" />
+            <View className="h-10 w-10 items-center justify-center rounded-xl bg-carbon-blue/10 dark:bg-white/10">
+              <Ionicons name={s.icon} size={20} color={dark ? '#93a4c2' : '#9d6b99'} />
             </View>
-            <Text className="font-plex text-xs uppercase tracking-[2px] text-carbon-star">
+            <Text className="font-plex text-xs uppercase tracking-[2px] text-carbon-blue dark:text-carbon-star">
               {s.tagline}
             </Text>
           </View>
-          <Text className="mt-5 font-plexsemibold text-2xl text-white">{s.title}</Text>
-          <Text className="mt-3 font-plexlight text-base leading-7 text-carbon-gray20">
+          <Text className="mt-5 font-plexsemibold text-2xl text-carbon-black dark:text-white">{s.title}</Text>
+          <Text className="mt-3 font-plexlight text-base leading-7 text-carbon-gray70 dark:text-carbon-gray20">
             {s.description}
           </Text>
           <Button
             label="Ver servicio"
-            variant="pill"
+            variant={dark ? 'pill' : 'pillInk'}
             className="mt-8 self-start"
             onPress={() => navigation.navigate('Servicio', { id: s.id })}
           />

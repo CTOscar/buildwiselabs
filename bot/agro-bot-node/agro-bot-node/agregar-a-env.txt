@@ -1,4 +1,47 @@
+# =====================================================================
+#  Lineas para el .env  --  OJO: son DOS archivos distintos
+# =====================================================================
+#
+#  1) El .env de tu computadora   -> E:\PYME\bot\agro-bot-node\agro-bot-node\.env
+#  2) El .env de Hostinger        -> ~/domains/comanpackagrobot.com/hbuilds/config/.env
+#
+#  NO son intercambiables. La diferencia esta en DATABASE_URL: cada uno apunta a su
+#  propia base. Copiar el de la maquina a Hostinger deja al bot intentando conectarse a
+#  una base que alla no existe, y entonces NADIE puede iniciar sesion (error 500 en el
+#  login). Esto ya paso una vez.
 
-# --- Agregado para Prisma/base de datos (pegar estas 2 lineas al final de tu .env real) ---
+
+# --- En los DOS archivos ---------------------------------------------
+# Sin esta clave las sesiones se invalidan cada vez que se reinicia el bot.
 SESSION_SECRET=e4ada25890da4d32637637c488161ffb32337e0b413f2049bd742d80f2cc5092
-DATABASE_URL="mysql://usuario_db:password_db@host:3306/nombre_db"
+
+
+# --- Solo en el .env de TU COMPUTADORA --------------------------------
+# Apunta al MySQL del docker-compose de este repo.
+# 127.0.0.1 y no "localhost": localhost se resuelve por IPv6 y el reenvio de puertos de
+# Docker Desktop en Windows no contesta por ahi (sintoma: "Can't reach database server").
+# El 3307 es el puerto en tu maquina; dentro del contenedor sigue siendo el 3306.
+DATABASE_URL="mysql://agrobot:agrobot@127.0.0.1:3307/agrobot"
+
+
+# --- Solo en el .env de HOSTINGER -------------------------------------
+# Datos de la base MySQL que creas en el panel de Hostinger (Bases de datos -> MySQL).
+# Desde el servidor la base se alcanza como "localhost", no con una direccion de internet.
+# DATABASE_URL="mysql://USUARIO_DE_HOSTINGER:CLAVE@localhost:3306/NOMBRE_DE_LA_BASE"
+#
+# Mientras no exista esa base, deja la linea COMENTADA (como esta ahora). Sin ella el bot
+# usa el acceso unico compartido (APP_LOGIN_USER / APP_LOGIN_PASSWORD) y todo funciona;
+# lo unico que no habra es bitacora ni cuentas individuales.
+
+
+# --- Carpetas de estado (opcionales, pero importantes en Hostinger) -------
+# Tres cosas se guardan en archivos fuera de la base: las fotos de perfil, la bitacora de
+# errores y el estado del modo mantenimiento. Por defecto van a la carpeta "estado/" del
+# proyecto, que en Hostinger SE REEMPLAZA en cada despliegue -- es decir, se borran cada
+# vez que subes un zip. Apuntalas a una carpeta que persista, fuera del codigo:
+#
+# FOTOS_DIR=/home/USUARIO/domains/comanpackagrobot.com/datos/fotos
+# ERRORES_DIR=/home/USUARIO/domains/comanpackagrobot.com/datos/errores
+# MANTENIMIENTO_ARCHIVO=/home/USUARIO/domains/comanpackagrobot.com/datos/mantenimiento.json
+#
+# Para apagar el registro de errores: REGISTRO_ERRORES=0

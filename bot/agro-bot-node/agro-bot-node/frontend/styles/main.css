@@ -152,3 +152,231 @@
    fondo oscuro del propio input. */
 .dark input, .dark textarea { color: #f5f5f4; }
 .dark input::placeholder, .dark textarea::placeholder { color: #78716c; }
+
+/* ---------------------------------------------------------------------------
+   Tema NEGRO Y AMARILLO + arquitectura estilo Meta Business Suite.
+
+   Solo cambia lo visual: igual que el bloque de modo oscuro de arriba, aqui se
+   recolorean por selector las mismas clases que ya usan el HTML y el JS (bg-stone-900,
+   ring-green-500, amber-*, .pill, .chip, .sidebar-tab...), asi no se toca ni un id ni
+   una clase de la que dependa la logica. Va al final y sin @layer para ganarle a las
+   utilidades con la misma especificidad. Disenado a partir de las pantallas de Stitch
+   (proyecto "Agro PYME Bot – Meta Business Suite"). */
+:root {
+  --negro: #0A0A0A;
+  --negro-2: #171717;
+  --negro-3: #262626;
+  --amarillo: #FACC15;
+  --amarillo-hover: #EAB308;
+  --amarillo-suave: #FEF9C3;
+  --fondo-meta: #F0F2F5;
+}
+
+/* Fondo gris de Meta en vez del stone-50 calido */
+body.bg-stone-50, #splashCarga.bg-stone-50 { background-color: var(--fondo-meta); }
+body.from-stone-50 { background-image: none; background-color: var(--fondo-meta); }
+.dark body.bg-stone-50, .dark #splashCarga.bg-stone-50, .dark body.from-stone-50 { background-color: #0c0a09; }
+
+/* Encabezado blanco con acento amarillo abajo, como la barra de Business Suite */
+body > header.bg-white { box-shadow: inset 0 -2px 0 var(--amarillo); border-bottom-color: transparent; }
+
+/* Tarjetas: radio 12px de Meta en vez de las esquinas muy redondas */
+.card, .card-elevated { border-radius: 12px; }
+
+/* Boton primario: negro con texto amarillo (Entrar, Confirmar y guardar, enviar...) */
+.bg-stone-900.text-white { background-color: var(--negro); color: var(--amarillo); }
+.bg-stone-900.text-white.hover\:bg-black:hover { background-color: var(--negro-3); }
+.dark .bg-stone-900.text-white { background-color: var(--amarillo); color: var(--negro); }
+.dark .bg-stone-900.text-white.hover\:bg-black:hover { background-color: var(--amarillo-hover); }
+
+/* Foco amarillo en inputs/selects/compositor (antes verde). Con "html" delante porque
+   Tailwind acomoda la utilidad verde despues de esta regla y, a igual especificidad,
+   le ganaba. */
+html .focus\:ring-green-500:focus { --tw-ring-color: rgb(250 204 21 / 0.9); }
+html .focus-within\:ring-green-500:focus-within { --tw-ring-color: rgb(250 204 21 / 0.9); }
+html .focus-visible\:ring-green-500:focus-visible { --tw-ring-color: rgb(250 204 21 / 0.9); }
+
+/* Botones de correo/resumen (antes ambar): amarillo suave con texto negro */
+.bg-amber-50.border-amber-200.text-amber-800 { background-color: var(--amarillo-suave); border-color: var(--amarillo); color: var(--negro); }
+.bg-amber-50.border-amber-200.text-amber-800.hover\:bg-amber-100:hover { background-color: #FEF08A; }
+.dark .bg-amber-50.border-amber-200.text-amber-800 { background-color: rgba(250, 204, 21, .12); border-color: #a16207; color: var(--amarillo); }
+.dark .bg-amber-50.border-amber-200.text-amber-800.hover\:bg-amber-100:hover { background-color: rgba(250, 204, 21, .2); }
+
+/* Pastilla activa (Agregar / Leer) en amarillo */
+.pill.activa { background-color: var(--amarillo); color: var(--negro); }
+.dark .pill.activa { background-color: var(--amarillo); color: var(--negro); }
+
+/* Chips: al pasar el mouse, negro con texto amarillo */
+.chip:hover { background-color: var(--negro); color: var(--amarillo); border-color: var(--negro); }
+.dark .chip:hover { background-color: var(--amarillo); color: var(--negro); border-color: var(--amarillo); }
+
+/* Botones grises que al pasar el mouse se iban a negro (Actualizar, Copiar enlace) */
+.hover\:bg-stone-900:hover.hover\:text-white { color: var(--amarillo); }
+
+/* Tabs del sidebar subrayadas en amarillo, estilo tabs de Meta */
+.sidebar-tab.activa { color: var(--negro); box-shadow: inset 0 -3px 0 var(--amarillo); }
+.dark .sidebar-tab.activa { color: #f5f5f4; box-shadow: inset 0 -3px 0 var(--amarillo); }
+
+/* Titulos de seccion del panel (1. Elige la tabla, Avisos...) */
+.panel-heading { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #525252; }
+:where(.panel-heading) { margin-bottom: .75rem; }
+.dark .panel-heading { color: #a3a3a3; }
+
+/* Icono en circulo al inicio del titulo de cada tarjeta (patron de Meta Insights) */
+.icono-card { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; flex-shrink: 0; border-radius: 9999px; background-color: var(--amarillo-suave); color: var(--negro); }
+.icono-card svg { width: 1rem; height: 1rem; }
+.dark .icono-card { background-color: rgba(250, 204, 21, .15); color: var(--amarillo); }
+
+/* Boton "Captura rapida": antes era solo un titulo clickeable; ahora se ve como boton
+   (borde amarillo, fondo, hover negro) para que se note que se despliega. */
+.btn-captura-rapida { padding: .6rem .75rem .6rem .6rem; border-radius: 10px; border: 1px solid var(--amarillo); background-color: var(--amarillo-suave); cursor: pointer; transition: background-color .15s, border-color .15s; }
+.btn-captura-rapida .panel-heading { color: var(--negro); }
+.btn-captura-rapida #iconoCapturaRapida { color: var(--negro); font-size: .85rem; }
+.btn-captura-rapida:hover { background-color: var(--negro); border-color: var(--negro); }
+.btn-captura-rapida:hover .panel-heading, .btn-captura-rapida:hover #iconoCapturaRapida { color: var(--amarillo); }
+.btn-captura-rapida:hover .icono-card { background-color: var(--amarillo); color: var(--negro); }
+.btn-captura-rapida:focus-visible { outline: 2px solid var(--amarillo); outline-offset: 2px; }
+.dark .btn-captura-rapida { background-color: rgba(250, 204, 21, .12); border-color: #a16207; }
+.dark .btn-captura-rapida .panel-heading, .dark .btn-captura-rapida #iconoCapturaRapida { color: var(--amarillo); }
+.dark .btn-captura-rapida:hover { background-color: var(--amarillo); border-color: var(--amarillo); }
+.dark .btn-captura-rapida:hover .panel-heading, .dark .btn-captura-rapida:hover #iconoCapturaRapida { color: var(--negro); }
+.dark .btn-captura-rapida:hover .icono-card { background-color: var(--negro); color: var(--amarillo); }
+
+/* Captura de VARIAS filas (Captura rapida y "Revisa antes de guardar"): barra con
+   1 / 3 / 5 / 10 filas + "Agregar fila", y una tarjeta por fila con Duplicar / Quitar. */
+.barra-filas { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .5rem; border-radius: 10px; border: 1px solid #E5E5E5; background-color: #FAFAFA; }
+.barra-filas[hidden] { display: none; }
+.barra-filas-titulo { display: inline-flex; align-items: center; gap: .35rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #525252; }
+.barra-filas-opcion { min-width: 2rem; height: 1.9rem; padding: 0 .5rem; border-radius: 8px; border: 1px solid #E5E5E5; background-color: #fff; font-size: .8rem; font-weight: 700; color: #404040; transition: background-color .15s, color .15s, border-color .15s; }
+.barra-filas-opcion:hover { border-color: var(--negro); }
+.barra-filas-opcion.activa { background-color: var(--amarillo); border-color: var(--amarillo); color: var(--negro); }
+.barra-filas-agregar { display: inline-flex; align-items: center; gap: .35rem; height: 1.9rem; padding: 0 .7rem; border-radius: 8px; background-color: var(--negro); color: var(--amarillo); font-size: .75rem; font-weight: 700; transition: background-color .15s; }
+.barra-filas-agregar:hover { background-color: var(--negro-3); }
+.barra-filas-agregar[hidden] { display: none; }
+.barra-filas-contador { margin-left: auto; font-size: .7rem; font-weight: 600; color: #737373; }
+.fila-lote { border: 1px solid #E5E5E5; border-left: 4px solid var(--amarillo); border-radius: 10px; padding: .75rem; background-color: #fff; }
+.fila-lote-cabeza { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .6rem; }
+.fila-lote-num { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--negro); }
+.fila-lote-btn { display: inline-flex; align-items: center; gap: .25rem; padding: .25rem .5rem; border-radius: 6px; font-size: .7rem; font-weight: 600; color: #525252; background-color: #F5F5F5; transition: background-color .15s, color .15s; }
+.fila-lote-btn:hover { background-color: var(--negro); color: var(--amarillo); }
+.fila-lote-btn-quitar:hover { background-color: #DC2626; color: #fff; }
+/* Ventana de chat del bot, compacta estilo Messenger: ancho limitado y centrada en
+   escritorio (en movil ocupa todo), conversacion con scroll propio y compositor abajo. */
+.chat-ventana { width: 100%; max-width: 46rem; margin-left: auto; margin-right: auto; }
+.chat-tarjeta { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+@media (min-width: 768px) {
+  .chat-tarjeta { height: min(44rem, calc(100vh - 13rem)); min-height: 26rem; }
+}
+.chat-cabeza { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; padding: .75rem 1rem; border-bottom: 1px solid #F0F0F0; }
+.chat-avatar { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; flex-shrink: 0; border-radius: 9999px; background-color: var(--negro); }
+.chat-avatar img { width: 1.6rem; height: 1.6rem; object-fit: contain; }
+.chat-avatar-punto { position: absolute; right: 0; bottom: 0; width: .7rem; height: .7rem; border-radius: 9999px; background-color: #22C55E; box-shadow: 0 0 0 2px #fff; }
+.chat-nombre { font-size: .9rem; font-weight: 700; color: var(--negro); line-height: 1.2; }
+.chat-subtitulo { font-size: .68rem; font-weight: 600; color: #737373; text-transform: uppercase; letter-spacing: .04em; }
+.chat-conversacion { flex: 1 1 auto; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .6rem; background-color: #FAFAFA; min-height: 12rem; }
+.chat-fila { display: flex; align-items: flex-end; gap: .5rem; }
+.chat-fila[hidden] { display: none; }
+.chat-fila-usuario { justify-content: flex-end; }
+.chat-fila-respuesta:has(> #estado[hidden]) { display: none; }
+.chat-mini-avatar { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; flex-shrink: 0; border-radius: 9999px; background-color: var(--negro); }
+.chat-mini-avatar img { width: 1.1rem; height: 1.1rem; object-fit: contain; }
+.chat-burbuja { max-width: min(85%, 32rem); padding: .6rem .85rem; font-size: .875rem; line-height: 1.4; word-break: break-word; }
+.chat-burbuja-bot { background-color: #fff; color: #171717; border: 1px solid #ECECEC; border-radius: 18px 18px 18px 4px; }
+.chat-burbuja-usuario { background-color: var(--negro); color: #fff; border-radius: 18px 18px 4px 18px; white-space: pre-wrap; }
+/* La respuesta del bot (#estado) se pinta como burbuja; las consultas con tablas usan
+   todo el ancho disponible de la conversacion. */
+.chat-fila-respuesta > #estado { margin-top: 0; max-width: min(85%, 32rem); border-radius: 18px 18px 18px 4px; }
+.chat-fila-respuesta > #estado.space-y-3 { flex: 1 1 auto; max-width: calc(100% - 2.25rem); min-width: 0; }
+.chat-compositor { margin: .75rem; border-radius: 9999px; background-color: var(--fondo-meta); }
+.dark .chat-cabeza { border-bottom-color: #292524; }
+.dark .chat-nombre { color: #f5f5f4; }
+.dark .chat-avatar-punto { box-shadow: 0 0 0 2px #1c1917; }
+.dark .chat-conversacion { background-color: #0c0a09; }
+.dark .chat-burbuja-bot { background-color: #1c1917; color: #f5f5f4; border-color: #292524; }
+.dark .chat-burbuja-usuario { background-color: var(--amarillo); color: var(--negro); }
+.dark .chat-compositor { background-color: #1c1917; }
+
+/* Bitacora diaria del campo */
+.bitacora-nav { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 8px; border: 1px solid #E5E5E5; background-color: #fff; color: #404040; transition: background-color .15s, color .15s; }
+.bitacora-nav:hover { background-color: var(--negro); color: var(--amarillo); border-color: var(--negro); }
+.bitacora-chip { display: inline-flex; align-items: center; padding: .15rem .55rem; border-radius: 9999px; font-size: .7rem; font-weight: 700; background-color: var(--amarillo-suave); color: var(--negro); }
+.bitacora-chip-alerta { background-color: #FEE2E2; color: #B91C1C; }
+.bitacora-alerta { color: #B91C1C; }
+.bitacora-linea { position: relative; margin-left: .45rem; padding-left: 1.1rem; border-left: 2px solid #E5E5E5; display: flex; flex-direction: column; gap: .85rem; }
+.bitacora-entrada { position: relative; }
+.bitacora-entrada::before { content: ''; position: absolute; left: calc(-1.1rem - 6px); top: .3rem; width: 10px; height: 10px; border-radius: 9999px; background-color: var(--amarillo); box-shadow: 0 0 0 3px #fff; }
+.bitacora-entrada.con-incidencia::before { background-color: #DC2626; }
+.dark .bitacora-nav { background-color: #292524; border-color: #44403c; color: #e7e5e4; }
+.dark .bitacora-nav:hover { background-color: var(--amarillo); color: var(--negro); }
+.dark .bitacora-chip { background-color: rgba(250, 204, 21, .15); color: var(--amarillo); }
+.dark .bitacora-chip-alerta { background-color: rgba(220, 38, 38, .2); color: #fca5a5; }
+.dark .bitacora-alerta { color: #fca5a5; }
+.dark .bitacora-linea { border-left-color: #44403c; }
+.dark .bitacora-entrada::before { box-shadow: 0 0 0 3px #1c1917; }
+
+/* Campo heredado de la Fila 1: fondo amarillo muy suave + etiqueta "de Fila 1", para que
+   se note que se llena solo (y que si se cambia a mano, esa fila deja de seguirla). */
+.campo-heredado > label::after { content: ' · de Fila 1'; text-transform: none; letter-spacing: 0; font-weight: 600; color: #A16207; }
+.campo-heredado > input, .campo-heredado > select { background-color: #FEFCE8; border-color: #FDE68A; }
+.dark .campo-heredado > label::after { color: var(--amarillo); }
+.dark .campo-heredado > input, .dark .campo-heredado > select { background-color: rgba(250, 204, 21, .08); border-color: #713f12; }
+.dark .barra-filas { background-color: #1c1917; border-color: #44403c; }
+.dark .barra-filas-titulo, .dark .barra-filas-contador { color: #a3a3a3; }
+.dark .barra-filas-opcion { background-color: #292524; border-color: #44403c; color: #e7e5e4; }
+.dark .barra-filas-opcion.activa { background-color: var(--amarillo); border-color: var(--amarillo); color: var(--negro); }
+.dark .barra-filas-agregar { background-color: var(--amarillo); color: var(--negro); }
+.dark .barra-filas-agregar:hover { background-color: var(--amarillo-hover); }
+.dark .fila-lote { background-color: #1c1917; border-color: #44403c; border-left-color: var(--amarillo); }
+.dark .fila-lote-num { color: var(--amarillo); }
+.dark .fila-lote-btn { background-color: #292524; color: #d6d3d1; }
+
+/* Splash de carga (mango-logo + skeleton): la barra brilla en amarillo con el tema nuevo.
+   Los skeleton-line de contenido siguen en gris neutro. */
+#splashCarga .skeleton-bar {
+  background: linear-gradient(90deg, #FEF08A 25%, #FACC15 37%, #FEF08A 63%);
+  background-size: 400% 100%;
+}
+.dark #splashCarga .skeleton-bar {
+  background: linear-gradient(90deg, #262626 25%, #FACC15 37%, #262626 63%);
+  background-size: 400% 100%;
+}
+
+/* Login de dos columnas: logo de La Pedregoza sobre negro (su PNG trae fondo negro) y
+   acento amarillo en el texto de la foto. */
+.login-logo { display: inline-flex; align-items: center; padding: .35rem .6rem; border-radius: 8px; background-color: var(--negro); }
+.login-acento { color: var(--amarillo); }
+.login-enlace { font-weight: 700; color: var(--negro); text-decoration: underline; text-decoration-color: var(--amarillo); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.login-enlace:hover { background-color: var(--amarillo-suave); }
+.dark .login-enlace { color: var(--amarillo); }
+.dark .login-enlace:hover { background-color: rgba(250, 204, 21, .12); }
+.login-aviso { padding: .75rem 1rem; border-radius: 8px; border: 1px solid var(--amarillo); background-color: var(--amarillo-suave); color: var(--negro); font-size: .85rem; }
+.dark .login-aviso { background-color: rgba(250, 204, 21, .12); border-color: #a16207; color: var(--amarillo); }
+
+/* Riel de navegacion izquierdo (Meta Business Suite): negro, solo iconos + etiqueta.
+   En movil se oculta y la navegacion sigue igual que antes (menus del header). */
+.rail { display: none; }
+@media (min-width: 768px) {
+  body.con-rail { padding-left: 72px; }
+  .rail {
+    display: flex; flex-direction: column; align-items: center; gap: .25rem;
+    position: fixed; top: 0; bottom: 0; left: 0; z-index: 35; width: 72px;
+    padding: .75rem 0; background-color: var(--negro); border-right: 1px solid var(--negro-3);
+  }
+}
+.rail-logo { display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; margin-bottom: .75rem; border-radius: 12px; background-color: var(--negro-2); border: 1px solid var(--negro-3); }
+.rail-logo img { width: 1.75rem; height: 1.75rem; object-fit: contain; }
+.rail-item { display: flex; flex-direction: column; align-items: center; gap: .2rem; width: 64px; padding: .4rem 0; border-radius: 10px; color: #A3A3A3; font-size: 10px; font-weight: 600; line-height: 1; transition: color .15s, background-color .15s; }
+.rail-item[hidden] { display: none; }
+.rail-item .rail-icono { display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2rem; border-radius: 9999px; transition: background-color .15s; }
+.rail-item svg { width: 1.3rem; height: 1.3rem; }
+.rail-item:hover { color: #fff; }
+.rail-item:hover .rail-icono { background-color: var(--negro-3); }
+.rail-item.activa { color: #fff; }
+.rail-item.activa .rail-icono { background-color: var(--amarillo); color: var(--negro); }
+.rail-fin { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+.rail-fin img { width: 1.25rem; height: 1.25rem; opacity: .8; }
+
+/* Pantalla de carga al entrar desde el login (/bot-web?entrando=1). El div nace con
+   "hidden" para que la navegacion normal entre paginas no lo vea; esta regla es la unica
+   que lo muestra, y necesita !important porque [hidden] fuerza display:none. */
+html.entrando #splashEntrada { display: flex !important; }

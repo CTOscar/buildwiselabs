@@ -16,6 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 
+import CargaChatbot from './ui/CargaChatbot';
 import { reply, WELCOME } from '../../bot/miniBot';
 import { CHATBOT_URL } from '../constants/chatbot';
 
@@ -47,6 +48,8 @@ export default function MiniBot({ navigationRef }) {
   const [text, setText] = useState('');
   const [typing, setTyping] = useState(false);
   const [hint, setHint] = useState(false);
+  const [cargando, setCargando] = useState(false); // pantalla de carga al abrir el panel
+  const estabaAbierto = useRef(false); // para no repetir la carga al reducir el panel
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const pop = useRef(new Animated.Value(0)).current;
@@ -98,16 +101,22 @@ export default function MiniBot({ navigationRef }) {
       useNativeDriver: false,
     }).start();
     if (open || large) setHint(false);
+    // La pantalla de carga sale cuando el asistente "despierta": al abrirlo desde el
+    // boton de abajo y al agrandarlo. Al volver del panel grande al pequeno NO sale --
+    // es la misma conversacion, solo cambia de tamano, y repetirla ahi estorba.
+    const abierto = open || large;
+    if (abierto && (!estabaAbierto.current || large)) setCargando(true);
+    estabaAbierto.current = abierto;
   }, [open, large, pop]);
 
   // Foco en la caja de texto al abrir cualquiera de los paneles.
   useEffect(() => {
-    if ((open || (large && tab === 'quick')) && !typing) {
+    if ((open || (large && tab === 'quick')) && !typing && !cargando) {
       const id = setTimeout(() => inputRef.current?.focus?.(), 250);
       return () => clearTimeout(id);
     }
     return undefined;
-  }, [open, large, tab, typing]);
+  }, [open, large, tab, typing, cargando]);
 
   // Escape: del panel grande vuelve al pequeno; del pequeno, cierra (web).
   useEffect(() => {
@@ -332,6 +341,9 @@ export default function MiniBot({ navigationRef }) {
           </View>
 
           {tab === 'quick' ? chat(true) : <FullChat onQuick={() => setTab('quick')} />}
+
+          {/* Carga: cubre el panel grande mientras arranca, igual que el pequeno. */}
+          {cargando ? <CargaChatbot onListo={() => setCargando(false)} /> : null}
         </View>
       </View>
     );
@@ -385,6 +397,10 @@ export default function MiniBot({ navigationRef }) {
           <Ionicons name="sparkles-outline" size={12} color="#c498c2" />
           <Text className="font-plex text-xs text-carbon-gray20">Abrir chatbot IA completo</Text>
         </Pressable>
+
+        {/* Carga: cubre el panel mientras "arranca" el asistente. Va dentro del panel
+            (y no a pantalla completa) para que solo tape el recuadro del bot. */}
+        {open && cargando ? <CargaChatbot onListo={() => setCargando(false)} /> : null}
       </Animated.View>
 
       {/* Burbuja de invitacion */}

@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tractor 3D Rastreo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: escenario 3D a sangre con HUD encima; panel de componentes a la derecha (debajo en móvil) */
+:root{
+  --bg:#0f1416; --panel:#151c1e; --raise:#1d2628; --line:#273133; --fg:#e8ecea; --muted:#93a09b;
+  --accent:#f2a33a; --red:#e8584a; --yel:#f2c13a; --grn:#3fbf86; --blu:#4f8ff0; --vio:#a58cf0; --steel:#a9b4b6;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+.t3d{display:grid;grid-template-columns:minmax(0,1fr) 340px;background:var(--bg);border-block:1px solid var(--line)}
+@media (max-width:880px){.t3d{grid-template-columns:1fr}}
+.stage{position:relative;height:clamp(460px,78vh,780px);overflow:hidden;min-width:0}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hud-top{position:absolute;top:0;left:0;right:0;padding-block:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;pointer-events:none}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.hud-top h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.6vw,40px);line-height:1.02;margin:4px 0 0;max-width:16ch;text-wrap:balance;letter-spacing:.01em}
+.meter{display:grid;gap:2px;justify-items:end;text-align:right}
+.meter .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meter .v{font-family:var(--mono);font-size:24px;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font:600 11px var(--mono);padding:2px 8px;border-radius:99px;letter-spacing:.05em;text-transform:uppercase;border:1px solid currentColor}
+.chip.on{color:var(--grn)} .chip.off{color:var(--muted)}
+.toolbar{position:absolute;left:0;bottom:0;padding-block:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar button{background:rgba(15,20,22,.82);border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:8px 13px;font:500 13px var(--body);cursor:pointer;backdrop-filter:blur(6px)}
+.toolbar button:hover{border-color:var(--muted)}
+.toolbar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.hint{font-size:12px;color:var(--muted)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pins{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;border:2px solid var(--accent);background:rgba(15,20,22,.9);color:var(--accent);font:600 12px var(--mono);display:grid;place-items:center;cursor:pointer;pointer-events:auto;padding:0;transition:background .2s,color .2s}
+.pin:hover,.pin.sel{background:var(--accent);color:var(--bg)}
+.info{background:var(--panel);border-left:1px solid var(--line);padding-block:20px;display:grid;gap:16px;align-content:start;min-width:0}
+@media (max-width:880px){.info{border-left:0;border-top:1px solid var(--line)}}
+.info h2{font-family:var(--display);font-weight:600;font-size:21px;margin:0;letter-spacing:.02em}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.list button{width:100%;display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;text-align:left;background:transparent;border:0;color:var(--fg);padding:7px 8px;border-radius:6px;cursor:pointer;font:500 14px var(--body)}
+.list button:hover{background:var(--raise)}
+.list button[aria-current="true"]{background:var(--raise)}
+.num{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center;font:600 11px var(--mono)}
+.list button[aria-current="true"] .num{background:var(--accent);color:var(--bg)}
+.sw{width:16px;border-top:3px solid;display:inline-block}
+.card{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:8px}
+.card .tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.card h3{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.05;margin:0}
+.card p{margin:0;color:#c9d1ce;max-width:46ch}
+.card .conn{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);padding:24px}
+</style>
+</head>
+<body>
+<section class="t3d" aria-label="Modelo 3D del tractor con rastreador">
+  <div class="stage" id="stage">
+    <canvas id="c" aria-label="Tractor en 3D: arrastra para girar"></canvas>
+    <div class="pins" id="pins"></div>
+    <div class="hud-top gut">
+      <div>
+        <div class="eyebrow">Rastreo y medición de maquinaria</div>
+        <h1>Cada hora de motor, medida sola</h1>
+      </div>
+      <div class="meter" aria-live="polite">
+        <span class="k">Horas de motor · TRC-0012</span>
+        <span class="v" id="hours">3,412.0 h</span>
+        <span id="state"><span class="chip off">motor apagado</span></span>
+      </div>
+    </div>
+    <div class="toolbar gut">
+      <button type="button" id="bEng" aria-pressed="false">Encender motor</button>
+      <button type="button" id="bX" aria-pressed="true">Rayos X</button>
+      <button type="button" id="bHome">Vista general</button>
+      <span class="hint">Arrastra para girar · toca un número</span>
+    </div>
+  </div>
+  <aside class="info gut">
+    <h2>Componentes</h2>
+    <ol class="list" id="list"></ol>
+    <article class="card" id="card" aria-live="polite"></article>
+  </aside>
+</section>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $=id=>document.getElementById(id);
+const stage=$('stage'), canvas=$('c'), pinsEl=$('pins');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const COMPS=[
+  {id:'tracker',n:'Rastreador en caja IP67',tag:'Teltonika FMC130 / FMC150',sw:'--accent',
+   d:'Va dentro de la cabina, en una caja sellada. Tiene GPS, módem LTE y batería interna. Recibe todas las señales del tractor y las envía al servidor.',
+   c:'Alimentación · tierra · D+ · CAN · Bluetooth',a:[-1.42,1.95,0],o:[-2.1,0.55,1.5]},
+  {id:'battery',n:'Batería',tag:'12 V o 24 V',sw:'--red',
+   d:'Alimenta el rastreador de forma directa y con fusible, para que siga activo con el tractor apagado y pueda avisar de un robo.',
+   c:'Cable rojo · fusible F1 1–2 A',a:[0.3,1.05,-0.62],o:[0.9,0.6,-2.0]},
+  {id:'alt',n:'Alternador (D+)',tag:'Señal de motor en marcha',sw:'--yel',
+   d:'El borne D+ solo tiene voltaje cuando el motor gira. Así no se cuentan horas con la llave abierta y el motor apagado.',
+   c:'Cable amarillo · DIN1 · fusible F2',a:[1.95,1.28,0.5],o:[1.3,0.5,1.8]},
+  {id:'tank',n:'Tanque con sonda BLE',tag:'Sonda capacitiva inalámbrica',sw:'--blu',
+   d:'Calibrada litro por litro. Envía el nivel por Bluetooth, sin cable. Detecta cargas de pipa y extracciones con el motor apagado.',
+   c:'Bluetooth · tractores de nivel A',a:[0.35,1.05,0.66],o:[0.6,0.6,2.0]},
+  {id:'can',n:'Conector J1939',tag:'Computadora del motor',sw:'--grn',
+   d:'En tractores modernos el rastreador lee de la ECU las horas reales, las RPM y el consumo de diésel, sin necesidad de sonda.',
+   c:'Cable verde · CAN H / CAN L · nivel B',a:[0.02,1.45,-0.42],o:[0.5,0.7,-2.0]},
+  {id:'seal',n:'Sello de acero con folio',tag:'Antimanipulación',sw:'--steel',
+   d:'Cierra la caja y el conector. Si en la ronda el folio no coincide con el registrado, alguien abrió el equipo.',
+   c:'Folio registrado en el sistema',a:[-1.35,2.14,0.22],o:[-1.4,0.4,1.1]},
+  {id:'cell',n:'Red celular M2M',tag:'Datos al servidor',sw:'--vio',
+   d:'Reporta cada 60 s en movimiento y cada 30 min detenido. Si no hay señal, guarda en memoria y reenvía al recuperarla.',
+   c:'Chip M2M · LTE · servidor propio',a:[-1.2,3.25,0],o:[3.2,2.0,3.4]}
+];
+const INTRO={tag:'Cómo funciona',n:'Horas, diésel y ubicación sin capturar el horómetro',
+  d:'Cada tractor lleva un rastreador conectado a la batería, al alternador y, según el modelo, a la computadora del motor o a una sonda en el tanque. Toca un número para ver cada pieza.',
+  c:'85 tractores · datos en servidor propio'};
+
+/* ---------- UI ---------- */
+const listEl=$('list'), cardEl=$('card');
+COMPS.forEach((c,i)=>{
+  const li=document.createElement('li');
+  li.innerHTML=`<button type="button" data-id="${c.id}" aria-current="false"><span class="num">${i+1}</span><span>${c.n}</span><span class="sw" style="border-color:var(${c.sw})"></span></button>`;
+  listEl.appendChild(li);
+  const p=document.createElement('button');
+  p.type='button'; p.className='pin'; p.textContent=i+1; p.dataset.id=c.id; p.setAttribute('aria-label',c.n);
+  pinsEl.appendChild(p); c.pin=p;
+});
+function renderCard(c){
+  cardEl.innerHTML=`<span class="tag"></span><h3></h3><p></p><span class="conn"><span class="sw"></span><span class="ct"></span></span>`;
+  cardEl.querySelector('.tag').textContent=c.tag;
+  cardEl.querySelector('h3').textContent=c.n;
+  cardEl.querySelector('p').textContent=c.d;
+  cardEl.querySelector('.ct').textContent=c.c;
+  cardEl.querySelector('.sw').style.borderColor=c.sw?`var(${c.sw})`:'var(--accent)';
+}
+renderCard(INTRO);
+
+/* ---------- escena ---------- */
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({canvas,antialias:true}); }
+catch(e){ stage.insertAdjacentHTML('beforeend','<div class="nogl">Tu navegador no pudo iniciar la vista 3D. Prueba con otro navegador o activa la aceleración por hardware.</div>'); throw e; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const BG=0x0f1416;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(BG); scene.fog=new THREE.Fog(BG,12,27);
+const camera=new THREE.PerspectiveCamera(36,1,0.1,100);
+const HOME={pos:new THREE.Vector3(5.6,3.4,5.8),target:new THREE.Vector3(0.2,1.35,0)};
+camera.position.copy(HOME.pos);
+const controls=new OrbitControls(camera,canvas);
+controls.target.copy(HOME.target); controls.enableDamping=true; controls.dampingFactor=0.08;
+controls.minDistance=1.6; controls.maxDistance=13; controls.maxPolarAngle=Math.PI*0.48; controls.enablePan=false;
+controls.autoRotate=!reduce; controls.autoRotateSpeed=0.5;
+controls.addEventListener('start',()=>{controls.autoRotate=false;anim=null;});
+
+scene.add(new THREE.HemisphereLight(0xdde6f0,0x2b2621,1.1));
+const sun=new THREE.DirectionalLight(0xfff4e6,2.3); sun.position.set(5,9,4); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6,near:1,far:25});
+scene.add(sun);
+const back=new THREE.DirectionalLight(0x8fb4ff,0.7); back.position.set(-6,4,-5); scene.add(back);
+
+const ground=new THREE.Mesh(new THREE.CircleGeometry(16,72),new THREE.MeshStandardMaterial({color:0x1b2320,roughness:1}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+const rowMat=new THREE.MeshStandardMaterial({color:0x27312b,roughness:1});
+for(let i=-9;i<=9;i++){ if(Math.abs(i)<=1) continue;
+  const r=new THREE.Mesh(new THREE.BoxGeometry(24,0.07,0.3),rowMat); r.position.set(0,0.035,i*0.85); r.receiveShadow=true; scene.add(r); }
+
+const tractor=new THREE.Group(); scene.add(tractor);
+const bodyMats=[];
+const mat=(color,o={})=>{const m=new THREE.MeshStandardMaterial({color,roughness:0.5,metalness:0.2,transparent:true,...o}); bodyMats.push(m); return m;};
+const mBody=mat(0x4b6a74), mFender=mat(0x4b6a74,{side:THREE.DoubleSide}), mDark=mat(0x23292b,{roughness:0.8}),
+      mTire=mat(0x151718,{roughness:0.95,metalness:0}), mRim=mat(0xd9a23a,{metalness:0.4}), mSteel=mat(0x8b979a,{metalness:0.6,roughness:0.35});
+function add(geo,m,x,y,z,parent=tractor){const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o;}
+
+// chasis, cofre, parrilla
+add(new THREE.BoxGeometry(3.6,0.38,0.72),mDark,0.45,0.92,0);
+add(new THREE.BoxGeometry(1.95,0.66,0.82),mBody,1.32,1.43,0);
+add(new THREE.BoxGeometry(0.05,0.54,0.68),mDark,2.31,1.41,0);
+add(new THREE.BoxGeometry(0.5,0.1,1.7),mDark,1.65,0.6,0); // eje delantero
+// cabina
+add(new THREE.BoxGeometry(1.9,0.12,1.5),mDark,-0.6,1.3,0);
+[[0.3,0.68],[0.3,-0.68],[-1.5,0.68],[-1.5,-0.68]].forEach(([x,z])=>add(new THREE.BoxGeometry(0.07,1.62,0.07),mBody,x,2.13,z));
+add(new THREE.BoxGeometry(2.05,0.12,1.62),mBody,-0.6,3.0,0);
+const glass=new THREE.MeshStandardMaterial({color:0x9cc4d4,transparent:true,opacity:0.12,roughness:0.1,metalness:0,depthWrite:false,side:THREE.DoubleSide});
+[[-0.6,2.13,0.68,1.8,1.55,0.01],[-0.6,2.13,-0.68,1.8,1.55,0.01],[0.3,2.13,0,0.01,1.55,1.36],[-1.5,2.13,0,0.01,1.55,1.36]]
+  .forEach(([x,y,z,w,h,d])=>{const g=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),glass);g.position.set(x,y,z);tractor.add(g);});
+add(new THREE.BoxGeometry(0.45,0.12,0.5),mDark,-0.85,1.62,0);
+add(new THREE.BoxGeometry(0.1,0.55,0.5),mDark,-1.08,1.9,0);
+add(new THREE.BoxGeometry(0.25,0.5,1.1),mDark,0.12,1.6,0);
+const col=add(new THREE.CylinderGeometry(0.025,0.025,0.5,10),mDark,0.0,1.9,0); col.rotation.z=0.6;
+const sw=add(new THREE.TorusGeometry(0.17,0.022,10,28),mDark,-0.12,2.1,0); sw.rotation.set(0,Math.PI/2,0); sw.rotateX(-0.6);
+// guardafangos
+[0.97,-0.97].forEach(z=>{const f=add(new THREE.CylinderGeometry(0.98,0.98,0.52,36,1,true,Math.PI/2,Math.PI),mFender,-0.9,0.85,z); f.rotation.x=Math.PI/2;});
+// escape
+add(new THREE.CylinderGeometry(0.05,0.05,0.95,14),mSteel,1.85,2.2,0.28);
+// llantas
+const wheels=[];
+function wheel(r,w,x,z){
+  const g=new THREE.Group();
+  const tire=new THREE.Mesh(new THREE.CylinderGeometry(r,r,w,40),mTire); tire.rotation.x=Math.PI/2; tire.castShadow=true; g.add(tire);
+  const rim=new THREE.Mesh(new THREE.CylinderGeometry(r*0.55,r*0.55,w+0.02,28),mRim); rim.rotation.x=Math.PI/2; g.add(rim);
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(r*0.18,r*0.18,w+0.06,16),mSteel); hub.rotation.x=Math.PI/2; g.add(hub);
+  for(let i=0;i<20;i++){const a=i/20*Math.PI*2; const t=new THREE.Mesh(new THREE.BoxGeometry(0.07,r*0.16,w*0.96),mTire); t.position.set(Math.cos(a)*r,Math.sin(a)*r,0); t.rotation.z=a; t.castShadow=true; g.add(t);}
+  g.position.set(x,r,z); tractor.add(g); wheels.push(g);
+}
+wheel(0.85,0.45,-0.9,0.97); wheel(0.85,0.45,-0.9,-0.97); wheel(0.5,0.3,1.65,0.8); wheel(0.5,0.3,1.65,-0.8);
+
+/* ---------- componentes ---------- */
+const compMeshes={}; const compMats={};
+function cmat(id,color,o={}){const m=new THREE.MeshStandardMaterial({color,roughness:0.45,metalness:0.25,emissive:color,emissiveIntensity:0.12,...o}); (compMats[id] ||= []).push(m); return m;}
+function addC(id,geo,m,x,y,z){const o=add(geo,m,x,y,z); o.userData.comp=id; (compMeshes[id] ||= []).push(o); return o;}
+
+// rastreador + caja IP67
+addC('tracker',new THREE.BoxGeometry(0.14,0.34,0.42),cmat('tracker',0xcfd8da,{transparent:true,opacity:0.3,depthWrite:false}),-1.42,1.95,0);
+addC('tracker',new THREE.BoxGeometry(0.07,0.22,0.3),cmat('tracker',0x2a3133),-1.42,1.95,0);
+addC('tracker',new THREE.BoxGeometry(0.075,0.04,0.3),cmat('tracker',0xf2a33a),-1.41,2.03,0);
+const led=addC('tracker',new THREE.SphereGeometry(0.014,10,8),new THREE.MeshBasicMaterial({color:0x3fbf86}),-1.37,1.9,0.1);
+[-0.12,0,0.12].forEach(z=>{const g=addC('tracker',new THREE.CylinderGeometry(0.02,0.02,0.05,10),cmat('tracker',0x3a4446),-1.42,1.76,z);});
+// sello
+const seal=addC('seal',new THREE.TorusGeometry(0.045,0.007,8,24),cmat('seal',0xa9b4b6,{metalness:0.8}),-1.35,2.14,0.22); seal.rotation.y=Math.PI/2;
+addC('seal',new THREE.BoxGeometry(0.03,0.04,0.03),cmat('seal',0xc0c8ca,{metalness:0.8}),-1.35,2.09,0.22);
+// batería
+addC('battery',new THREE.BoxGeometry(0.34,0.24,0.2),cmat('battery',0x2c3236),0.3,1.0,-0.62);
+addC('battery',new THREE.CylinderGeometry(0.025,0.025,0.05,10),cmat('battery',0xe8584a),0.42,1.14,-0.62);
+addC('battery',new THREE.CylinderGeometry(0.025,0.025,0.05,10),cmat('battery',0x222222),0.18,1.14,-0.62);
+// alternador
+const alt=addC('alt',new THREE.CylinderGeometry(0.11,0.11,0.16,24),cmat('alt',0x9aa3a6,{metalness:0.6}),1.95,1.28,0.5); alt.rotation.x=Math.PI/2;
+const pul=addC('alt',new THREE.CylinderGeometry(0.06,0.06,0.05,18),cmat('alt',0x2a2f31),1.95,1.28,0.6); pul.rotation.x=Math.PI/2;
+// tanque + sonda
+addC('tank',new THREE.BoxGeometry(0.55,0.42,0.36),cmat('tank',0x39424a),0.35,1.0,0.66);
+addC('tank',new THREE.CylinderGeometry(0.022,0.022,0.46,10),cmat('tank',0x4f8ff0),0.35,1.04,0.66);
+addC('tank',new THREE.BoxGeometry(0.08,0.05,0.08),cmat('tank',0x4f8ff0),0.35,1.27,0.66);
+// J1939
+const j=addC('can',new THREE.CylinderGeometry(0.05,0.05,0.1,16),cmat('can',0x2f6b52),0.02,1.45,-0.42); j.rotation.z=Math.PI/2;
+
+/* ---------- cables ---------- */
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+function wire(id,pts,color,r=0.017){
+  const curve=new THREE.CatmullRomCurve3(pts);
+  const m=new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:0.35,roughness:0.6});
+  const t=new THREE.Mesh(new THREE.TubeGeometry(curve,80,r,8,false),m); t.userData.comp=id; (compMeshes[id] ||= []).push(t); tractor.add(t);
+  return curve;
+}
+const cPow=wire('battery',[V(0.42,1.16,-0.62),V(0.3,1.34,-0.6),V(-0.5,1.4,-0.6),V(-1.2,1.45,-0.35),V(-1.38,1.7,-0.1),V(-1.4,1.82,-0.05)],0xe8584a);
+wire('tracker',[V(-1.4,1.82,0.03),V(-1.46,1.5,0.05),V(-1.3,1.13,0.05),V(-1.0,1.11,0.0)],0x5a6365);
+const cDp=wire('alt',[V(1.95,1.28,0.6),V(1.6,1.15,0.5),V(0.8,1.2,0.47),V(0.0,1.42,0.55),V(-0.9,1.45,0.5),V(-1.3,1.6,0.25),V(-1.4,1.86,0.06)],0xf2c13a);
+const cCan=wire('can',[V(0.07,1.45,-0.42),V(-0.4,1.42,-0.45),V(-1.1,1.5,-0.3),V(-1.36,1.75,-0.1),V(-1.4,1.88,-0.02)],0x3fbf86);
+const cBle=new THREE.CatmullRomCurve3([V(0.35,1.3,0.66),V(-0.2,1.95,0.6),V(-1.0,2.15,0.3),V(-1.4,1.99,0.06)]);
+
+function pulses(curve,color,n,size,speed){
+  const m=new THREE.MeshBasicMaterial({color}); const arr=[];
+  for(let i=0;i<n;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(size,10,8),m); tractor.add(s); arr.push(s);}
+  return {curve,arr,speed,n,set(v){arr.forEach(s=>s.visible=v);},update(t){arr.forEach((s,i)=>s.position.copy(curve.getPointAt((t*speed+i/n)%1)));}};
+}
+const pPow=pulses(cPow,0xff8a7a,3,0.03,0.12), pDp=pulses(cDp,0xffe08a,6,0.034,0.35), pCan=pulses(cCan,0x8ff0c4,5,0.032,0.4), pBle=pulses(cBle,0x9cc0ff,6,0.022,0.25);
+
+// ondas celulares
+const rings=[];
+for(let i=0;i<3;i++){const m=new THREE.MeshBasicMaterial({color:0xa58cf0,transparent:true,opacity:0,depthWrite:false});
+  const r=new THREE.Mesh(new THREE.TorusGeometry(0.3,0.012,8,48),m); r.rotation.x=Math.PI/2; r.position.set(-1.2,3.12,0); r.userData.comp='cell'; tractor.add(r); rings.push(r);}
+(compMeshes.cell ||= []).push(...rings);
+const ant=addC('cell',new THREE.CylinderGeometry(0.012,0.012,0.18,8),cmat('cell',0xa58cf0),-1.2,3.15,0);
+
+// humo
+const puffs=[]; const puffMat=new THREE.MeshStandardMaterial({color:0x9aa3a6,transparent:true,opacity:0,depthWrite:false,roughness:1});
+for(let i=0;i<7;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(0.07,10,8),puffMat.clone()); p.position.set(1.85,2.7,0.28); scene.add(p); puffs.push(p);}
+
+/* ---------- estado ---------- */
+let xray=true, engine=false, hours=3412.0, selected=null, anim=null;
+const nf=new Intl.NumberFormat('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1});
+function setXray(v){xray=v; bodyMats.forEach(m=>{m.opacity=v?0.18:1; m.depthWrite=!v; m.needsUpdate=true;}); $('bX').setAttribute('aria-pressed',String(v));}
+function setEngine(v){engine=v; $('bEng').setAttribute('aria-pressed',String(v)); $('bEng').textContent=v?'Apagar motor':'Encender motor';
+  $('state').innerHTML=v?'<span class="chip on">en marcha · cuenta horas</span>':'<span class="chip off">motor apagado</span>';
+  pDp.set(v); pCan.set(v);}
+function flyTo(pos,target){anim={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:target,s:performance.now(),d:reduce?1:900};}
+function select(id){
+  selected=id; controls.autoRotate=false;
+  const c=COMPS.find(x=>x.id===id);
+  listEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.id===id)));
+  COMPS.forEach(k=>k.pin.classList.toggle('sel',k.id===id));
+  Object.entries(compMats).forEach(([k,ms])=>ms.forEach(m=>m.emissiveIntensity=k===id?0.55:0.12));
+  renderCard(c);
+  const t=new THREE.Vector3(...c.a); flyTo(t.clone().add(new THREE.Vector3(...c.o)),t);
+}
+function goHome(){selected=null; listEl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current','false'));
+  COMPS.forEach(k=>k.pin.classList.remove('sel')); Object.values(compMats).forEach(ms=>ms.forEach(m=>m.emissiveIntensity=0.12));
+  renderCard(INTRO); flyTo(HOME.pos.clone(),HOME.target.clone());}
+
+listEl.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) select(b.dataset.id);});
+pinsEl.addEventListener('click',e=>{const b=e.target.closest('.pin'); if(b) select(b.dataset.id);});
+$('bX').addEventListener('click',()=>setXray(!xray));
+$('bEng').addEventListener('click',()=>setEngine(!engine));
+$('bHome').addEventListener('click',goHome);
+
+// clic sobre piezas
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let down=null;
+canvas.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
+canvas.addEventListener('pointerup',e=>{
+  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5) return;
+  const r=canvas.getBoundingClientRect(); ptr.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(ptr,camera);
+  const hit=ray.intersectObjects(Object.values(compMeshes).flat(),false)[0];
+  if(hit) select(hit.object.userData.comp);
+});
+
+function resize(){const w=stage.clientWidth,h=stage.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h;
+  camera.fov=w<560?48:36; camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage); resize();
+
+setXray(true); setEngine(false);
+
+const clock=new THREE.Clock(); const tmp=new THREE.Vector3();
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function loop(){
+  const dt=Math.min(clock.getDelta(),0.1), t=clock.elapsedTime;
+  if(anim){const k=Math.min(1,(performance.now()-anim.s)/anim.d), e=ease(k);
+    camera.position.lerpVectors(anim.p0,anim.p1,e); controls.target.lerpVectors(anim.t0,anim.t1,e); if(k>=1) anim=null;}
+  controls.update();
+
+  pPow.update(t); pBle.update(t); if(engine){pDp.update(t); pCan.update(t);}
+  const period=engine?1.4:2.6;
+  rings.forEach((r,i)=>{const u=((t/period)+i/3)%1; r.scale.setScalar(0.3+u*2.6); r.material.opacity=(1-u)*0.7;});
+  if(engine){
+    hours+=dt/60; $('hours').textContent=nf.format(hours)+' h';
+    tractor.position.y=reduce?0:Math.sin(t*55)*0.004;
+    puffs.forEach((p,i)=>{const u=((t*0.6)+i/puffs.length)%1; p.position.set(1.85-u*0.5,2.7+u*1.1,0.28+u*0.15); p.scale.setScalar(0.6+u*2.2); p.material.opacity=(1-u)*0.35;});
+  }else{ tractor.position.y=0; puffs.forEach(p=>p.material.opacity=0); }
+  led.material.color.setHex((Math.floor(t*2)%2)?0x3fbf86:0x1d5c40);
+
+  const w=stage.clientWidth,h=stage.clientHeight;
+  COMPS.forEach(c=>{tmp.set(...c.a).project(camera);
+    if(tmp.z>1){c.pin.hidden=true;return;} c.pin.hidden=false;
+    c.pin.style.transform=`translate(${(tmp.x*0.5+0.5)*w}px,${(-tmp.y*0.5+0.5)*h}px) translate(-50%,-50%)`;});
+
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

@@ -1,9 +1,14 @@
-// Prisma + PostgreSQL para Agro PYME Bot.
+// Prisma + MySQL para el bot de La Pedregoza.
+//
+// Se eligio MySQL (y no Postgres) porque es lo que incluye el hosting de Hostinger: asi
+// la misma base funciona en local y en produccion, sin contratar un servicio aparte.
 //
 // Pasos para usarlo:
-//   1) docker compose up -d db          -> levanta Postgres (ver docker-compose.yml)
+//   1) docker compose up -d db          -> levanta MySQL en local (ver docker-compose.yml)
 //   2) Pon la URL en DATABASE_URL (.env). Con el compose de este repo seria:
-//      DATABASE_URL="postgresql://agrobot:agrobot@localhost:5432/agrobot?schema=public"
+//      DATABASE_URL="mysql://agrobot:agrobot@127.0.0.1:3307/agrobot"
+//      (127.0.0.1 y no "localhost": localhost se resuelve por IPv6 y el reenvio de
+//       Docker Desktop en Windows no responde por ahi.)
 //   3) npm install && npx prisma generate
 //   4) npm run db:migrate               -> crea las tablas
 //   5) npm run db:seed-admin -- "Tu Nombre" tu_usuario tu_password_segura
@@ -16,7 +21,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 

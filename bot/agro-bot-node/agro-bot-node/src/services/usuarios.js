@@ -39,10 +39,19 @@ async function verificarCredenciales(usuario, password) {
   return coincide ? u : null;
 }
 
-async function crearUsuario({ nombre, usuario, email, password, rol = 'usuario' }) {
+// Para el login: distingue "cuenta pendiente de aprobacion" (perfil creado desde el
+// login, password correcto, pero un admin todavia no lo activa) de "datos incorrectos".
+// Solo se revela que esta pendiente si el password coincide, asi no da pistas a nadie mas.
+async function cuentaPendiente(usuario, password) {
+  const u = await buscarPorUsuario(usuario);
+  if (!u || u.activo) return false;
+  return bcrypt().compare(password || '', u.passwordHash);
+}
+
+async function crearUsuario({ nombre, usuario, email, password, rol = 'usuario', activo = true }) {
   const passwordHash = await bcrypt().hash(password, RONDAS_SAL);
   return db().usuario.create({
-    data: { nombre, usuario, email: email || null, passwordHash, rol },
+    data: { nombre, usuario, email: email || null, passwordHash, rol, activo },
   });
 }
 
@@ -73,6 +82,7 @@ async function cambiarRol(id, rol) {
 module.exports = {
   buscarPorUsuario,
   verificarCredenciales,
+  cuentaPendiente,
   crearUsuario,
   listarUsuarios,
   cambiarPassword,

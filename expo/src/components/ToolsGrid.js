@@ -167,6 +167,9 @@ const _TOOLS = [
   },
 ];
 
+// El catalogo se comparte con el subfooter del stack (StackSubfooter.js).
+export const TOOLS = _TOOLS;
+
 // Documentos propios de una herramienta (los que existan en ownDocs.js).
 const ownDocs = (tool) => (tool.own || []).map((id) => OWN_DOCS[id]).filter(Boolean);
 // Temas: los encabezados de la documentacion propia; si no hay, los del catalogo.
@@ -176,9 +179,9 @@ const topicsOf = (tool) => {
   return docs.flatMap((d) => d.topics.slice(0, 5).map((t) => ({ label: t, doc: d.id }))).slice(0, 8);
 };
 
-const svgUri = (svg) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+export const svgUri = (svg) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 // Logos blancos (GitHub) se oscurecen en modo claro para que se vean sobre fondo blanco.
-const themed = (tool, dark) =>
+export const themed = (tool, dark) =>
   dark || tool.color !== '#ffffff'
     ? tool
     : { ...tool, color: '#161616', svg: tool.svg.replace(/#ffffff/g, '#161616') };
@@ -237,7 +240,7 @@ function ToolCard({ tool: raw, active, onPress }) {
  * Panel de la herramienta elegida: que es, como la usamos, documentacion
  * propia del equipo (md/ -> ownDocs.js), referencia oficial y temas.
  */
-function ToolDetail({ tool: raw }) {
+export function ToolDetail({ tool: raw }) {
   const { colorScheme } = useColorScheme();
   const dark = colorScheme === 'dark';
   const navigation = useNavigation();

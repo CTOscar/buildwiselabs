@@ -1,7 +1,9 @@
 // Logica de la pagina "Actividad en vivo" (antes vivia inline en public/actividad.html).
 
 import { initToggleTema } from '../tema.js';
+import { initRail } from '../rail.js';
 initToggleTema('btnTema');
+initRail();
 
 const puntoEstado = document.getElementById('puntoEstado');
 const textoEstado = document.getElementById('textoEstado');

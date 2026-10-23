@@ -1,0 +1,15 @@
+-- Borra SOLO la tabla donde Prisma anota que migraciones ya corrio.
+--
+-- No contiene datos de la aplicacion: ni usuarios, ni registros, ni nada del bot. Es la
+-- bitacora interna de Prisma. Borrarla hace que Prisma vuelva a considerar la base como
+-- nueva y aplique la migracion de verdad.
+--
+-- Hace falta cuando esa bitacora y la realidad no coinciden: la migracion figura como
+-- aplicada pero las tablas no existen (pasa si un `migrate deploy` crea esta tabla y falla
+-- despues, y luego se corre `migrate resolve --applied`).
+--
+-- Uso, con DATABASE_URL apuntando a la base que se quiere limpiar:
+--   npx prisma db execute --file prisma/borrar-registro-de-migraciones.sql --schema prisma/schema.prisma
+--
+-- Despues de esto hay que correr `npx prisma migrate deploy`, que recrea todo desde cero.
+DROP TABLE IF EXISTS `_prisma_migrations`;

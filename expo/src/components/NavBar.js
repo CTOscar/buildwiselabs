@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
@@ -15,6 +15,8 @@ import { DOCS } from '../constants/docs';
  * Barra superior estilo IBM Carbon, marca BuildWise Labs.
  * Enlaces con desglose (Servicios) y area de autenticacion.
  */
+const KIRI_URL = 'https://trykiriinbox.com';
+
 export default function NavBar() {
   const navigation = useNavigation();
   const current = useNavigationState((s) => s.routes[s.index]?.name);
@@ -31,11 +33,11 @@ export default function NavBar() {
     navigation.navigate(name, params);
   };
 
-  const NavLink = ({ name, label }) => {
+  const NavLink = ({ name, label, onPress }) => {
     const active = current === name;
     return (
       <Pressable
-        onPress={() => go(name)}
+        onPress={onPress || (() => go(name))}
         className={`h-full justify-center px-3 ${
           active ? 'border-b-2 border-carbon-blue' : ''
         }`}
@@ -175,16 +177,22 @@ export default function NavBar() {
         >
           {(close) => (
             <View className="py-1">
+              {/* "Toda la documentacion" abre Labs: ahi esta la documentacion completa
+                  (Docusaurus), con Tools y la de cada servicio. */}
               <Pressable
-                className="px-4 py-3 hover:bg-carbon-gray10 dark:hover:bg-carbon-gray90"
+                className="flex-row items-center gap-3 px-4 py-3 hover:bg-carbon-gray10 dark:hover:bg-carbon-gray90"
                 onPress={() => {
                   close();
-                  go('Docs');
+                  go('Labs');
                 }}
               >
-                <Text className="font-plexsemibold text-[14px] text-carbon-black dark:text-white">
-                  Toda la documentacion
-                </Text>
+                <Ionicons name="flask-outline" size={18} color="#9d6b99" />
+                <View className="flex-1">
+                  <Text className="font-plexsemibold text-[14px] text-carbon-black dark:text-white">
+                    Toda la documentación
+                  </Text>
+                  <Text className="font-plex text-[12px] text-carbon-gray50">En Labs</Text>
+                </View>
               </Pressable>
               <View className="my-1 h-px bg-carbon-gray20 dark:bg-carbon-gray90" />
               {DOCS.map((d) => (
@@ -206,6 +214,16 @@ export default function NavBar() {
           )}
         </Dropdown>
 
+        <NavLink name="Labs" />
+        {/* Enlace externo: se abre en otra pestana */}
+        <Pressable
+          onPress={() => Linking.openURL(KIRI_URL)}
+          accessibilityRole="link"
+          className="h-full flex-row items-center gap-1 px-3"
+        >
+          <Text className="font-plex text-[14px] text-carbon-gray70 dark:text-carbon-gray20">trykiriinbox.com</Text>
+          <Ionicons name="open-outline" size={12} color="#8d8d8d" />
+        </Pressable>
         <NavLink name="Contacto" />
 
         {/* Toggle de tema claro/oscuro */}
@@ -317,9 +335,9 @@ function ThemeToggle({ isDark, onPress }) {
 function MobileMenu({ current, go, isAuthenticated, user, onLogout }) {
   const [servicesOpen, setServicesOpen] = useState(false);
 
-  const Item = ({ name, label }) => (
+  const Item = ({ name, label, onPress }) => (
     <Pressable
-      onPress={() => go(name)}
+      onPress={onPress || (() => go(name))}
       className={`flex-row items-center justify-between border-b border-carbon-gray20 dark:border-carbon-gray90 px-5 py-4 ${
         current === name ? 'border-l-4 border-l-carbon-blue' : ''
       }`}
@@ -371,6 +389,8 @@ function MobileMenu({ current, go, isAuthenticated, user, onLogout }) {
       ) : null}
 
       <Item name="Docs" />
+      <Item name="Labs" />
+      <Item name="trykiriinbox.com" onPress={() => Linking.openURL(KIRI_URL)} />
       <Item name="Contacto" />
 
       <View className="p-5">

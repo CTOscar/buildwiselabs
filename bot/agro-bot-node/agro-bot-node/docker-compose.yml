@@ -1,43 +1,53 @@
-# PostgreSQL para las cuentas individuales del bot (tabla usuarios + auditoria de
-# registros). Ver prisma/schema.prisma.
+# MySQL para las cuentas individuales del bot y la bitacora de capturas.
+# Ver prisma/schema.prisma.
 #
-# Esto NO levanta el bot: solo la base. El bot sigue corriendo como siempre (npm start
-# en local, o el despliegue de Hostinger). La base es opcional -- sin DATABASE_URL el
-# bot usa el login unico compartido de siempre.
+# Es MySQL y no Postgres porque es lo que incluye el hosting de Hostinger: asi el entorno
+# local y el de produccion usan el mismo motor y no hay sorpresas al desplegar.
+#
+# Esto NO levanta el bot: solo la base. El bot sigue corriendo como siempre (npm start en
+# local, o el despliegue de Hostinger). La base es OPCIONAL -- sin DATABASE_URL el bot usa
+# el login unico compartido de siempre (ver src/services/prisma.js).
 #
 # Uso:
 #   docker compose up -d
-#   npx prisma generate && npm run db:migrate
+#   npx prisma migrate dev --name init
 #   npm run db:seed-admin -- "Tu Nombre" tu_usuario tu_password_segura
 #
 # Y en el .env:
-#   DATABASE_URL="postgresql://agrobot:agrobot@localhost:5432/agrobot?schema=public"
+#   DATABASE_URL="mysql://agrobot:agrobot@127.0.0.1:3307/agrobot"
 
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8
     container_name: agrobot_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: agrobot
-      POSTGRES_PASSWORD: agrobot
-      POSTGRES_DB: agrobot
+      MYSQL_ROOT_PASSWORD: agrobot_root
+      MYSQL_DATABASE: agrobot
+      MYSQL_USER: agrobot
+      MYSQL_PASSWORD: agrobot
       TZ: America/Mazatlan
     ports:
-      # Si el 5432 ya lo ocupa otro Postgres en tu maquina, cambia el de la IZQUIERDA
-      # (por ejemplo "5433:5432") y ajusta el puerto en DATABASE_URL.
-      - "5432:5432"
+      # 3307 en la IZQUIERDA (el puerto de tu maquina) a proposito: el 3306 suele estar
+      # ocupado por un MySQL instalado en Windows o por otro contenedor, y entonces este
+      # no se publica y Prisma no puede llegar. Si cambias este numero, ajusta tambien el
+      # puerto en DATABASE_URL.
+      - "3307:3306"
     volumes:
-      # Los datos viven en un volumen con nombre, no dentro del proyecto: asi no se
-      # pierden al reconstruir ni se cuelan al zip del despliegue.
-      - agrobot_db_data:/var/lib/postgresql/data
+      # Permisos para la shadow database de Prisma (ver el .sql). Solo corre cuando el
+      # volumen se crea por primera vez.
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+      # Volumen con nombre, no una carpeta dentro del proyecto: asi los datos no se pierden
+      # al reconstruir ni se cuelan al zip del despliegue. Nombre distinto al de la version
+      # con Postgres -- reusar aquel con otro motor dejaria la base ilegible.
+      - agrobot_mysql_data:/var/lib/mysql
     healthcheck:
       # Para que "docker compose up -d --wait" no devuelva antes de que acepte conexiones
       # (si corres las migraciones enseguida, si no fallan por "connection refused").
-      test: ["CMD-SHELL", "pg_isready -U agrobot -d agrobot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "agrobot", "-pagrobot"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
 
 volumes:
-  agrobot_db_data:
+  agrobot_mysql_data:

@@ -65,3 +65,8 @@ service-account*.json
 .env
 .env.*
 !.env.example
+
+# Labs (Docusaurus)
+labs-docs/node_modules
+labs-docs/build
+labs-docs/.docusaurus

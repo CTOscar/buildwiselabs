@@ -76,6 +76,7 @@ const rutasJsNuevas = {
   login: procesarJs('login'),
   actividad: procesarJs('actividad'),
   monitoreo: procesarJs('monitoreo'),
+  bitacora: procesarJs('bitacora'),
 };
 
 // Reconoce las 3 variantes que puede tener hoy el HTML: el nombre fijo de siempre, un
@@ -90,6 +91,9 @@ const PAGINA_POR_ENTRADA = {
   'login.html': 'login',
   'actividad.html': 'actividad',
   'monitoreo.html': 'monitoreo',
+  'bitacora.html': 'bitacora',
+  // usuarios.html no tiene bundle propio (su JS es inline): solo se le actualiza el CSS.
+  'usuarios.html': null,
 };
 
 for (const [nombreHtml, nombreEntrada] of Object.entries(PAGINA_POR_ENTRADA)) {

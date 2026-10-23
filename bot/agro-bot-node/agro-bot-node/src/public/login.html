@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/main.75e1a6a4.css">
+<link rel="stylesheet" href="/css/main.1c2d74a6.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center px-4">
 
@@ -29,66 +29,160 @@
 <button id="btnTema" type="button" title="Cambiar tema" aria-label="Cambiar tema"
   class="btn-tactile fixed top-4 right-4 z-40 w-9 h-9 rounded-full flex items-center justify-center bg-white/80 dark:bg-stone-900/80 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 shadow-soft"><svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true" class="w-[18px] h-[18px]"><path d="M380-160q133 0 226.5-93.5T700-480q0-133-93.5-226.5T380-800h-21q-10 0-19 2 57 66 88.5 147.5T460-480q0 89-31.5 170.5T340-162q9 2 19 2h21Zm0 80q-53 0-103.5-13.5T180-134q93-54 146.5-146T380-480q0-108-53.5-200T180-826q46-27 96.5-40.5T380-880q83 0 156 31.5T663-763q54 54 85.5 127T780-480q0 83-31.5 156T663-197q-54 54-127 85.5T380-80Zm80-400Z"/></svg></button>
 
-<div class="w-full max-w-sm">
-  <div class="flex items-center gap-2 justify-center mb-8">
-    <img src="/img/pedregoza-logo.png" alt="La Pedregoza" class="h-8 w-auto shrink-0">
-    <span class="font-semibold text-stone-700 tracking-tight">La Pedregoza</span>
-  </div>
+<!-- Login en tarjeta de dos columnas: formulario a la izquierda, foto de huerta con
+     velo negro a la derecha (en movil la foto se oculta y queda solo el formulario). -->
+<main class="w-full flex items-center justify-center py-6 lg:min-h-screen">
+  <div class="card card-enter w-full max-w-5xl p-4 lg:p-6">
+    <div class="grid md:grid-cols-2 items-center gap-x-8 gap-y-10">
 
-  <div class="card card-hover card-enter p-8">
-    <h1 class="text-xl font-bold text-stone-800 text-center">Inicia sesion</h1>
-    <p class="text-sm text-stone-400 text-center mt-1 mb-6">Accede para capturar y consultar tus reportes de campo.</p>
+      <div class="max-w-md mx-auto w-full p-2 md:p-4">
+        <div class="flex items-center gap-3 mb-8">
+          <span class="login-logo"><img src="/img/pedregoza-logo.png" alt="La Pedregoza" class="h-8 w-auto shrink-0"></span>
+          <span class="font-semibold text-stone-700 tracking-tight">La Pedregoza</span>
+        </div>
 
-    <form id="formLogin" class="space-y-3">
-      <input type="text" id="usuario" placeholder="Usuario" autocomplete="username"
-        class="w-full border border-stone-200 rounded-full px-5 py-3 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
-      <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password"
-        class="w-full border border-stone-200 rounded-full px-5 py-3 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
-      <button type="submit" id="btnEntrar"
-        class="btn-tactile w-full bg-stone-900 hover:bg-black text-white font-semibold rounded-full py-3 text-sm transition">
-        Entrar
-      </button>
-    </form>
+        <!-- Panel de inicio de sesion (el de siempre). Alterna con #panelRegistro. -->
+        <div id="panelLogin">
+        <h1 class="text-2xl font-bold text-stone-800">Inicia sesion</h1>
+        <p class="text-sm text-stone-400 mt-1 mb-6">Accede para capturar y consultar tus reportes de campo.</p>
 
-    <div id="error" class="mt-4 text-sm text-red-600 text-center" hidden></div>
+        <form id="formLogin" class="space-y-5">
+          <div>
+            <label for="usuario" class="mb-2 inline-block text-sm font-medium text-stone-700">Usuario</label>
+            <input type="text" id="usuario" placeholder="Usuario" autocomplete="username"
+              class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+          </div>
+          <div class="relative">
+            <label for="password" class="mb-2 inline-block text-sm font-medium text-stone-700">Contraseña</label>
+            <button type="button" id="btnVerPassword" aria-label="Mostrar contraseña" aria-pressed="false"
+              class="absolute top-0.5 right-1 p-1 rounded text-stone-400 hover:text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+              <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><line id="tachaPassword" x1="3" y1="3" x2="21" y2="21"/></svg>
+            </button>
+            <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password"
+              class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+          </div>
+          <button type="submit" id="btnEntrar"
+            class="btn-tactile w-full bg-stone-900 hover:bg-black text-white font-semibold rounded-md py-2.5 text-sm tracking-wide transition">
+            Entrar
+          </button>
+        </form>
 
-    <div class="flex items-center gap-3 my-5">
-      <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700"></div>
-      <span class="text-xs text-stone-400 uppercase tracking-wide">o continúa con</span>
-      <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700"></div>
+        <div id="error" class="mt-4 text-sm text-red-600 text-center" hidden></div>
+
+        <p class="text-sm text-stone-500 text-center mt-4">
+          ¿No tienes cuenta?
+          <button type="button" id="btnIrRegistro" class="login-enlace">Crear perfil</button>
+        </p>
+
+        <div class="flex items-center gap-3 my-6">
+          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700"></div>
+          <span class="text-xs text-stone-400 uppercase tracking-wide">o continúa con</span>
+          <div class="flex-1 h-px bg-stone-200 dark:bg-stone-700"></div>
+        </div>
+
+        <!-- Botones de acceso alterno (GitHub / correo): por ahora son solo la parte visual,
+             a proposito deshabilitados (ver etiqueta "Proximamente") -- todavia no estan
+             conectados a un inicio de sesion real. Cuando se decida el modelo (cuentas por
+             persona vs. solo cosmetico) se activan aqui y se dan de alta las rutas en el
+             backend (GitHub OAuth necesita Client ID/Secret; correo puede ser con
+             contraseña o "link magico" via nodemailer). -->
+        <div class="space-y-2.5">
+          <button type="button" id="btnLoginGithub" disabled title="Próximamente"
+            class="w-full flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 font-semibold rounded-md py-2.5 text-sm opacity-60 cursor-not-allowed">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+            Iniciar sesión con GitHub
+            <span class="text-[10px] font-bold uppercase tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded-full px-2 py-0.5 ml-1">Próximamente</span>
+          </button>
+          <button type="button" id="btnLoginCorreo" disabled title="Próximamente"
+            class="w-full flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 font-semibold rounded-md py-2.5 text-sm opacity-60 cursor-not-allowed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+            Continuar con correo electrónico
+            <span class="text-[10px] font-bold uppercase tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded-full px-2 py-0.5 ml-1">Próximamente</span>
+          </button>
+        </div>
+
+        <button type="button" onclick="window.location.href='/register'"
+          class="btn-tactile w-full bg-stone-900 hover:bg-black text-white font-semibold rounded-md py-2.5 text-sm transition mt-5">
+          Ver usuario y contraseña
+        </button>
+        <p class="text-sm text-stone-400 text-center mt-2">Si no tienes usuario, pide que te lo compartan.</p>
+        </div>
+
+        <!-- Crear perfil: queda pendiente hasta que un administrador lo active (ver POST
+             /registro en routes/auth.js). Solo funciona con la base de datos del bot. -->
+        <div id="panelRegistro" hidden>
+          <h1 class="text-2xl font-bold text-stone-800">Crear perfil</h1>
+          <p class="text-sm text-stone-400 mt-1 mb-6">Llena tus datos. Un administrador activará tu cuenta antes de que puedas entrar.</p>
+
+          <div id="avisoRegistroNoDisponible" class="login-aviso mb-5" hidden>
+            Por ahora el bot usa un acceso compartido y todavía no permite crear perfiles. Pide el acceso a un administrador del equipo.
+          </div>
+
+          <form id="formRegistro" class="space-y-4">
+            <div>
+              <label for="rNombre" class="mb-2 inline-block text-sm font-medium text-stone-700">Nombre completo</label>
+              <input type="text" id="rNombre" placeholder="Ej: Carlos Verde" autocomplete="name" required maxlength="80"
+                class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="rUsuario" class="mb-2 inline-block text-sm font-medium text-stone-700">Usuario</label>
+                <input type="text" id="rUsuario" placeholder="carlos.verde" autocomplete="username" required maxlength="30"
+                  class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+              </div>
+              <div>
+                <label for="rEmail" class="mb-2 inline-block text-sm font-medium text-stone-700">Correo <span class="text-stone-400 font-normal">(opcional)</span></label>
+                <input type="email" id="rEmail" placeholder="tu@correo.com" autocomplete="email" maxlength="120"
+                  class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="rPassword" class="mb-2 inline-block text-sm font-medium text-stone-700">Contraseña</label>
+                <input type="password" id="rPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6" maxlength="100"
+                  class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+              </div>
+              <div>
+                <label for="rPassword2" class="mb-2 inline-block text-sm font-medium text-stone-700">Confirmar contraseña</label>
+                <input type="password" id="rPassword2" placeholder="Repítela" autocomplete="new-password" required minlength="6" maxlength="100"
+                  class="w-full border border-stone-200 rounded-md px-3 py-2.5 text-sm bg-stone-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white">
+              </div>
+            </div>
+            <button type="submit" id="btnCrearPerfil"
+              class="btn-tactile w-full bg-stone-900 hover:bg-black text-white font-semibold rounded-md py-2.5 text-sm tracking-wide transition">
+              Crear perfil
+            </button>
+          </form>
+
+          <div id="msgRegistro" class="mt-4 text-sm text-center" hidden></div>
+
+          <p class="text-sm text-stone-500 text-center mt-4">
+            ¿Ya tienes cuenta?
+            <button type="button" id="btnIrLogin" class="login-enlace">Inicia sesión</button>
+          </p>
+        </div>
+
+        <p class="text-xs text-stone-400 text-center mt-6">Acceso privado del equipo. Si olvidaste tus datos, pide que te los compartan de nuevo.</p>
+        <p class="flex items-center justify-center gap-1.5 text-xs text-stone-400 mt-3">
+          <img src="/img/mark.png" alt="" class="w-4 h-4 opacity-70">
+          La Pedregoza &middot; hecho por BuildWise Labs
+        </p>
+      </div>
+
+      <div class="login-foto hidden md:block relative w-full h-full min-h-[34rem] rounded-lg overflow-hidden">
+        <img src="/img/login-huerta.jpg" alt="Huerta de mango" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30"></div>
+        <div class="absolute inset-0 flex flex-col justify-end p-8">
+          <img src="/img/mango-logo.png" alt="" class="w-12 h-12 object-contain mb-5">
+          <h2 class="text-white text-3xl font-bold leading-tight">Registra tu jornada en segundos, <span class="login-acento">por voz o texto.</span></h2>
+          <p class="text-stone-200 text-sm font-medium mt-4 leading-relaxed">Captura cortes, riegos, insumos y maquinaria desde la web o WhatsApp. El bot lo acomoda en tus hojas y avisa si hay incidencias.</p>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Botones de acceso alterno (GitHub / correo): por ahora son solo la parte visual,
-         a proposito deshabilitados (ver etiqueta "Proximamente") -- todavia no estan
-         conectados a un inicio de sesion real. Cuando se decida el modelo (cuentas por
-         persona vs. solo cosmetico) se activan aqui y se dan de alta las rutas en el
-         backend (GitHub OAuth necesita Client ID/Secret; correo puede ser con
-         contraseña o "link magico" via nodemailer). -->
-    <div class="space-y-2.5">
-      <button type="button" id="btnLoginGithub" disabled title="Próximamente"
-        class="w-full flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 font-semibold rounded-full py-3 text-sm opacity-60 cursor-not-allowed">
-        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-        Iniciar sesión con GitHub
-        <span class="text-[10px] font-bold uppercase tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded-full px-2 py-0.5 ml-1">Próximamente</span>
-      </button>
-      <button type="button" id="btnLoginCorreo" disabled title="Próximamente"
-        class="w-full flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 font-semibold rounded-full py-3 text-sm opacity-60 cursor-not-allowed">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
-        Continuar con correo electrónico
-        <span class="text-[10px] font-bold uppercase tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded-full px-2 py-0.5 ml-1">Próximamente</span>
-      </button>
-    </div>
-
-    <button type="button" onclick="window.location.href='/register'"
-      class="btn-tactile w-full bg-stone-900 hover:bg-black text-white font-semibold rounded-full py-3 text-sm transition mt-5">
-      Ver usuario y contraseña
-    </button>
-    <p class="text-sm text-stone-400 text-center mt-2">Si no tienes usuario, pide que te lo compartan.</p>
   </div>
+</main>
 
-  <p class="text-xs text-stone-400 text-center mt-6">Acceso privado del equipo. Si olvidaste tus datos, pide que te los compartan de nuevo.</p>
-</div>
-
-<script src="/js/dist/login.4a8f1223.bundle.js" defer></script>
+<script src="/js/dist/login.d1bc1689.bundle.js" defer></script>
 </body>
 </html>

@@ -123,12 +123,20 @@ El usuario YA eligio que este mensaje es para la tabla "{{NOMBRE_TABLA}}". NO de
 
 {{BLOQUE_CAMPOS}}
 
+=== VARIOS REGISTROS EN UN SOLO MENSAJE ===
+Un mismo mensaje puede describir VARIOS registros de esta tabla (cada uno es una fila distinta en la hoja), por ejemplo: "la cuadrilla 1 corto 40 arboles en La Loma y la cuadrilla 2 corto 35 en Arroyo 1", o dos equipos/insumos distintos en el mismo dia.
+- Si hay varios, pon UN objeto por registro en "registros", en el mismo orden en que se mencionan.
+- Los datos que se dicen una sola vez pero aplican a todos (fecha, huerta, responsable, etc.) se repiten en cada registro.
+- Si el mensaje describe un solo registro, "registros" lleva un solo objeto.
+- "campos" debe ser siempre igual al PRIMER objeto de "registros".
+
 === FORMATO DE SALIDA ===
 Responde UNICAMENTE con un JSON valido (sin texto adicional, sin marcadores de codigo), con esta forma exacta:
 {
   "confianza": "alta" | "media" | "baja",
   "texto_transcrito": "<transcripcion literal del audio, o el mismo texto si ya era texto>",
-  "campos": { ... unicamente los campos listados arriba, con las llaves EXACTAS ... }
+  "campos": { ... unicamente los campos listados arriba, con las llaves EXACTAS ... },
+  "registros": [ { ... mismas llaves que "campos", un objeto por registro ... } ]
 }
 La fecha de hoy es {{FECHA_HOY}}.
 `;

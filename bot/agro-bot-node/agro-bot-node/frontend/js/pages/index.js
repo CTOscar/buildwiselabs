@@ -3,13 +3,22 @@
 // comportamiento es identico al de antes, nada mas se movio de lugar.
 
 import { initToggleTema } from '../tema.js';
+import { mostrarUsuariosEnRail } from '../rail.js';
+import { mostrarSplash } from '../splash.js';
 initToggleTema('btnTema');
 
 const baseUrl = window.location.origin;
 const mensajeUrl = baseUrl + '/bot-web-mensaje';
 const guardarUrl = baseUrl + '/bot-web-guardar';
+const guardarVariosUrl = baseUrl + '/bot-web-guardar-varios';
 const enviarUrl = baseUrl + '/bot-web-enviar';
 const historialUrl = baseUrl + '/bot-web-historial';
+
+// Cuanto dura la pantalla de entrada al llegar desde el login. Es un MINIMO: si /perfil
+// tarda mas que esto, la pantalla se queda hasta que responda. Cambiar este numero es lo
+// unico que hay que tocar para alargarla o acortarla.
+const MS_ENTRADA = 3000;
+const ABIERTO_EN = Date.now();
 
 // --- Perfil / sesion ---
 (async () => {
@@ -23,21 +32,31 @@ const historialUrl = baseUrl + '/bot-web-historial';
       // cuentas individuales Y quien mira es administrador.
       const enlaceUsuarios = document.getElementById('enlaceUsuarios');
       if (enlaceUsuarios && data.multiusuario && data.rol === 'admin') enlaceUsuarios.hidden = false;
+      mostrarUsuariosEnRail(data);
       document.getElementById('avatarPerfil').textContent = (data.usuario || '?').charAt(0).toUpperCase();
     }
   } catch (e) { /* si falla, se queda el "..." -- no es critico para usar la pagina */
   } finally {
-    // Quita el splash de carga (logo + skeleton) una vez que ya sabemos si hay sesion
-    // o no -- si nos vamos a /login la pagina va a navegar de todos modos. Se le agregan
-    // 2s extra de margen antes de empezar a desvanecerlo (antes desaparecia apenas
-    // respondia /perfil, casi instantaneo, y el skeleton casi ni se alcanzaba a ver).
-    const splash = document.getElementById('splashCarga');
-    if (splash) {
-      setTimeout(() => {
-        splash.style.opacity = '0';
-        setTimeout(() => splash.remove(), 250);
-      }, 2000);
+    // El "?entrando=1" se borra de la barra de inmediato, para que al recargar o compartir
+    // la direccion no se vuelva a mostrar la pantalla de entrada. Esto no la apaga: lo que
+    // la mantiene visible es la clase "entrando" del <html>, que se quita mas abajo.
+    if (location.search.indexOf('entrando=1') !== -1) {
+      history.replaceState(null, '', location.pathname);
     }
+    // Ya sabemos si hay sesion, pero la pantalla se queda sus MS_ENTRADA completos
+    // contados desde que abrio la pagina -- si no, con /perfil respondiendo en decimas de
+    // segundo seria un parpadeo. Lo que ya se consumio esperando al servidor cuenta.
+    const entrada = document.getElementById('splashEntrada');
+    const restante = Math.max(0, MS_ENTRADA - (Date.now() - ABIERTO_EN));
+    setTimeout(() => {
+      if (entrada) {
+        entrada.style.opacity = '0';
+        setTimeout(() => entrada.remove(), 250);
+      }
+      // Se quita al final: esta clase es la unica que destapa la pantalla (ver main.css),
+      // asi que quitarla antes la haria desaparecer de golpe, sin desvanecerse.
+      document.documentElement.classList.remove('entrando');
+    }, restante);
   }
 })();
 
@@ -144,10 +163,22 @@ document.addEventListener('click', (e) => {
 // --- Foto de perfil (unica y compartida, ver comentario en routes/auth.js) ---
 const avatarPerfil = document.getElementById('avatarPerfil');
 const avatarFoto = document.getElementById('avatarFoto');
-// Si /img/perfil.jpg no existe todavia (nadie ha subido foto), el <img> tira error y se
+// La foto viene de /perfil-foto, que devuelve la de QUIEN tiene la sesion abierta (cada
+// quien la suya, ver services/fotos.js). Si esa persona todavia no ha subido ninguna, esa
+// ruta contesta 404, el <img> tira error y se
 // queda el circulo con la inicial -- si carga bien, se muestra la foto en su lugar.
 avatarFoto.addEventListener('load', () => { avatarFoto.hidden = false; avatarPerfil.hidden = true; });
 avatarFoto.addEventListener('error', () => { avatarFoto.hidden = true; avatarPerfil.hidden = false; });
+// El bundle se carga con "defer", asi que para cuando corre esta linea la imagen YA pudo
+// haber terminado de cargar -- sobre todo si venia del cache del navegador, donde es
+// instantanea. En ese caso el evento "load" ya se disparo y los listeners de arriba nunca
+// se ejecutan, asi que la foto se quedaba oculta: se veia al subirla (ahi se muestra a
+// mano) pero desaparecia al recargar. Por eso se revisa el estado actual de la imagen.
+if (avatarFoto.complete) {
+  const cargoBien = avatarFoto.naturalWidth > 0;
+  avatarFoto.hidden = !cargoBien;
+  avatarPerfil.hidden = cargoBien;
+}
 
 // Recorta la imagen a cuadro (desde el centro) y la comprime a JPEG en el navegador --
 // asi no importa si suben un PNG/HEIC/lo-que-sea gigante, siempre se manda liviano y en
@@ -205,6 +236,8 @@ document.addEventListener('click', (e) => {
   }
 });
 document.getElementById('btnCerrarSesion').addEventListener('click', async () => {
+  // Se muestra ANTES de la peticion para que cubra tambien lo que tarde /logout.
+  mostrarSplash();
   try { await fetch('/logout', { method: 'POST' }); } catch (e) {}
   window.location.href = '/login';
 });
@@ -283,8 +316,10 @@ const CAMPOS_POR_TABLA = {
 // "Catálogos" del archivo 4.1 (huertas, equipos, actividades, responsables, etc.);
 // Resumen Semanal no usa catalogo (todos sus campos son fecha/numero libres) pero encaja
 // igual en este mismo formulario en blanco. Actividades Diarias vive en otro Google Sheet
-// sin catalogo compartido, asi que se queda fuera.
-const TABLAS_CAPTURA_RAPIDA = ['reporte_campo', 'maquinaria', 'insumos', 'resumen_semanal'];
+// sin catalogo compartido -- se agrego igual para poder capturar varias filas de jornaleros
+// de un jalon; sus campos salen como texto libre (crearCampoElemento cae a <input> cuando
+// no hay catalogo).
+const TABLAS_CAPTURA_RAPIDA = ['reporte_campo', 'actividades_diarias', 'maquinaria', 'insumos', 'resumen_semanal'];
 
 // Tablas que ademas de "Guardar" muestran el boton "Enviar por correo" -- las 3 que
 // viven en el archivo 4.1 (Rendimiento Diario Jornal, Insumos, Resumen Semanal). Se deja
@@ -340,8 +375,10 @@ async function cargarCatalogos() {
       // Si la Captura rapida ya estaba abierta cuando esto termino de cargar, se vuelve a
       // pintar para que los campos con catalogo pasen de texto libre a desplegable sin
       // que el usuario tenga que cerrarla y abrirla de nuevo.
+      // Se repinta con lo que ya estaba capturado (en vez de empezar en blanco), para no
+      // borrarle al usuario las filas que alcanzo a llenar mientras cargaba.
       if (typeof panelCapturaRapida !== 'undefined' && panelCapturaRapida && !panelCapturaRapida.hidden) {
-        renderCamposRapidos(tablaSeleccionada);
+        editorRapido.repintar();
       }
     }
   } catch (e) {
@@ -415,6 +452,188 @@ function crearCampoElemento(clave, etiqueta, tabla, valorActual, opts = {}) {
   return wrap;
 }
 
+// Datos que normalmente son iguales en todas las filas de un mismo lote de captura (mismo
+// dia, mismo lugar, misma actividad/responsable). Las filas 2+ los heredan de la Fila 1.
+const CAMPOS_COMUNES_FILAS = new Set([
+  'Fecha', 'Campo', 'Lote', 'Ubicacion', 'Huerta', 'Actividad', 'Responsable',
+  'UnidadDeMedida', 'MetaDeRendimiento', 'TipoCombustible', 'PrecioDiesel', 'MotivoDeUso', 'CostoPorJornal',
+]);
+
+const ICONO_DUPLICAR = '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const ICONO_QUITAR = '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>';
+
+// Editor de VARIAS filas para una tabla (Captura rapida y "Revisa antes de guardar").
+// Con una sola fila pinta los campos sueltos, exactamente como antes; con 2 o mas pinta
+// una tarjeta por fila ("Fila 1", "Fila 2"...) con botones Duplicar / Quitar. Cada cambio
+// de estructura (agregar, duplicar, quitar) relee lo capturado y vuelve a pintar, asi que
+// nunca se pierde lo que ya se escribio.
+//   opcionesDe(clave) -> opts para crearCampoElemento (ej. { rapido: true })
+//   filaNueva()       -> valores iniciales de una fila en blanco (ej. Fecha = hoy)
+//   alCambiar(n)      -> aviso cuando cambia el numero de filas
+//
+// Datos comunes (CAMPOS_COMUNES_FILAS: fecha, campo, lote, huerta, actividad,
+// responsable...): las filas 2, 3... los HEREDAN de la Fila 1 para no capturarlos otra
+// vez. Mientras un campo heredado siga igual al de la Fila 1, se actualiza solo cuando la
+// Fila 1 cambia; si el usuario lo cambia a mano en otra fila, esa fila deja de seguir a la
+// Fila 1 en ese campo (solo en ese).
+function crearEditorFilas({ contenedor, opcionesDe = () => ({}), filaNueva = () => ({}), alCambiar = () => {}, etiquetaFila = 'Fila' }) {
+  let tabla = null;
+
+  function comunesDe(fila) {
+    const comunes = {};
+    Object.entries(fila || {}).forEach(([clave, v]) => {
+      if (CAMPOS_COMUNES_FILAS.has(clave) && v !== null && v !== undefined && String(v).trim() !== '') comunes[clave] = v;
+    });
+    return comunes;
+  }
+
+  // Fila en blanco para agregar al final: sus datos comunes vienen de la Fila 1.
+  function filaNuevaHeredada(filas) {
+    return { ...filaNueva(), ...comunesDe(filas[0]) };
+  }
+
+  function tarjetas() { return contenedor.querySelectorAll(':scope > .fila-lote'); }
+
+  function fijarValor(el, valor) {
+    if (el.tagName === 'SELECT' && valor !== '' && !Array.from(el.options).some((o) => o.value === valor)) {
+      const opt = document.createElement('option');
+      opt.value = valor;
+      opt.textContent = valor + ' (no esta en el catalogo)';
+      el.appendChild(opt);
+    }
+    el.value = valor;
+  }
+
+  function marcarHeredado(el, heredado) {
+    el.dataset.heredado = heredado ? '1' : '0';
+    const wrap = el.parentElement;
+    if (wrap) wrap.classList.toggle('campo-heredado', heredado);
+  }
+
+  // Tras pintar: en las filas 2+, cada dato comun igual al de la Fila 1 (o vacio) queda
+  // "heredado" y toma el valor de la Fila 1.
+  function enlazarHerencia() {
+    const ts = tarjetas();
+    if (ts.length < 2) return;
+    const primera = ts[0];
+    for (let i = 1; i < ts.length; i++) {
+      ts[i].querySelectorAll('[data-clave]').forEach((el) => {
+        if (!CAMPOS_COMUNES_FILAS.has(el.dataset.clave)) return;
+        const origen = primera.querySelector(`[data-clave="${el.dataset.clave}"]`);
+        if (!origen) return;
+        const heredado = el.value === '' || el.value === origen.value;
+        if (heredado) fijarValor(el, origen.value);
+        marcarHeredado(el, heredado);
+      });
+    }
+  }
+
+  function alEditar(e) {
+    const el = e.target.closest('[data-clave]');
+    if (!el || !CAMPOS_COMUNES_FILAS.has(el.dataset.clave)) return;
+    const tarjeta = el.closest('.fila-lote');
+    const ts = Array.from(tarjetas());
+    const idx = ts.indexOf(tarjeta);
+    if (idx === 0) {
+      // Cambio en la Fila 1: se copia a las filas que lo siguen heredando.
+      ts.slice(1).forEach((t) => {
+        const destino = t.querySelector(`[data-clave="${el.dataset.clave}"]`);
+        if (destino && destino.dataset.heredado === '1') fijarValor(destino, el.value);
+      });
+    } else if (idx > 0) {
+      // Cambio a mano en otra fila: deja de heredar ese campo (salvo que lo regresen a
+      // lo mismo que la Fila 1, entonces vuelve a seguirla).
+      const origen = ts[0].querySelector(`[data-clave="${el.dataset.clave}"]`);
+      marcarHeredado(el, !!origen && el.value === origen.value);
+    }
+  }
+  contenedor.addEventListener('input', alEditar);
+  contenedor.addEventListener('change', alEditar);
+
+  function leer() {
+    const tarjetas = contenedor.querySelectorAll(':scope > .fila-lote');
+    if (!tarjetas.length) return [leerCamposDesde(contenedor)];
+    return Array.from(tarjetas).map((t) => leerCamposDesde(t.querySelector('.fila-lote-campos')));
+  }
+
+  function pintarCampos(destino, valores) {
+    (CAMPOS_POR_TABLA[tabla] || []).forEach(([clave, etiqueta]) => {
+      const v = valores && valores[clave] !== undefined && valores[clave] !== null ? valores[clave] : '';
+      destino.appendChild(crearCampoElemento(clave, etiqueta, tabla, v, opcionesDe(clave)));
+    });
+  }
+
+  function render(filas) {
+    contenedor.innerHTML = '';
+    const lista = filas && filas.length ? filas : [filaNueva()];
+    if (lista.length === 1) {
+      pintarCampos(contenedor, lista[0]);
+    } else {
+      lista.forEach((valores, i) => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'fila-lote';
+        const cabeza = document.createElement('div');
+        cabeza.className = 'fila-lote-cabeza';
+        cabeza.innerHTML =
+          `<span class="fila-lote-num">${etiquetaFila} ${i + 1}</span>` +
+          '<span class="flex items-center gap-1">' +
+          `<button type="button" class="fila-lote-btn" data-accion="duplicar" data-i="${i}" title="Duplicar esta ${etiquetaFila.toLowerCase()}">${ICONO_DUPLICAR}<span>Duplicar</span></button>` +
+          `<button type="button" class="fila-lote-btn fila-lote-btn-quitar" data-accion="quitar" data-i="${i}" title="Quitar esta ${etiquetaFila.toLowerCase()}">${ICONO_QUITAR}<span>Quitar</span></button>` +
+          '</span>';
+        const campos = document.createElement('div');
+        campos.className = 'fila-lote-campos grid grid-cols-1 sm:grid-cols-2 gap-2.5';
+        pintarCampos(campos, valores);
+        tarjeta.appendChild(cabeza);
+        tarjeta.appendChild(campos);
+        contenedor.appendChild(tarjeta);
+      });
+      enlazarHerencia();
+    }
+    alCambiar(lista.length);
+  }
+
+  contenedor.addEventListener('click', (e) => {
+    const btn = e.target.closest('.fila-lote-btn');
+    if (!btn || !contenedor.contains(btn)) return;
+    const filas = leer();
+    const i = Number(btn.dataset.i);
+    if (btn.dataset.accion === 'duplicar') filas.splice(i + 1, 0, { ...filas[i] });
+    if (btn.dataset.accion === 'quitar') filas.splice(i, 1);
+    render(filas);
+  });
+
+  return {
+    // Cambia de tabla y empieza con "cuantas" filas en blanco (o con las filas dadas).
+    iniciar(nuevaTabla, filas) {
+      tabla = nuevaTabla;
+      render(filas && filas.length ? filas : [filaNueva()]);
+    },
+    leer,
+    cantidad() { return contenedor.querySelectorAll(':scope > .fila-lote').length || 1; },
+    agregar() { const filas = leer(); render([...filas, filaNuevaHeredada(filas)]); },
+    // Ajusta a exactamente n filas: agrega (heredando de la Fila 1) o quita las ultimas.
+    fijarCantidad(n) {
+      const filas = leer();
+      while (filas.length < n) filas.push(filaNuevaHeredada(filas));
+      render(filas.slice(0, Math.max(1, n)));
+    },
+    // Valores "de fabrica" de la fila i: la fila en blanco + lo que hereda de la Fila 1.
+    // Sirve para saber si una fila tiene algo capturado propio o solo lo heredado.
+    baseDeFila(i, filas) { return i === 0 ? filaNueva() : filaNuevaHeredada(filas); },
+    // Vuelve a pintar con lo mismo que ya tenia (ej. cuando terminan de cargar catalogos).
+    repintar() { if (tabla) render(leer()); },
+    // Quita las filas indicadas (indices base 0) -- se usa para dejar solo las que fallaron.
+    quedarseCon(indices) {
+      const filas = leer();
+      render(indices.map((i) => filas[i]).filter(Boolean));
+    },
+  };
+}
+
+function filaTieneDatos(campos) {
+  return Object.values(campos || {}).some((v) => v !== null && v !== undefined && String(v).trim() !== '');
+}
+
 const estado = document.getElementById('estado');
 const capturaCard = document.getElementById('captura');
 const previewCard = document.getElementById('preview');
@@ -453,6 +672,27 @@ function mostrar(clase, texto) {
   const span = document.createElement('span');
   span.textContent = texto;
   estado.appendChild(span);
+  bajarConversacion();
+}
+
+// --- Ventana de chat (estilo Messenger): tu ultimo mensaje como burbuja a la derecha y la
+// respuesta del bot (#estado) a la izquierda; la conversacion baja sola al ultimo mensaje.
+const chatMensajeUsuario = document.getElementById('chatMensajeUsuario');
+const chatBurbujaUsuario = document.getElementById('chatBurbujaUsuario');
+
+// Busca el contenedor en cada llamada (y no en una constante) porque mostrar() la usa y
+// puede correr antes de que se evalue esta parte del modulo.
+function bajarConversacion() {
+  const conv = document.getElementById('chatConversacion');
+  if (!conv) return;
+  requestAnimationFrame(() => { conv.scrollTop = conv.scrollHeight; });
+}
+
+function mostrarBurbujaUsuario(texto) {
+  if (!chatMensajeUsuario || !texto) return;
+  chatBurbujaUsuario.textContent = texto;
+  chatMensajeUsuario.hidden = false;
+  bajarConversacion();
 }
 function ocultarEstado() { estado.hidden = true; }
 
@@ -501,23 +741,69 @@ const btnGuardarRapido = document.getElementById('btnGuardarRapido');
 const btnEnviarRapido = document.getElementById('btnEnviarRapido');
 const estadoCapturaRapida = document.getElementById('estadoCapturaRapida');
 
-function renderCamposRapidos(tabla) {
-  const lista = CAMPOS_POR_TABLA[tabla];
-  camposRapidosDiv.innerHTML = '';
-  if (!lista) return;
+// Valores con los que arranca una fila en blanco de Captura rapida (fechas de hoy / de
+// la semana). Tambien sirve para saber si una fila "no se toco": si solo tiene estos
+// valores, no se manda a guardar.
+function valoresInicialesRapidos() {
   const hoy = new Date().toISOString().slice(0, 10);
   const hace6Dias = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  lista.forEach(([clave, etiqueta]) => {
+  const valores = {};
+  (CAMPOS_POR_TABLA[tablaSeleccionada] || []).forEach(([clave]) => {
+    if (clave === 'Fecha' || clave === 'FechaHasta') valores[clave] = hoy;
+    if (clave === 'FechaDesde') valores[clave] = hace6Dias;
+  });
+  return valores;
+}
+
+function filaCapturada(campos, base) {
+  return Object.entries(campos || {}).some(([clave, v]) => {
+    const texto = v === null || v === undefined ? '' : String(v).trim();
+    return texto !== '' && texto !== String(base[clave] ?? '');
+  });
+}
+
+// Tablas donde Captura rapida ofrece varias filas. Resumen Semanal sobreescribe un
+// bloque fijo, no agrega filas, asi que se queda en una sola.
+const TABLAS_SIN_VARIAS_FILAS = ['resumen_semanal'];
+const btnAgregarFilaRapida = document.getElementById('btnAgregarFilaRapida');
+const barraFilasRapidas = document.getElementById('barraFilasRapidas');
+const contadorFilasRapidas = document.getElementById('contadorFilasRapidas');
+
+function actualizarBarraFilasRapidas(n) {
+  if (!barraFilasRapidas) return;
+  barraFilasRapidas.hidden = TABLAS_SIN_VARIAS_FILAS.includes(tablaSeleccionada);
+  barraFilasRapidas.querySelectorAll('[data-filas]').forEach((b) => {
+    b.classList.toggle('activa', Number(b.dataset.filas) === n);
+  });
+  if (contadorFilasRapidas) contadorFilasRapidas.textContent = n === 1 ? '1 fila' : `${n} filas`;
+  btnGuardarRapido.textContent = n === 1 ? 'Guardar' : `Guardar ${n} filas`;
+}
+
+const editorRapido = crearEditorFilas({
+  contenedor: camposRapidosDiv,
+  opcionesDe: (clave) => {
     const opts = { rapido: true };
-    let valorInicial = '';
-    if (clave === 'Fecha' || clave === 'FechaHasta') valorInicial = hoy;
-    if (clave === 'FechaDesde') valorInicial = hace6Dias;
     if (clave === 'PrecioDiesel' && catalogosCache && catalogosCache.precioDieselRef) {
       opts.placeholder = 'Ref: ' + catalogosCache.precioDieselRef;
     }
-    camposRapidosDiv.appendChild(crearCampoElemento(clave, etiqueta, tabla, valorInicial, opts));
+    return opts;
+  },
+  filaNueva: valoresInicialesRapidos,
+  alCambiar: actualizarBarraFilasRapidas,
+});
+
+function renderCamposRapidos(tabla) {
+  if (!CAMPOS_POR_TABLA[tabla]) { camposRapidosDiv.innerHTML = ''; return; }
+  editorRapido.iniciar(tabla);
+}
+
+if (barraFilasRapidas) {
+  barraFilasRapidas.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filas]');
+    if (b) editorRapido.fijarCantidad(Number(b.dataset.filas));
   });
 }
+if (btnAgregarFilaRapida) btnAgregarFilaRapida.addEventListener('click', () => editorRapido.agregar());
 
 function leerCamposDesde(contenedor) {
   const campos = {};
@@ -560,7 +846,52 @@ btnCapturaRapidaToggle.addEventListener('click', () => {
   if (!panelCapturaRapida.hidden) renderCamposRapidos(tablaSeleccionada);
 });
 
+// Guarda varias filas de un jalon (POST /bot-web-guardar-varios). "filas" son las que si
+// tienen datos; regresa el resultado del servidor (que dice cuales fallaron, si alguna).
+async function guardarVariasFilas(tabla, filas, textoTranscrito) {
+  const res = await fetch(guardarVariosUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      tabla,
+      filas,
+      reportado_por: nombreInput.value || '',
+      texto_transcrito: textoTranscrito,
+    }),
+  });
+  return res.json();
+}
+
 btnGuardarRapido.addEventListener('click', async () => {
+  if (editorRapido.cantidad() > 1) {
+    const todas = editorRapido.leer();
+    // Una fila cuenta solo si tiene algo propio (no solo la fecha de hoy o lo heredado de
+    // la Fila 1) -- asi una fila que se agrego y no se lleno no se guarda repetida.
+    const indices = todas.map((f, i) => (filaCapturada(f, editorRapido.baseDeFila(i, todas)) ? i : -1)).filter((i) => i >= 0);
+    if (!indices.length) { mostrarEstadoCapturaRapida('err', 'Llena al menos una fila antes de guardar.'); return; }
+    mostrarEstadoCapturaRapida('wait', `Guardando ${indices.length} ${indices.length === 1 ? 'fila' : 'filas'}...`);
+    btnGuardarRapido.disabled = true;
+    try {
+      const data = await guardarVariasFilas(tablaSeleccionada, indices.map((i) => todas[i]),
+        '(Captura rapida -- varias filas, sin mensaje de texto/voz)');
+      const ok = data.ok !== false;
+      mostrarEstadoCapturaRapida(ok ? 'ok' : 'err', data.mensaje || (ok ? 'Guardado.' : 'No se pudo guardar.'));
+      if (ok) {
+        editorRapido.iniciar(tablaSeleccionada); // queda listo para el siguiente lote
+        editorRapido.fijarCantidad(todas.length);
+      } else if (Array.isArray(data.fallidas) && data.fallidas.length) {
+        // Se dejan en pantalla solo las filas que no entraron, para corregir y reintentar
+        // sin volver a guardar (duplicar) las que si se guardaron.
+        editorRapido.quedarseCon(data.fallidas.map((n) => indices[n - 1]));
+      }
+    } catch (e) {
+      mostrarEstadoCapturaRapida('err', 'No se pudo guardar: ' + e.message);
+    } finally {
+      btnGuardarRapido.disabled = false;
+    }
+    return;
+  }
+
   const campos = leerCamposDesde(camposRapidosDiv);
   mostrarEstadoCapturaRapida('wait', 'Guardando...');
   btnGuardarRapido.disabled = true;
@@ -588,7 +919,39 @@ btnGuardarRapido.addEventListener('click', async () => {
 
 // "Enviar por correo" de la Captura rapida -- manda lo que este en el formulario ahorita
 // mismo por correo (independiente de si ya se guardo o no, ver POST /bot-web-enviar).
+// Manda un correo por fila (POST /bot-web-enviar ya existente) y resume cuantos salieron.
+async function enviarFilasPorCorreo(tabla, filas) {
+  let enviados = 0;
+  for (const campos of filas) {
+    const res = await fetch(enviarUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tabla, campos }),
+    });
+    const data = await res.json();
+    if (data.ok !== false) enviados++;
+  }
+  return { ok: enviados === filas.length, mensaje: `Se enviaron ${enviados} de ${filas.length} correos (uno por fila).` };
+}
+
 btnEnviarRapido.addEventListener('click', async () => {
+  if (editorRapido.cantidad() > 1) {
+    const todas = editorRapido.leer();
+    const filas = todas.filter((f, i) => filaCapturada(f, editorRapido.baseDeFila(i, todas)));
+    if (!filas.length) { mostrarEstadoCapturaRapida('err', 'Llena al menos una fila antes de enviar.'); return; }
+    mostrarEstadoCapturaRapida('wait', `Enviando ${filas.length} correos...`);
+    btnEnviarRapido.disabled = true;
+    try {
+      const r = await enviarFilasPorCorreo(tablaSeleccionada, filas);
+      mostrarEstadoCapturaRapida(r.ok ? 'ok' : 'err', r.mensaje);
+    } catch (e) {
+      mostrarEstadoCapturaRapida('err', 'No se pudo enviar: ' + e.message);
+    } finally {
+      btnEnviarRapido.disabled = false;
+    }
+    return;
+  }
+
   const campos = leerCamposDesde(camposRapidosDiv);
   mostrarEstadoCapturaRapida('wait', 'Enviando correo...');
   btnEnviarRapido.disabled = true;
@@ -650,13 +1013,26 @@ actualizarDisponibilidadCapturaRapida();
 const btnEnviarPreview = document.getElementById('btnEnviarPreview');
 const btnGuardarPreview = document.getElementById('btnGuardar');
 
+// Registros que la IA saco del mensaje (uno o varios). Con uno, el formulario se ve igual
+// que siempre; con varios, una tarjeta por registro (ver crearEditorFilas).
+let registrosActuales = [];
+const previewConteo = document.getElementById('previewConteo');
+const btnAgregarRegistroPreview = document.getElementById('btnAgregarRegistroPreview');
+
+const editorPreview = crearEditorFilas({
+  contenedor: camposDiv,
+  etiquetaFila: 'Registro',
+  alCambiar: (n) => {
+    if (previewConteo) previewConteo.textContent = n > 1 ? ` · ${n} registros` : '';
+    btnGuardarPreview.textContent = n > 1 ? `Confirmar y guardar ${n}` : 'Confirmar y guardar';
+  },
+});
+if (btnAgregarRegistroPreview) btnAgregarRegistroPreview.addEventListener('click', () => editorPreview.agregar());
+
 function renderCampos(tabla) {
-  const lista = CAMPOS_POR_TABLA[tabla] || CAMPOS_ACTIVIDADES;
-  camposDiv.innerHTML = '';
-  lista.forEach(([clave, etiqueta]) => {
-    const valorActual = (camposActuales[clave] !== undefined && camposActuales[clave] !== null) ? camposActuales[clave] : '';
-    camposDiv.appendChild(crearCampoElemento(clave, etiqueta, tabla, valorActual));
-  });
+  const filas = registrosActuales.length ? registrosActuales : [camposActuales];
+  editorPreview.iniciar(CAMPOS_POR_TABLA[tabla] ? tabla : 'actividades_diarias', filas);
+  if (btnAgregarRegistroPreview) btnAgregarRegistroPreview.hidden = TABLAS_SIN_VARIAS_FILAS.includes(tabla);
   const puedeEnviar = TABLAS_CON_ENVIAR.includes(tabla);
   btnEnviarPreview.hidden = !puedeEnviar;
   btnGuardarPreview.classList.toggle('col-span-2', !puedeEnviar);
@@ -682,11 +1058,18 @@ async function cargarModelos() {
     try { guardado = localStorage.getItem('agro_bot_modelo') || ''; } catch (e) {}
     const sigueExistiendo = opcionesModelo.some((o) => claveOpcion(o) === guardado);
 
-    selectorModelo.innerHTML = opcionesModelo.map((o) => {
-      const etiqueta = (o.proveedor === 'claude' ? 'Claude: ' : 'Gemini: ') + o.modelo +
-        (o.predeterminado ? ' (predeterminado)' : '');
-      return '<option value="' + claveOpcion(o) + '">' + etiqueta + '</option>';
-    }).join('');
+    // Agrupados por proveedor (Gemini / Claude) y del mas nuevo al mas viejo, para que la
+    // lista larga se pueda recorrer; el predeterminado va primero en su grupo.
+    const ordenar = (a, b) => (b.predeterminado - a.predeterminado) ||
+      b.modelo.localeCompare(a.modelo, 'en', { numeric: true });
+    const grupo = (proveedor, titulo) => {
+      const lista = opcionesModelo.filter((o) => o.proveedor === proveedor).sort(ordenar);
+      if (!lista.length) return '';
+      return '<optgroup label="' + titulo + ' (' + lista.length + ')">' + lista.map((o) =>
+        '<option value="' + claveOpcion(o) + '">' + o.modelo + (o.predeterminado ? ' (predeterminado)' : '') + '</option>'
+      ).join('') + '</optgroup>';
+    };
+    selectorModelo.innerHTML = grupo('gemini', 'Gemini') + grupo('claude', 'Claude');
 
     selectorModelo.value = sigueExistiendo
       ? guardado
@@ -712,6 +1095,7 @@ function modeloElegido() {
 cargarModelos();
 
 async function enviarMensaje(payload) {
+  mostrarBurbujaUsuario(payload.tipo === 'audio' ? '🎤 Nota de voz' : payload.texto);
   mostrar('wait', 'Procesando con IA, un momento...');
   try {
     const res = await fetch(mensajeUrl, {
@@ -732,6 +1116,7 @@ async function enviarMensaje(payload) {
     }
 
     camposActuales = data.campos || {};
+    registrosActuales = Array.isArray(data.registros) && data.registros.length ? data.registros : [camposActuales];
     textoTranscritoActual = data.texto_transcrito || '';
     const tablaDetectada = CAMPOS_POR_TABLA[data.tabla] ? data.tabla : tablaSeleccionada;
     tablaSeleccionada = tablaDetectada;
@@ -745,6 +1130,8 @@ async function enviarMensaje(payload) {
     abrirSidebar();
     if (data.tabla === 'no_identificada') {
       mostrar('wait', 'No se identifico bien el mensaje, revisa/completa los campos.');
+    } else if (registrosActuales.length > 1) {
+      mostrar('wait', `La IA encontro ${registrosActuales.length} registros en tu mensaje. Revisa cada uno antes de guardar.`);
     }
   } catch (e) {
     mostrar('err', 'No se pudo enviar: ' + e.message);
@@ -815,6 +1202,34 @@ document.getElementById('btnCancelar').addEventListener('click', () => {
 });
 
 btnGuardarPreview.addEventListener('click', async () => {
+  if (editorPreview.cantidad() > 1) {
+    const todas = editorPreview.leer();
+    const indices = todas.map((f, i) => (filaTieneDatos(f) ? i : -1)).filter((i) => i >= 0);
+    if (!indices.length) { mostrar('err', 'Los registros estan vacios.'); return; }
+    mostrar('wait', `Guardando ${indices.length} registros...`);
+    btnGuardarPreview.disabled = true;
+    try {
+      const data = await guardarVariasFilas(tablaSeleccionada, indices.map((i) => todas[i]), textoTranscritoActual);
+      if (data.ok !== false) {
+        previewCard.hidden = true;
+        capturaCard.hidden = false;
+        registrosActuales = [];
+        mostrar('ok', data.mensaje || 'Guardado.');
+      } else {
+        // Quedan solo los que no entraron, para corregir y reintentar sin duplicar.
+        if (Array.isArray(data.fallidas) && data.fallidas.length) {
+          editorPreview.quedarseCon(data.fallidas.map((n) => indices[n - 1]));
+        }
+        mostrar('err', data.mensaje || 'No se pudo guardar.');
+      }
+    } catch (e) {
+      mostrar('err', 'No se pudo guardar: ' + e.message);
+    } finally {
+      btnGuardarPreview.disabled = false;
+    }
+    return;
+  }
+
   // OJO: se lee por "[data-clave]" y no por "input" -- los campos con catalogo
   // (Actividad, Huerta, Responsable, etc.) se renderizan como <select>, y con solo
   // "input" esos valores se perdian silenciosamente al guardar desde aqui.
@@ -843,6 +1258,21 @@ btnGuardarPreview.addEventListener('click', async () => {
 // "Enviar por correo" de la bandeja de revision -- manda lo que este en el formulario
 // ahorita mismo por correo, sin cerrar el preview ni depender de que ya se haya guardado.
 btnEnviarPreview.addEventListener('click', async () => {
+  if (editorPreview.cantidad() > 1) {
+    const filas = editorPreview.leer().filter(filaTieneDatos);
+    mostrar('wait', `Enviando ${filas.length} correos...`);
+    btnEnviarPreview.disabled = true;
+    try {
+      const r = await enviarFilasPorCorreo(tablaSeleccionada, filas);
+      mostrar(r.ok ? 'ok' : 'err', r.mensaje);
+    } catch (e) {
+      mostrar('err', 'No se pudo enviar: ' + e.message);
+    } finally {
+      btnEnviarPreview.disabled = false;
+    }
+    return;
+  }
+
   const campos = leerCamposDesde(camposDiv);
   mostrar('wait', 'Enviando correo...');
   btnEnviarPreview.disabled = true;
@@ -1079,6 +1509,7 @@ function renderRespuestaConsulta(resultadosPorTabla, respuestaTexto) {
   if (!algo) {
     mostrar('ok', 'No encontre registros que coincidan con tu pregunta.');
   }
+  bajarConversacion();
 }
 
 let tablaHistorialActual = null;

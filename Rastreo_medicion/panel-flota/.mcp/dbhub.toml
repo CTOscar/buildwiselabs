@@ -1,0 +1,27 @@
+# Bases de datos para el servidor MCP "databases" (DBHub).
+# Un solo servidor con varias conexiones: PostgreSQL y MySQL (esquema híbrido).
+# Las contraseñas NO van aquí: se leen de variables de entorno (${...}).
+
+[[sources]]
+id = "postgres"
+dsn = "${PG_DSN}"            # ej. postgres://usuario:clave@localhost:5432/rastreo?sslmode=disable
+lazy = true                  # conecta hasta la primera consulta (no falla si la base aún no existe)
+
+[[sources]]
+id = "mysql"
+dsn = "${MYSQL_DSN}"         # ej. mysql://usuario:clave@localhost:3306/rastreo
+lazy = true
+
+# Herramienta de consultas: solo lectura y máximo 1000 filas por consulta.
+# Para permitir escritura en desarrollo, cambia readonly = false (nunca en producción).
+[[tools]]
+name = "execute_sql"
+source = "postgres"
+readonly = true
+max_rows = 1000
+
+[[tools]]
+name = "execute_sql"
+source = "mysql"
+readonly = true
+max_rows = 1000

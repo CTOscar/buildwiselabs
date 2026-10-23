@@ -1,15 +1,16 @@
-import { View, Text, Pressable, ScrollView, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, Image, Platform, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import Screen from '../components/ui/Screen';
 import Button from '../components/ui/Button';
-import ServiceSidebar from '../components/ServiceSidebar';
 import ServiceArt from '../components/ServiceArt';
+import Carrusel from '../components/ui/Carrusel';
 import ServiceDocPanel from '../components/ServiceDocPanel';
-import GuideShowcase from '../components/GuideShowcase';
+import { Resolvemos, Casos, Proceso, Paquetes, Preguntas, Cierre } from '../components/ServiceSales';
 import TechStack from '../components/ui/TechStack';
 import Starfield from '../components/ui/Starfield';
 import { getService, SERVICES } from '../constants/services';
+import { DOCS_DE_SERVICIO } from '../constants/labs';
 import { SERVICE_GALLERY } from '../constants/serviceGallery';
 // URL pública del .exe — actualiza con la ruta real de tu servidor
 const EXE_URL = 'https://buildwiselabs.net/downloads/VisorReportesCampo.exe';
@@ -19,7 +20,6 @@ export default function ServiceDetailScreen({ route, navigation }) {
   const doc = route?.params?.doc; // pagina del sidebar abierta (?doc=slug)
   const service = getService(id);
   const { width } = useWindowDimensions();
-
   // Fallback si el id no existe.
   if (!service) {
     return (
@@ -40,9 +40,14 @@ export default function ServiceDetailScreen({ route, navigation }) {
   }
 
   const others = SERVICES.filter((s) => s.id !== service.id);
+  const venta = service.venta || {};
+  const contacto = () => navigation.navigate('Contacto');
 
   const wide = width >= 900;
   const gallery = SERVICE_GALLERY[service.id] || [];
+  // Las tarjetas del carrusel son mas anchas que las miniaturas de antes (en escritorio
+  // caben dos), asi que la imagen tambien crece un poco.
+  const altoEscena = wide ? 250 : 190;
 
   // Hero a todo el ancho: fondo espacial de marca, texto a la izquierda y la
   // ilustracion del servicio con el logotipo a la derecha.
@@ -81,6 +86,14 @@ export default function ServiceDetailScreen({ route, navigation }) {
               {service.id === 'chatbot' && (
                 <Button label="Probar chatbot" variant="pillDark" onPress={() => navigation.navigate('Chatbot')} />
               )}
+              {DOCS_DE_SERVICIO[service.id] && (
+                <Button
+                  label="Documentación en Labs"
+                  variant="pillDark"
+                  icon="book-outline"
+                  onPress={() => navigation.navigate('Labs', { p: DOCS_DE_SERVICIO[service.id] })}
+                />
+              )}
               {service.id === 'visor-reportes' && (
                 <Button label="Ver reportes" variant="pillDark" onPress={() => navigation.navigate('Reportes')} />
               )}
@@ -111,9 +124,6 @@ export default function ServiceDetailScreen({ route, navigation }) {
   // servicios de vuelta en el ancho normal.
   const prefooter = (
     <>
-      {service.guide && service.guide.length > 0 && (
-        <GuideShowcase key={service.id} service={service} onContact={() => navigation.navigate('Contacto')} />
-      )}
       <View className="mx-auto w-full max-w-5xl px-5 pt-16">
         <Text className="mb-6 font-plexsemibold text-2xl text-carbon-black dark:text-white">
           Otros servicios
@@ -146,8 +156,6 @@ export default function ServiceDetailScreen({ route, navigation }) {
   return (
     <Screen hero={hero} prefooter={prefooter}>
       <View className="flex-row flex-wrap gap-8 pt-10">
-        {/* Sidebar desplegable */}
-        <ServiceSidebar currentId={service.id} activeDoc={doc} navigation={navigation} />
 
         {/* Contenido principal */}
         <View className="min-w-[300px] flex-1">
@@ -160,24 +168,29 @@ export default function ServiceDetailScreen({ route, navigation }) {
         />
       ) : null}
 
+      <Resolvemos problemas={venta.problemas} />
+
       {/* En accion: escenas de marca del servicio */}
       {gallery.length > 0 && (
         <View className="mb-16">
           <Text className="mb-6 font-plexsemibold text-2xl text-carbon-black dark:text-white">
             En acción
           </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 12, paddingBottom: 4 }}
-          >
-            {gallery.map((g, i) => (
-              <View
-                key={g.caption}
-                className="overflow-hidden rounded-xl border border-carbon-gray20 bg-white dark:border-carbon-gray90 dark:bg-carbon-black"
-                style={{ width: 300 }}
-              >
-                <ServiceArt service={service} scene={g.scene} height={170} seed={i + 5} label={g.caption} />
+          <Carrusel
+            items={gallery}
+            etiqueta={`En acción · ${service.title}`}
+            renderItem={(g, i) => (
+              <View className="overflow-hidden rounded-xl border border-carbon-gray20 bg-white dark:border-carbon-gray90 dark:bg-carbon-black">
+                {g.foto ? (
+                  <Image
+                    source={g.foto}
+                    resizeMode="cover"
+                    style={{ width: '100%', height: altoEscena }}
+                    accessibilityLabel={g.caption}
+                  />
+                ) : (
+                  <ServiceArt service={service} scene={g.scene} height={altoEscena} seed={i + 5} label={g.caption} />
+                )}
                 <View className="flex-row items-center gap-2 px-4 pt-3">
                   <View className="h-1.5 w-1.5 rounded-full bg-carbon-blue" />
                   <Text className="flex-1 font-plex text-sm text-carbon-black dark:text-white">{g.caption}</Text>
@@ -186,14 +199,14 @@ export default function ServiceDetailScreen({ route, navigation }) {
                   <TechStack items={g.stack} />
                 </View>
               </View>
-            ))}
-          </ScrollView>
+            )}
+          />
         </View>
       )}
 
       {/* Features */}
       <Text className="mb-6 font-plexsemibold text-2xl text-carbon-black dark:text-white">
-        Que hacemos
+        Qué hacemos
       </Text>
       <View className="mb-16 flex-row flex-wrap gap-px bg-carbon-gray20 dark:bg-carbon-gray90">
         {service.features.map((f) => (
@@ -209,9 +222,12 @@ export default function ServiceDetailScreen({ route, navigation }) {
         ))}
       </View>
 
+      <Casos casos={venta.casos} />
+      <Proceso pasos={venta.proceso} />
+
       {/* Que incluye */}
       <Text className="mb-6 font-plexsemibold text-2xl text-carbon-black dark:text-white">
-        Que incluye
+        Qué incluye
       </Text>
       <View className="mb-16 border-t border-carbon-gray20 dark:border-carbon-gray90">
         {service.deliverables.map((d) => (
@@ -224,6 +240,10 @@ export default function ServiceDetailScreen({ route, navigation }) {
           </View>
         ))}
       </View>
+
+      <Paquetes paquetes={venta.paquetes} onContact={contacto} />
+      <Preguntas faq={venta.faq} />
+      <Cierre texto={venta.cierre} onContact={contacto} />
         </View>
       </View>
     </Screen>

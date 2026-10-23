@@ -3,6 +3,7 @@ const gmail = require('../services/gmail');
 const whatsapp = require('../services/whatsapp');
 const config = require('../config');
 const excelLocal = require('../services/excelLocal');
+const bitacora = require('../services/bitacora');
 const { armarCuerpo: armarCuerpoResumenSemanal, armarCuadricula: armarCuadriculaResumenSemanal } = require('../cron/resumenSemanal');
 
 // --- Equivalentes a "Armar confirmacion (Reporte Campo / Actividades Diarias)" ---
@@ -130,7 +131,7 @@ async function revisarYAvisarIncidencia(campos, reportadoPor) {
 // --- Funcion principal: equivalente al tramo "Es Reporte de Campo? / Es Actividades Diarias?"
 // en adelante, compartido por la rama web (bot-web-guardar) y la rama WhatsApp (auto-guardado). ---
 
-async function guardarRegistro({ tabla, campos, reportadoPor, textoTranscrito, canal, whatsappFrom, whatsappPhoneNumberId }) {
+async function guardarRegistro({ tabla, campos, reportadoPor, textoTranscrito, canal, whatsappFrom, whatsappPhoneNumberId, usuarioId }) {
   let ok = true;
   let mensaje;
 
@@ -165,6 +166,12 @@ async function guardarRegistro({ tabla, campos, reportadoPor, textoTranscrito, c
   } else {
     ok = false;
     mensaje = armarMensajeNoEntendido(textoTranscrito);
+  }
+
+  // Bitacora diaria del campo (base de datos, opcional): solo si ya quedo guardado en
+  // Sheets. registrarCaptura nunca avienta -- si la base falla, se registra en consola.
+  if (ok) {
+    await bitacora.registrarCaptura({ tabla, campos, reportadoPor, canal, textoTranscrito, whatsappFrom, whatsappPhoneNumberId, usuarioId });
   }
 
   // Si el mensaje vino de WhatsApp, ademas de guardar le contestamos por ese mismo canal

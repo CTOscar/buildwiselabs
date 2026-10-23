@@ -1,0 +1,44 @@
+/* Colores y tipografia de BuildWise Labs: malva de la marca e IBM Plex, como el sitio. */
+:root {
+  --ifm-color-primary: #9d6b99;
+  --ifm-color-primary-dark: #8f5f8b;
+  --ifm-color-primary-darker: #875a83;
+  --ifm-color-primary-darkest: #6f4a6c;
+  --ifm-color-primary-light: #a97aa5;
+  --ifm-color-primary-lighter: #af83ab;
+  --ifm-color-primary-lightest: #c19dbe;
+  --ifm-font-family-base: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ifm-font-family-monospace: 'IBM Plex Mono', SFMono-Regular, Menlo, monospace;
+  --ifm-code-font-size: 92%;
+  --docusaurus-highlighted-code-line-bg: rgba(157, 107, 153, 0.14);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #c498c2;
+  --ifm-color-primary-dark: #b982b6;
+  --ifm-color-primary-darker: #b377b0;
+  --ifm-color-primary-darkest: #9d5b99;
+  --ifm-color-primary-light: #cfaecd;
+  --ifm-color-primary-lighter: #d5b9d3;
+  --ifm-color-primary-lightest: #e5d4e4;
+  --ifm-background-color: #0c0e14;
+  --ifm-navbar-background-color: #0c0e14;
+  --ifm-footer-background-color: #08090d;
+  --docusaurus-highlighted-code-line-bg: rgba(196, 152, 194, 0.18);
+}
+
+.navbar__logo img { border-radius: 6px; }
+.navbar__title { font-weight: 600; }
+.markdown h1 { font-weight: 300; letter-spacing: -0.01em; }
+.markdown h2 { font-weight: 600; }
+
+/* Inicio, Servicios y Contacto llevan al sitio principal, que es el mismo dominio: sin el
+   icono de "enlace externo" que Docusaurus pone a los href absolutos. */
+.navbar__items--right .navbar__link svg { display: none; }
+
+/* Dentro de la pagina Labs del sitio: sin barra ni pie propios, y el menu lateral pegado
+   arriba. El atributo lo pone src/embebido.js. */
+html[data-embebido] .navbar,
+html[data-embebido] .footer { display: none !important; }
+html[data-embebido] { --ifm-navbar-height: 0px; }
+html[data-embebido] .theme-doc-sidebar-container > div { top: 0 !important; height: 100vh !important; }

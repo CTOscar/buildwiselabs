@@ -93,6 +93,9 @@ router.post('/bot-web-mensaje', async (req, res) => {
       confianza: resultado.confianza,
       texto_transcrito: resultado.texto_transcrito,
       campos: resultado.campos,
+      // Uno o mas registros (filas) que la IA encontro en el mensaje -- la web pinta una
+      // tarjeta por cada uno en "Revisa antes de guardar". Solo viene en modo "agregar".
+      registros: resultado.registros || [resultado.campos || {}],
     });
   } catch (e) {
     if (e.esCuotaExcedida) {

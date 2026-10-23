@@ -3,6 +3,9 @@ const path = require('path');
 const axios = require('axios');
 const config = require('../config');
 const metricas = require('../services/metricas');
+const errores = require('../services/errores');
+const { requerirAdmin } = require('../middleware/auth');
+const trafico = require('../middleware/trafico');
 
 const router = express.Router();
 
@@ -163,7 +166,31 @@ const CACHE_MS = 5 * 60 * 1000;
 // texto (imagen, audio, musica, robotica, investigacion...). Se filtran por nombre: no es
 // perfecto, pero es lo unico que expone la API, y el modelo del .env siempre se incluye
 // aunque el filtro lo descarte.
-const NO_SIRVEN = /image|banana|tts|transcribe|robotics|lyria|computer-use|deep-research|embedding|veo|imagen/i;
+const NO_SIRVEN = /image|banana|tts|transcribe|robotics|lyria|computer-use|deep-research|embedding|veo|imagen|antigravity|customtools/i;
+
+// La API de Google regresa la lista PAGINADA (50 por pagina, con nextPageToken): antes
+// solo se leia la primera pagina y los modelos de las siguientes (ej. Gemma) nunca salian
+// en el selector. Aqui se recorren todas.
+async function listarModelosGemini() {
+  const todos = [];
+  let pageToken;
+  let vueltas = 0;
+  do {
+    const { data } = await axios.get('https://generativelanguage.googleapis.com/v1beta/models', {
+      headers: { 'x-goog-api-key': config.gemini.apiKey },
+      params: { pageSize: 1000, pageToken },
+      timeout: 15000,
+    });
+    todos.push(...(data.models || []));
+    pageToken = data.nextPageToken;
+    vueltas++;
+  } while (pageToken && vueltas < 10);
+  return todos
+    .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+    .map((m) => String(m.name || '').replace(/^models\//, ''))
+    // gemini-* y gemma-* (modelos de texto abiertos de Google, tambien sirven para extraer campos)
+    .filter((n) => /^(gemini|gemma)-/.test(n) && !NO_SIRVEN.test(n));
+}
 
 router.get('/modelos-para-elegir', async (req, res) => {
   const ahora = Date.now();
@@ -172,22 +199,20 @@ router.get('/modelos-para-elegir', async (req, res) => {
   }
 
   const opciones = [];
+  // Si alguna de las dos listas falla, NO se guarda en cache: si no, un tropiezo pasajero
+  // de Google/Anthropic dejaba el selector con un solo modelo durante 5 minutos.
+  let listaIncompleta = false;
 
   // Gemini: el del .env primero (es el que manda si no se elige nada), luego el resto.
   if (config.gemini.apiKey) {
     opciones.push({ proveedor: 'gemini', modelo: config.gemini.model, predeterminado: true });
     try {
-      const { data } = await axios.get('https://generativelanguage.googleapis.com/v1beta/models', {
-        headers: { 'x-goog-api-key': config.gemini.apiKey },
-        timeout: 15000,
-      });
-      (data.models || [])
-        .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
-        .map((m) => String(m.name || '').replace(/^models\//, ''))
-        .filter((n) => n.startsWith('gemini-') && !NO_SIRVEN.test(n) && n !== config.gemini.model)
+      (await listarModelosGemini())
+        .filter((n) => n !== config.gemini.model)
         .forEach((n) => opciones.push({ proveedor: 'gemini', modelo: n, predeterminado: false }));
     } catch (e) {
       // Si Google no contesta, al menos queda el modelo del .env en la lista.
+      listaIncompleta = true;
       console.error('No se pudo listar modelos de Gemini:', e.response?.data?.error?.message || e.message);
     }
   }
@@ -200,13 +225,15 @@ router.get('/modelos-para-elegir', async (req, res) => {
     try {
       const Anthropic = require('@anthropic-ai/sdk');
       const cliente = new Anthropic({ apiKey: config.claude.apiKey });
-      const lista = await cliente.models.list({ limit: 50 });
-      (lista.data || [])
-        .map((m) => m.id)
-        .filter((id) => id && id !== config.claude.model)
-        .forEach((id) => opciones.push({ proveedor: 'claude', modelo: id, predeterminado: false }));
+      // El SDK pagina solo con "for await" (antes se leia solo la primera pagina).
+      for await (const m of cliente.models.list({ limit: 100 })) {
+        if (m.id && m.id !== config.claude.model) {
+          opciones.push({ proveedor: 'claude', modelo: m.id, predeterminado: false });
+        }
+      }
     } catch (e) {
       // Si Anthropic no contesta, al menos queda el modelo del .env (igual que con Gemini).
+      listaIncompleta = true;
       console.error('No se pudo listar modelos de Claude:', e.error?.error?.message || e.message);
     }
   }
@@ -217,9 +244,28 @@ router.get('/modelos-para-elegir', async (req, res) => {
     // El compositor lo usa para avisar que el audio no respeta la eleccion.
     notaAudio: 'El audio siempre se procesa con Gemini (Claude no acepta audio).',
     claudeDisponible: Boolean(config.claude.apiKey),
+    listaIncompleta,
   };
-  cacheModelos = { ts: ahora, datos };
+  if (!listaIncompleta) cacheModelos = { ts: ahora, datos };
   res.json(datos);
+});
+
+// GET /admin/errores -> los ultimos errores del servidor, para verlos sin tener que
+// entrar a los registros del hosting ni lanzar peticiones a mano con curl.
+//
+// Solo administradores: una traza de error puede revelar rutas internas, nombres de tablas
+// y partes de la configuracion. El servicio ya tapa contraseñas y llaves antes de guardar
+// (ver taparSecretos en services/errores.js), pero esto es la segunda cerradura.
+router.get('/admin/errores', requerirAdmin, (req, res) => {
+  const limite = Number(req.query.limite) || 30;
+  res.json({ ok: true, resumen: errores.resumen(), errores: errores.ultimos(limite) });
+});
+
+// GET /monitoreo/trafico -> flujo entrante (peticiones) y saliente (llamadas a la IA).
+// Sin requerirAdmin: no expone datos de nadie, solo rutas y contadores, y es util que
+// cualquiera del equipo pueda ver si el bot esta saturado. Igual queda tras requerirSesion.
+router.get('/monitoreo/trafico', (req, res) => {
+  res.json({ ok: true, entrante: trafico.resumen(), saliente: metricas.resumen() });
 });
 
 module.exports = router;

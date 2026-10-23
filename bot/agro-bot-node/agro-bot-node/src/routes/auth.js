@@ -4,6 +4,7 @@ const fs = require('fs');
 const config = require('../config');
 const { hayBaseDeDatos } = require('../services/prisma');
 const usuariosService = require('../services/usuarios');
+const fotos = require('../services/fotos');
 
 const router = express.Router();
 
@@ -32,6 +33,12 @@ router.post('/login', async (req, res) => {
         req.session.nombre = u.nombre;
         req.session.rol = u.rol;
         return res.json({ ok: true });
+      }
+      if (await usuariosService.cuentaPendiente(usuario, password)) {
+        return res.status(403).json({
+          ok: false,
+          mensaje: 'Tu cuenta está pendiente de aprobación. Un administrador tiene que activarla antes de que puedas entrar.',
+        });
       }
       return res.status(401).json({ ok: false, mensaje: 'Usuario o contraseña incorrectos.' });
     } catch (e) {
@@ -70,6 +77,10 @@ router.get('/perfil', (req, res) => {
   res.json({
     ok: true,
     usuario: req.session.usuario,
+    // El id sirve para que /usuarios sepa cual de las filas es la de quien esta mirando y
+    // no le ofrezca cambiarse el rol a si mismo (el servidor lo rechaza igual, pero mejor
+    // no ofrecer un boton que solo da error).
+    usuarioId: req.session.usuarioId || null,
     nombre: req.session.nombre || req.session.usuario,
     rol: req.session.rol || 'usuario',
     // La UI usa esto para mostrar u ocultar el acceso a /usuarios.
@@ -77,23 +88,43 @@ router.get('/perfil', (req, res) => {
   });
 });
 
-// POST /perfil-foto -> guarda la foto de perfil. Como el login es unico y compartido
-// (no hay un sistema de multiples usuarios, ver config.auth), es UNA sola foto para
-// todo el equipo -- se sobreescribe siempre el mismo archivo. El navegador ya la manda
-// recortada a cuadro y comprimida a JPEG (ver recortarYComprimirFoto en index.html), asi
-// que aqui solo se decodifica el base64 y se escribe tal cual.
+// Foto de perfil, UNA POR PERSONA (ver services/fotos.js).
+//
+// Antes era una sola foto compartida para todo el equipo: el ultimo que subiera la suya se
+// la pisaba a los demas. Ahora cada cuenta guarda la suya, identificada por el id del
+// usuario de la sesion. En el modo de acceso unico (sin base de datos) sigue habiendo una
+// sola, que es lo correcto ahi porque tambien hay un solo acceso.
+
+// POST /perfil-foto -> guarda la foto de QUIEN tiene la sesion abierta. El navegador ya la
+// manda recortada a cuadro y comprimida a JPEG (ver recortarYComprimirFoto en index.js),
+// asi que aqui solo se decodifica el base64 y se escribe.
 router.post('/perfil-foto', (req, res) => {
   if (!req.session || !req.session.autenticado) return res.status(401).json({ ok: false });
   const { foto_base64: fotoBase64 } = req.body || {};
   if (!fotoBase64) return res.status(400).json({ ok: false, mensaje: 'Falta la foto.' });
   try {
-    const buffer = Buffer.from(fotoBase64, 'base64');
-    const destino = path.join(__dirname, '..', 'public', 'img', 'perfil.jpg');
-    fs.writeFileSync(destino, buffer);
+    fotos.guardar(fotos.claveDeSesion(req.session), Buffer.from(fotoBase64, 'base64'));
     res.json({ ok: true });
   } catch (e) {
     res.status(500).json({ ok: false, mensaje: 'No se pudo guardar la foto: ' + e.message });
   }
+});
+
+// GET /perfil-foto -> devuelve la foto de quien tiene la sesion abierta, o 404 si todavia
+// no ha subido ninguna (y entonces la pantalla deja el circulo con su inicial).
+//
+// Va por una ruta y no como archivo estatico por dos motivos: exige sesion, y manda
+// "no-cache". Eso ultimo importa porque la direccion es siempre la misma aunque la foto
+// cambie; sin esa cabecera el navegador seguiria mostrando la anterior. "no-cache" no
+// significa "no la guardes", sino "preguntame antes de usarla": si no cambio, el servidor
+// contesta 304 y no se vuelve a descargar.
+router.get('/perfil-foto', (req, res) => {
+  if (!req.session || !req.session.autenticado) return res.status(401).end();
+  const archivo = fotos.rutaParaServir(fotos.claveDeSesion(req.session));
+  if (!archivo) return res.status(404).end();
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Content-Type', 'image/jpeg');
+  res.sendFile(archivo);
 });
 
 // Pagina minima reutilizable (mismo estilo del resto) para avisos sin credenciales.
@@ -130,6 +161,64 @@ function escapeHtml(v) {
     .replace(/"/g, '&quot;');
 }
 
+// --- "Crear perfil" desde el login (publico, sin sesion) ---
+//
+// Solo existe con base de datos (los perfiles son filas de la tabla usuarios). El perfil
+// nace DESACTIVADO y con rol "usuario" SIEMPRE (no se acepta "rol" del navegador): un
+// administrador lo activa desde /usuarios. Sin esa aprobacion, cualquiera con el enlace del
+// bot podria crearse cuenta y escribir en las hojas del equipo.
+router.get('/registro/estado', (req, res) => {
+  res.json({ ok: true, disponible: hayBaseDeDatos() });
+});
+
+const PATRON_USUARIO = /^[a-zA-Z0-9._-]{3,30}$/;
+const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+router.post('/registro', async (req, res) => {
+  if (!hayBaseDeDatos()) {
+    return res.status(200).json({
+      ok: false,
+      mensaje: 'Por ahora el bot usa un acceso compartido y no permite crear perfiles. Pide el acceso a un administrador.',
+    });
+  }
+  const { nombre, usuario, email, password } = req.body || {};
+  const nombreLimpio = String(nombre || '').trim();
+  const usuarioLimpio = String(usuario || '').trim();
+  const emailLimpio = String(email || '').trim();
+  if (nombreLimpio.length < 3 || nombreLimpio.length > 80) {
+    return res.status(400).json({ ok: false, mensaje: 'Escribe tu nombre completo (3 a 80 caracteres).' });
+  }
+  if (!PATRON_USUARIO.test(usuarioLimpio)) {
+    return res.status(400).json({ ok: false, mensaje: 'El usuario debe tener de 3 a 30 caracteres: letras, números, punto, guion o guion bajo, sin espacios.' });
+  }
+  if (emailLimpio && (!PATRON_CORREO.test(emailLimpio) || emailLimpio.length > 120)) {
+    return res.status(400).json({ ok: false, mensaje: 'El correo no parece válido.' });
+  }
+  if (String(password || '').length < 6 || String(password).length > 100) {
+    return res.status(400).json({ ok: false, mensaje: 'La contraseña debe tener al menos 6 caracteres.' });
+  }
+  try {
+    await usuariosService.crearUsuario({
+      nombre: nombreLimpio,
+      usuario: usuarioLimpio,
+      email: emailLimpio || null,
+      password: String(password),
+      rol: 'usuario',
+      activo: false,
+    });
+    res.json({
+      ok: true,
+      mensaje: 'Perfil creado. Un administrador tiene que activarlo; cuando lo haga podrás entrar con tu usuario y contraseña.',
+    });
+  } catch (e) {
+    if (e.code === 'P2002') {
+      return res.status(409).json({ ok: false, mensaje: 'Ese usuario o correo ya está registrado.' });
+    }
+    console.error('Error creando perfil desde el login:', e.message);
+    res.status(500).json({ ok: false, mensaje: 'No se pudo crear el perfil. Intenta de nuevo más tarde.' });
+  }
+});
+
 // GET /register -> "Ver usuario y contraseña" del login.
 //
 // En modo compartido muestra el acceso del equipo, como siempre. En cuanto haya base de
@@ -150,7 +239,7 @@ router.get('/register', (req, res) => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Usuario y contraseña - Agro PYME</title>
+<title>Usuario y contraseña - La Pedregoza</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body { font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -160,8 +249,8 @@ router.get('/register', (req, res) => {
 
 <div class="w-full max-w-sm">
   <div class="flex items-center gap-2 justify-center mb-8">
-    <span class="text-2xl"></span>
-    <span class="font-semibold text-stone-700 tracking-tight">Agro PYME</span>
+    <img src="/img/pedregoza-logo.png" alt="La Pedregoza" class="h-7 w-auto">
+    <span class="font-semibold text-stone-700 tracking-tight">La Pedregoza</span>
   </div>
 
   <div class="bg-white rounded-3xl shadow-sm border border-stone-100 p-8">

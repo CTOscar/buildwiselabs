@@ -1,0 +1,73 @@
+{
+  "_lee_esto_primero": [
+    "Este NO es un archivo que el proyecto use. Es el bloque para PEGAR dentro de tu",
+    ".mcp.json, junto al servidor de Stitch que ya tienes.",
+    "",
+    "COMO: abre .mcp.json, y dentro de 'mcpServers' agrega las dos entradas de abajo",
+    "(mysql-local y mysql-hostinger) despues de 'stitch', separandolas con coma. No",
+    "copies las llaves exteriores ni estas notas.",
+    "",
+    "ANTES DE USARLO, confirma que el paquete siga vigente. No pude verificarlo desde",
+    "aqui porque la busqueda web esta deshabilitada en esta cuenta:",
+    "   npx -y @benborla29/mcp-server-mysql --help",
+    "Si ya no existe o cambio de nombre, busca 'mcp server mysql' en npm y ajusta",
+    "'args' y los nombres de las variables; la forma del bloque es la misma.",
+    "",
+    "SEGURIDAD -- tres cosas que importan:",
+    "  1. Las contraseñas quedan en .mcp.json en TEXTO PLANO. Ese archivo merece el",
+    "     mismo cuidado que el .env: nunca al repositorio, nunca a un chat, nunca al zip",
+    "     (ya esta excluido del empaquetado).",
+    "  2. Para Hostinger, crea en el panel un usuario de MySQL APARTE con permiso de",
+    "     solo SELECT, y usa ese aqui. No el usuario con el que corre el bot.",
+    "  3. ALLOW_INSERT/UPDATE/DELETE en 'false' deja la conexion de solo lectura. Dejalos",
+    "     asi: sirve para mirar, no para modificar. Las escrituras se hacen con",
+    "     migraciones, que si dejan rastro."
+  ],
+
+  "mcpServers": {
+    "mysql-local": {
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "env": {
+        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "agrobot",
+        "MYSQL_PASS": "agrobot",
+        "MYSQL_DB": "agrobot",
+        "ALLOW_INSERT_OPERATION": "false",
+        "ALLOW_UPDATE_OPERATION": "false",
+        "ALLOW_DELETE_OPERATION": "false"
+      }
+    },
+
+    "mysql-hostinger": {
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "env": {
+        "MYSQL_HOST": "31.97.208.45",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "PON_AQUI_UN_USUARIO_DE_SOLO_LECTURA",
+        "MYSQL_PASS": "PON_AQUI_SU_CONTRASENA",
+        "MYSQL_DB": "u695228895_agrobot",
+        "ALLOW_INSERT_OPERATION": "false",
+        "ALLOW_UPDATE_OPERATION": "false",
+        "ALLOW_DELETE_OPERATION": "false"
+      }
+    }
+  },
+
+  "_notas_de_los_hosts": [
+    "mysql-local: 127.0.0.1 y no 'localhost' -- localhost se resuelve por IPv6 y el",
+    "reenvio de puertos de Docker Desktop en Windows no responde por ahi. El 3307 es el",
+    "puerto en tu maquina; dentro del contenedor sigue siendo el 3306.",
+    "",
+    "mysql-hostinger: 31.97.208.45 es la direccion de acceso REMOTO, la que funciona",
+    "desde tu PC, y necesita que 'MySQL remoto' siga habilitado en el panel con tu IP",
+    "autorizada. Ojo: si tu proveedor de internet te cambia la IP, deja de conectar y",
+    "hay que volver a autorizarla. La direccion 192.168.34.160 NO sirve desde aqui: esa",
+    "es interna de Hostinger y solo la alcanza la aplicacion que corre alla.",
+    "",
+    "Los nombres importan: con 'mysql-local' y 'mysql-hostinger' bien distinguidos se",
+    "evita el enredo de buscar en una base lo que se creo en la otra."
+  ]
+}
