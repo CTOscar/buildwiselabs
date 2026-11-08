@@ -1,18 +1,20 @@
 # Versiones del Panel de Flota
 
-| Carpeta | Qué es | Fecha | Notas |
-|---|---|---|---|
-| `actual/` | Código fuente (Vite). `dist/` es la build más reciente | build del 7 nov, 20:21 | Coincide con `public_html.zip` de la raíz de `E:\PYME`. No tiene el dashboard `home.js` |
-| `2026-11-07_recuperado/` | Despliegue compilado y parcheado, recuperado | 7 nov | Tiene `home.js` y `statuspage.js`. Sin fuente |
+Se conserva una sola versión: **`2026-11-07_recuperado/`** (despliegue compilado y parcheado, con
+`home.js` y `statuspage.js`). Su backend es `../panel-flota-api` (API Express + MySQL, `/api/panel`).
 
-## Otras copias que existen fuera de esta carpeta
+## Lo que se borró (8 nov 2026)
 
-- **Producción:** `panelpack.buildwiselabs.net` (Hostinger), subido el 5 nov a las 00:49. Build más antigua.
-- **`flotarack.net`:** copia vieja del 4 nov, probablemente descartable.
-- **`E:\PYME\public_html.zip.bak`:** build del 5 nov (`index-Bka7l8xf.js`).
-- **`E:\PYME\public_html.zip`:** build del 7 nov, igual que `actual/dist`.
+`versiones/actual/` (código fuente Vite y su `dist/` del 7 nov, sin el dashboard `home.js`) y un
+`package-lock.json` huérfano. Siguen en git, en el commit `a169f2af` de la rama `reorganizar-rastreo`:
 
-## Pendiente
+```
+git checkout a169f2af -- Rastreo_medicion/versiones/actual
+```
 
-Las dos líneas están separadas: `actual/` tiene el fuente más nuevo, y `2026-11-07_recuperado/` tiene el dashboard.
-Falta decidir cómo juntarlas. No se ha tocado nada en el servidor.
+(`node_modules/` y `dist/` no estaban en git: `npm install` y `npm run build` los regeneran.)
+
+## Otras copias fuera de esta carpeta
+
+- Producción: `panelpack.buildwiselabs.net` (Hostinger), 5 nov 00:49. Más antigua que el recuperado.
+- `E:\PYME\public_html.zip` (build del 7 nov) y `public_html.zip.bak` (5 nov).
