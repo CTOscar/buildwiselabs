@@ -1,0 +1,156 @@
+
+/* === Herramientas del mapa — estilo Operations Center (John Deere) === */
+:root{--jd-green:54 124 43;--jd-yellow:255 222 0}
+.jd-rail{position:absolute;right:12px;top:88px;z-index:20;display:grid;gap:8px}
+.jd-group{display:grid;overflow:hidden;border-radius:4px;background:rgb(var(--panel));box-shadow:0 1px 4px rgb(0 0 0/.28)}
+.jd-btn{position:relative;display:grid;width:40px;height:40px;place-items:center;color:rgb(var(--fg));transition:background .12s,color .12s}
+.jd-btn+.jd-btn{border-top:1px solid rgb(var(--line))}
+.jd-btn:hover{background:rgb(var(--raise))}
+.jd-btn[aria-pressed=true],.jd-btn[aria-expanded=true]{background:rgb(var(--jd-green));color:#fff}
+.jd-btn[aria-pressed=true]::after,.jd-btn[aria-expanded=true]::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:rgb(var(--jd-yellow))}
+.jd-panel{position:absolute;right:60px;top:88px;z-index:21;width:280px;max-height:calc(100% - 112px);overflow-y:auto;border-radius:4px;background:rgb(var(--panel));color:rgb(var(--fg));box-shadow:0 2px 12px rgb(0 0 0/.35);border-top:4px solid rgb(var(--jd-yellow))}
+.jd-panel[hidden],.jd-measure[hidden]{display:none}
+.jd-panel h3{padding:12px 16px 8px;font-size:15px;font-weight:700}
+.jd-sec{padding:8px 16px 12px;border-top:1px solid rgb(var(--line))}
+.jd-sec>.eyebrow{margin-bottom:8px}
+.jd-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jd-opt{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;font-size:14px;text-align:left}
+.jd-switch{position:relative;width:38px;height:20px;flex:none;border-radius:10px;background:rgb(var(--line));transition:background .15s}
+.jd-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(0 0 0/.3);transition:transform .15s}
+[aria-checked=true]>.jd-switch{background:rgb(var(--jd-green))}
+[aria-checked=true]>.jd-switch::after{transform:translateX(18px)}
+.jd-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;overflow:hidden;border:1px solid rgb(var(--line));border-radius:4px}
+.jd-seg button{min-height:34px;padding:0 8px;font-size:13px;font-weight:600;color:rgb(var(--muted))}
+.jd-seg button+button{border-left:1px solid rgb(var(--line))}
+.jd-seg button[aria-pressed=true]{background:rgb(var(--jd-green));color:#fff}
+.jd-layer-opt{display:grid;gap:4px;justify-items:center;font-size:12px;font-weight:600}
+.jd-layer-opt>span:first-child{width:100%;height:52px;border-radius:4px;border:2px solid transparent}
+.jd-layer-opt[aria-pressed=true]>span:first-child{border-color:rgb(var(--jd-green));box-shadow:0 0 0 2px rgb(var(--jd-yellow))}
+.jd-reset{width:100%;min-height:36px;border:1px solid rgb(var(--line));border-radius:4px;font-size:13px;font-weight:600}
+.jd-reset:hover{background:rgb(var(--raise))}
+.jd-measure{position:absolute;left:50%;bottom:24px;z-index:21;transform:translateX(-50%);border-radius:4px;background:rgb(var(--jd-green));padding:8px 12px;font-size:13px;font-weight:600;color:#fff;box-shadow:0 1px 4px rgb(0 0 0/.3);border-bottom:3px solid rgb(var(--jd-yellow));white-space:nowrap}
+.jd-clear{margin-left:10px;border-radius:3px;background:rgb(255 255 255/.2);padding:1px 8px;font-size:12px}
+.jd-vtx{display:block;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #367C2B}
+.is-measuring{cursor:crosshair!important}
+.show-labels .mk{overflow:visible}
+.show-labels .mk::before{content:attr(title);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:9px;white-space:nowrap;background:rgb(var(--panel));color:rgb(var(--fg));border:1px solid rgb(var(--line));border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;box-shadow:0 1px 4px rgb(0 0 0/.25);pointer-events:none}
+.jd-rail{list-style:none;margin:0;padding:0}
+.jd-fly{position:relative;overflow:visible}
+.jd-flyout{position:absolute;right:46px;top:0;display:flex;list-style:none;margin:0;padding:0;overflow:hidden;border-radius:4px;background:rgb(var(--panel));box-shadow:0 1px 4px rgb(0 0 0/.28)}
+.jd-flyout[hidden]{display:none}
+.jd-flyout button{height:40px;padding:0 14px;font-size:13px;font-weight:600;white-space:nowrap;color:rgb(var(--fg))}
+.jd-flyout li+li{border-left:1px solid rgb(var(--line))}
+.jd-flyout button:hover{background:rgb(var(--raise))}
+.jd-flyout button[aria-pressed=true]{background:rgb(var(--jd-green));color:#fff;box-shadow:inset 0 -3px 0 rgb(var(--jd-yellow))}
+@media (max-width:1023px){.jd-rail{top:124px}.jd-panel{top:124px}}
+
+/* === Encabezado — concepto Operations Center: marca | título | organización | usuario === */
+.jd-top{display:flex;height:44px;align-items:center;gap:14px;padding:0 16px;background:rgb(var(--panel));color:rgb(var(--fg));font-size:12px;border-bottom:1px solid rgb(var(--line))}
+.jd-brand{display:flex;align-items:center;height:100%}
+.jd-vline{width:1px;height:20px;flex:none;background:rgb(var(--line))}
+.jd-title{display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:700;white-space:nowrap}
+.jd-title span{font-size:12px;font-weight:500;color:rgb(var(--muted))}
+.jd-flex{flex:1}
+.jd-org,.jd-user{display:flex;align-items:center;gap:8px;height:100%;padding:0 8px;font-size:13px;font-weight:600;color:rgb(var(--fg))}
+.jd-org svg,.jd-user svg{color:rgb(var(--muted))}
+.jd-org:hover,.jd-user:hover{background:rgb(var(--raise))}
+.jd-org:focus-visible,.jd-user:focus-visible{outline:2px solid rgb(var(--jd-green));outline-offset:-2px}
+.jd-top nav a:hover,.jd-top nav button:hover{text-decoration:none;color:rgb(var(--jd-green))}
+
+/* === Barra de herramientas (fila 3) estilo Operations Center === */
+.jd-nav{display:flex;height:40px;align-items:stretch;gap:2px;padding:0 8px;background:rgb(var(--panel));border-top:1px solid rgb(var(--line));font-size:14px}
+.jd-item{position:relative;display:flex}
+.jd-ni{display:flex;align-items:center;gap:8px;padding:0 12px;color:rgb(var(--fg));border-bottom:3px solid transparent;font-weight:500;white-space:nowrap}
+.jd-ni svg{color:#767676;flex:none}
+.jd-ni:hover{background:rgb(var(--raise))}
+.jd-ni.is-active{border-bottom-color:rgb(var(--jd-green));font-weight:700}
+.jd-ni.is-active svg{color:rgb(var(--jd-green))}
+.jd-ni[aria-expanded=true]{background:rgb(var(--raise))}
+.jd-ni[aria-expanded=true] .jd-chev{transform:rotate(180deg)}
+.jd-chev{margin-left:-2px;transition:transform .15s}
+.jd-icon{padding:0 10px;position:relative}
+.jd-nav .jd-vline{align-self:center}
+.jd-new{position:absolute;top:3px;right:-4px;border-radius:3px;background:rgb(var(--jd-yellow));padding:0 4px;font-size:9px;font-weight:700;line-height:14px;color:#000}
+.jd-dd{position:absolute;left:0;top:100%;z-index:60;min-width:230px;margin:0;padding:4px 0;list-style:none;background:rgb(var(--panel));color:rgb(var(--fg));border-top:3px solid rgb(var(--jd-yellow));box-shadow:0 4px 14px rgb(0 0 0/.35)}
+.jd-dd[hidden]{display:none}
+.jd-dd button{display:block;width:100%;padding:10px 16px;text-align:left;font-size:14px}
+.jd-dd button:hover{background:rgb(var(--raise));color:rgb(var(--jd-green))}
+.jd-top #rail{align-self:stretch;margin-left:8px;gap:22px}
+.jd-top .menu-btn{font-size:14px}
+.jd-util{display:flex;align-items:center;gap:12px;margin-right:6px;font-size:13px}
+.jd-util a{display:none}
+.jd-util button:hover{color:rgb(var(--jd-green))}
+@media (min-width:1024px){
+  #panel{top:45px!important}
+  #sim-view,#stats-view,#scene-view{top:45px!important}
+  #chips{top:57px!important}
+  .jd-rail,.jd-panel{top:61px}
+  [data-avatar]{display:none!important}
+}
+#apps-launcher,#mode,#conn{display:none!important}
+
+
+.jd-orgw{position:relative;display:flex;height:100%}
+.jd-org[aria-expanded=true]{background:rgb(var(--raise))}
+.jd-orgpop{position:absolute;right:0;top:100%;z-index:60;width:300px;padding:16px 16px 6px;background:rgb(var(--panel));color:rgb(var(--fg));border-top:3px solid rgb(var(--jd-yellow));box-shadow:0 4px 14px rgb(0 0 0/.35)}
+.jd-orgpop[hidden]{display:none}
+.jd-orgname{font-size:15px;font-weight:700}
+.jd-orgaddr{margin:6px 0 12px;font-size:13px;line-height:1.5;color:rgb(var(--muted))}
+.jd-orglink{display:flex;width:100%;align-items:center;gap:10px;padding:11px 0;border-top:1px solid rgb(var(--line));font-size:14px;text-align:left}
+.jd-orglink svg{color:rgb(var(--muted));flex:none}
+.jd-orglink:hover{color:rgb(var(--jd-green))}
+#appbar{z-index:auto!important}
+
+
+/* === Menú Tools (agrupa Inicio, Mapa, Configuración, Plan, ...) === */
+.jd-tools{padding:0 16px 0 14px;font-weight:700}
+.jd-toolsmenu{width:300px;max-height:calc(100vh - 60px);overflow-y:auto;padding:4px 0 8px}
+.jd-row{display:flex;width:100%;align-items:center;gap:12px;padding:10px 16px;font-size:14px;font-weight:600;text-align:left}
+.jd-row svg{color:#767676;flex:none}
+.jd-row:hover{background:rgb(var(--raise))}
+.jd-row.is-active{box-shadow:inset 4px 0 0 rgb(var(--jd-green));font-weight:700}
+.jd-row.is-active svg{color:rgb(var(--jd-green))}
+.jd-sec2{margin-top:6px;padding-top:6px;border-top:1px solid rgb(var(--line))}
+.jd-sec2 h4{display:flex;align-items:center;gap:12px;padding:8px 16px 4px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgb(var(--muted))}
+.jd-sec2 h4 svg{color:#767676;flex:none;height:18px;width:18px}
+.jd-dd .jd-sub{padding:8px 16px 8px 46px;font-size:14px}
+.jd-dd .jd-row{display:flex;width:100%;padding:10px 16px}
+
+/* === Header de una sola fila, adaptable === */
+.jd-util{display:none!important}
+.jd-top>.jd-item,.jd-top>.jd-orgw{align-self:stretch}
+.jd-top>.jd-item>.jd-ni{height:100%}
+.jd-top>.jd-has-dd{margin-left:4px}
+#searchbox{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:260px!important;flex:none;z-index:5}
+.jd-top .jd-vline{margin:0 -2px}
+@media (max-width:1699px){.jd-title span{display:none}}
+@media (max-width:1499px){.jd-org>span{display:none}.jd-top{gap:10px}}
+@media (max-width:1379px){#rail{display:none}}
+@media (max-width:1200px){#searchbox{width:190px!important}}
+@media (max-width:1110px){.jd-top [data-go="help"],.jd-top [data-go="help"]+.jd-vline{display:none}}
+.jd-logout{gap:8px;padding:0 12px;font-size:13px;font-weight:600}
+@media (max-width:1499px){.jd-logout span{display:none}.jd-logout{padding:0 10px}}
+@media (max-width:1023px){
+  #appbar{display:block!important}
+  .jd-top{padding:0 10px;gap:8px}
+  .jd-title,.jd-brand+.jd-vline{display:none}
+  #searchbox{width:auto!important;flex:1 1 140px;min-width:100px;max-width:420px}
+  #chips{top:53px!important}
+  .jd-rail,.jd-panel{top:97px!important}
+  .jd-panel{max-height:calc(100% - 200px)}
+}
+@media (max-width:699px){
+  .jd-orgw,.jd-top .jd-vline,.jd-top [data-go="help"],.jd-top>.jd-item:has([data-links-btn]){display:none}
+  .jd-tools span{display:none}
+  .jd-tools{padding:0 10px}
+  .jd-top>.jd-has-dd{margin-left:0}
+  .jd-toolsmenu{position:fixed;left:8px;right:8px;top:48px;width:auto;max-height:calc(100vh - 120px)}
+}
+#searchbox #search-form{height:34px!important}
+
+/* La barra de enlaces (Flota, Alertas, Lotes, Reportes, Combustible) vive ahora en Tools > Analizar */
+#rail{display:none!important}
+.jd-dd .jd-sub{position:relative}
+.jd-sub.is-current{font-weight:700;box-shadow:inset 4px 0 0 rgb(var(--jd-green))}
+.jd-badge{display:inline-block;min-width:16px;margin-left:8px;padding:0 5px;border-radius:8px;background:rgb(var(--crit));font-size:10px;font-weight:700;line-height:16px;text-align:center;color:#fff;vertical-align:middle}
+.jd-badge[hidden]{display:none}

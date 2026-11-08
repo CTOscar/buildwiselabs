@@ -1,0 +1,18 @@
+
+/*perfil-debian*/
+/* Perfil y sesión: ventana bajo el icono de usuario, estilo Debian */
+#dh-prof{position:fixed;z-index:70;width:440px;max-width:calc(100vw - 16px);max-height:calc(100vh - 70px);overflow-y:auto;background:#fff;color:#222;font:14px/1.45 sans-serif;border:1px solid #d2d3d7;box-shadow:0 4px 14px rgba(0,0,0,.25);--panel:255 255 255;--raise:245 246 247;--line:210 211 215;--fg:34 34 34;--muted:90 90 90;--accent:38 71 91}
+#dh-prof[hidden]{display:none}
+#dh-prof [data-section=profile]{display:flex!important;flex-direction:column}
+#dh-prof [data-section=profile][hidden]{display:flex!important}
+#dh-prof h2{font-family:sans-serif!important;font-weight:normal!important;font-size:1.25rem!important;color:#000}
+#dh-prof .eyebrow,#dh-prof h3{font-family:sans-serif;font-weight:bold;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#444}
+#dh-prof .rounded-lg,#dh-prof .rounded-md,#dh-prof .rounded-xl,#dh-prof .rounded-full{border-radius:0!important}
+#dh-prof .bg-raise{background:#f5f6f7!important}
+#dh-prof input,#dh-prof select,#dh-prof textarea{border-radius:2px!important;border:1px solid #767676!important;background:#fff!important;color:#222!important;box-shadow:none!important;font-family:sans-serif}
+#dh-prof input:focus,#dh-prof select:focus{background:#ffffcb!important;outline:none!important}
+#dh-prof .btn{border-radius:2px!important;background:#efefef;border:1px solid #767676;color:#222;box-shadow:none;font-family:sans-serif}
+#dh-prof .btn-primary{background:#26475b!important;color:#fff!important;border:0!important}
+#dh-prof .btn:hover{text-decoration:underline}
+#dh-prof [data-act=photo-remove]{color:#0035c7}
+@media (max-width:700px){#dh-prof{left:8px!important;right:8px!important;width:auto}}

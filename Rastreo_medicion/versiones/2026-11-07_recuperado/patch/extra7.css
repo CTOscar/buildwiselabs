@@ -1,0 +1,63 @@
+
+/*responsive-debian*/
+/* ===== Móvil y tableta: media queries del marco Debian, Data Center, Combustible y paneles ===== */
+#home-view{-webkit-text-size-adjust:100%;overflow-x:hidden}
+#home-view img,#home-view iframe{max-width:100%}
+#home-view .tabular,#home-view .dh-detail{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* Tableta y menor */
+@media (max-width:1023px){
+  #home-view #dh-header{padding:0 8px}
+  #home-view #dh-navbar ul{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;min-height:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #home-view #dh-navbar ul::-webkit-scrollbar{display:none}
+  #home-view #dh-navbar li{flex:0 0 auto;display:block;float:none}
+  #home-view #dh-navbar a:link,#home-view #dh-navbar a:visited{display:block;margin:0;padding:.9em .75em .6em;white-space:nowrap}
+  #home-view #dh-breadcrumbs{font-size:.7em}
+  #home-view .row{display:block}
+  #home-view .row>.column,#home-view .row>.community,#home-view .row>.column-4-parts{float:none;width:auto;box-sizing:border-box}
+  #root.dh-mapmode #stats-view{overflow:auto}
+  #stats-view .overflow-auto,#stats-view .overflow-x-auto,#stats-view [class*="overflow-"]{-webkit-overflow-scrolling:touch}
+  #stats-view table{min-width:640px}
+}
+/* Móvil */
+@media (max-width:700px){
+  #home-view #dh-splash:not(.dh-hero){height:84px}
+  #home-view #dh-splash:not(.dh-hero) h1{font-size:1.7em;line-height:84px}
+  #home-view.dh-map #dh-mapsplash{height:40px}
+  #home-view.dh-map #dh-mapsplash h1{font-size:1.15em;line-height:40px}
+  #home-view #dh-footer{font-size:.78em;padding:.2em .5em}
+  #home-view.dh-map #dh-footer #dh-fineprint{display:none}
+  #home-view.dh-map #dh-footer #dh-pageLang,#home-view.dh-map #dh-footer hr{margin:0;padding:.15em 0}
+  #home-view .nw .nw-grid,#home-view .nw-grid{grid-template-columns:1fr!important}
+  #home-view table{font-size:.85em}
+  #home-view .dh-metrics{grid-template-columns:repeat(2,1fr)}
+  #home-view .dh-topics a{display:inline-block;margin:.1em .4em}
+  #chips{left:8px!important;right:8px!important;max-width:none!important;top:auto!important}
+  #root.dh-mapmode #chips{top:calc(53px + var(--dh-top,100px))!important}
+  #chips .fchip{padding:6px 10px;font-size:12px}
+  #dh-bell{width:calc(100vw - 16px)!important;right:8px!important;left:8px!important;max-height:calc(100vh - 90px)}
+  #dh-gs{left:8px!important;right:8px!important;width:auto!important}
+  .dh-earth{aspect-ratio:4/5}
+  #stats-view aside{max-height:46vh}
+  #stats-view header{padding:6px 8px}
+  #stats-view [role=tablist]{overflow-x:auto;white-space:nowrap}
+  #stats-view [role=tab]{padding-left:10px;padding-right:10px}
+  #panel .td-hero h2{font-size:1.7rem!important}
+  #panel button.action{padding:8px 4px}
+  #appbar #search-form button[type=submit]{padding:0 6px;font-size:11px}
+  .jd-top #searchbox{min-width:0}
+}
+/* Móvil muy angosto */
+@media (max-width:420px){
+  #home-view #dh-navbar a:link,#home-view #dh-navbar a:visited{padding:.8em .6em .5em;font-size:.95em}
+  #appbar #search-form input{font-size:12px}
+  #appbar #search-form button[type=submit]::after{content:"Ir"}
+  #home-view .hero-chips{gap:6px}
+}
+/* Pantallas bajas (móvil horizontal) */
+@media (max-height:520px) and (orientation:landscape){
+  #home-view #dh-splash.dh-hero{height:70vh}
+  #home-view.dh-map #dh-mapsplash{display:none}
+}
+/* Preferencia de menos movimiento */
+@media (prefers-reduced-motion:reduce){#home-view *{scroll-behavior:auto!important}}

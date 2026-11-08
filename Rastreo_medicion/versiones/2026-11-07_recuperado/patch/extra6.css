@@ -1,0 +1,26 @@
+
+/*combustible-debian*/
+/* Combustible y velocidad: dentro del marco Debian, tema claro */
+#root.dh-mapmode #stats-view{top:calc(45px + var(--dh-top,127px))!important;bottom:var(--dh-bot,40px)!important;left:0!important;right:0!important;height:auto!important;z-index:36}
+#stats-view{--panel:255 255 255;--raise:245 246 247;--line:210 211 215;--fg:34 34 34;--muted:90 90 90;--ink:255 255 255;--bg:255 255 255;--accent:38 71 91;background:#fff;color:#222;font-family:sans-serif}
+#stats-view header{background:#f5f6f7!important;border-bottom:1px solid #d2d3d7}
+#stats-view header h2{display:none}
+#stats-view h2,#stats-view h3{font-family:sans-serif!important;font-weight:normal!important;color:#000}
+#stats-view .text-accent{color:#0035c7!important;text-decoration:underline}
+#stats-view .btn{border-radius:2px!important;background:#efefef;border:1px solid #767676;color:#0035c7;box-shadow:none;font-family:sans-serif}
+#stats-view .btn:hover{background:#fff;text-decoration:underline}
+#stats-view .btn-primary{background:#26475b!important;color:#fff!important;border:0!important}
+#stats-view input,#stats-view select{border-radius:2px!important;border:1px solid #767676!important;background:#fff!important;color:#222!important;box-shadow:none!important}
+#stats-view input:focus,#stats-view select:focus{background:#ffffcb!important;outline:none!important}
+#stats-view [role=tablist]{background:#f5f6f7;border-bottom:1px solid #d2d3d7}
+#stats-view [role=tab]{border-radius:0;border-bottom-width:0!important;border-left:1px solid transparent;border-right:1px solid transparent;color:#0035c7!important;text-decoration:underline}
+#stats-view [role=tab][aria-selected=true]{background:#fff;border-left-color:#d2d3d7;border-right-color:#d2d3d7;font-weight:bold;color:#000!important;text-decoration:none}
+#stats-view table{border-collapse:collapse}
+#stats-view thead th{background:#f5f6f7;color:#222;font-weight:bold;border-bottom:1px solid #d2d3d7}
+#stats-view tbody tr{border-bottom:1px solid #eee}
+#stats-view tbody tr:hover{background:#f5f6f7}
+#stats-view .rounded-lg,#stats-view .rounded-md,#stats-view .rounded-xl{border-radius:0!important}
+#stats-view .text-crit,#stats-view [class*="text-crit"]{color:#a80030!important}
+#stats-view .font-mono{font-family:sans-serif!important}
+#stats-view li button[data-pick]{color:#0035c7}
+#stats-view li button[data-pick].bg-raise{background:#f5f6f7;color:#000}

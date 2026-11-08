@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estado del servicio · BuildWise Labs</title>
+<link rel="icon" type="image/png" href="/brand/favicon.png">
+<style>
+:root{
+  --bg:#f4f5fa; --card:#fff; --ink:#1d1e20; --muted:#6d7081; --line:#e4e6f0;
+  --brand:#673de6; --brand-ink:#fff;
+  --ok:#00b090; --deg:#f4b400; --part:#ff7a1a; --major:#fc5185; --maint:#3b82f6; --none:#d9dbe6;
+  --banner:#e6f7f3; --banner-ink:#00705a;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14151c; --card:#1d1e29; --ink:#f1f2f8; --muted:#9a9db3; --line:#2c2e3d;
+    --banner:#10312b; --banner-ink:#5fe3c4; --none:#3a3c4e;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14151c; --card:#1d1e29; --ink:#f1f2f8; --muted:#9a9db3; --line:#2c2e3d;
+  --banner:#10312b; --banner-ink:#5fe3c4; --none:#3a3c4e;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Manrope","Segoe UI",system-ui,sans-serif}
+a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header.top{background:var(--card);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:var(--ink)}
+.logo img{width:30px;height:30px;border-radius:6px;object-fit:contain}
+.spacer{flex:1}
+.btn{border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);padding:8px 16px;border-radius:6px;font:600 14px inherit;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.icon{padding:8px 10px;background:transparent;color:var(--muted);border-color:var(--line)}
+.links{display:flex;gap:16px;font-size:14px;padding:0 0 14px;color:var(--muted);flex-wrap:wrap}
+.banner{margin:28px 0 8px;border-radius:8px;padding:20px 24px;font-size:20px;font-weight:700;background:var(--banner);color:var(--banner-ink);display:flex;align-items:center;gap:12px}
+.banner.warn{background:#fff4d6;color:#8a5a00} .banner.maint{background:#e3eeff;color:#1d4fa8}
+@media (prefers-color-scheme:dark){.banner.warn{background:#3b2f0d;color:#ffd470}.banner.maint{background:#122a4f;color:#8db8ff}}
+.dot{width:12px;height:12px;border-radius:50%;background:currentColor;flex:none}
+h2{font-size:18px;margin:36px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px}
+.incident{padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--deg)}
+.incident h3{margin:0 0 4px;font-size:17px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;color:#fff;vertical-align:middle}
+.tag.identified{background:var(--part)} .tag.monitoring{background:var(--maint)} .tag.resolved{background:var(--ok)} .tag.scheduled{background:var(--maint)} .tag.progress{background:var(--deg);color:#3b2a00}
+.upd{margin:10px 0 0;font-size:14px;color:var(--muted)} .upd b{color:var(--ink)}
+.upd time{display:block;font-size:12px;margin-top:2px}
+.uptime-line{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin:36px 0 12px}
+.uptime-line h2{margin:0}.uptime-line span{color:var(--muted);font-size:14px}
+.group{margin-bottom:14px;overflow:hidden}
+.group>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:16px 20px;font-weight:700}
+.group>summary::-webkit-details-marker{display:none}
+.group>summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+.group[open]>summary::before{transform:rotate(90deg)}
+.group>summary .st{margin-left:auto}
+.comp{padding:14px 20px;border-top:1px solid var(--line)}
+.comp .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.comp .name{font-weight:600}
+.comp .desc{font-size:13px;color:var(--muted)}
+.st{font-size:14px;font-weight:600}
+.st.operational{color:var(--ok)} .st.degraded{color:var(--deg)} .st.partial{color:var(--part)} .st.major{color:var(--major)} .st.maintenance{color:var(--maint)}
+.bars{display:flex;gap:2px;margin-top:10px;height:34px}
+.bar{flex:1;border-radius:2px;background:var(--ok);position:relative;min-width:2px}
+.bar.degraded{background:var(--deg)} .bar.partial{background:var(--part)} .bar.major{background:var(--major)} .bar.maintenance{background:var(--maint)} .bar.nodata{background:var(--none)}
+.bar:hover{opacity:.75}
+.bar .tip{display:none;position:absolute;bottom:42px;left:50%;transform:translateX(-50%);background:#1d1e20;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;white-space:nowrap;z-index:5;pointer-events:none}
+.bar:hover .tip{display:block}
+.bars-foot{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:8px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.maint-item{padding:18px 20px;margin-bottom:12px;border-left:4px solid var(--maint)}
+.maint-item h3{margin:0 0 4px;font-size:16px}
+.maint-item p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.day{margin:22px 0 8px;font-weight:700;font-size:16px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.noinc{color:var(--muted);font-size:14px;margin:6px 0}
+.past{padding:14px 20px;margin-bottom:10px}
+.past h3{margin:0 0 2px;font-size:16px}
+footer{margin:44px 0 40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.note{font-size:12px;color:var(--muted);margin-top:30px;padding:10px 14px;border:1px dashed var(--line);border-radius:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.on{display:flex}
+.modal .box{background:var(--card);padding:24px;border-radius:10px;max-width:400px;width:100%}
+.modal input{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);margin:10px 0}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="/"><img src="/brand/buildwise-mark.webp" alt="" onerror="this.style.display='none'">BuildWise Labs</a>
+    <span class="spacer"></span>
+    <a href="mailto:soporte@buildwiselabs.net">Contactar soporte</a>
+    <button class="btn" id="subBtn">Suscribirse a actualizaciones</button>
+    <button class="btn icon" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+  </div>
+  <div class="wrap links"><a href="/">Ir al panel</a><a href="#hist">Historial de incidentes</a><a href="#feed">Suscribirse por RSS</a></div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner"><span class="dot"></span><span id="bannerTxt"></span></div>
+
+  <section id="active"></section>
+
+  <div class="uptime-line"><h2>Disponibilidad</h2><span id="upAvg"></span></div>
+  <div id="groups"></div>
+  <div class="legend">
+    <span><i style="background:var(--ok)"></i>Operativo</span>
+    <span><i style="background:var(--deg)"></i>Rendimiento degradado</span>
+    <span><i style="background:var(--part)"></i>Interrupción parcial</span>
+    <span><i style="background:var(--major)"></i>Interrupción mayor</span>
+    <span><i style="background:var(--maint)"></i>Mantenimiento</span>
+  </div>
+
+  <h2 id="maint">Soporte y mantenimiento programado</h2>
+  <section id="sched"></section>
+
+  <h2 id="hist">Incidentes pasados</h2>
+  <section id="past"></section>
+
+  <p class="note">Los datos de esta página son <b>simulados</b> (los genera <code>status.html</code> al abrirla). Para datos reales, edita el objeto <code>DATA</code> al inicio del script o conecta cada componente a un endpoint de salud.</p>
+
+  <footer>
+    <a href="#hist">← Historial de incidentes</a>
+    <span>Estado del servicio · BuildWise Labs</span>
+  </footer>
+</main>
+
+<div class="modal" id="modal"><div class="box">
+  <h3 style="margin:0 0 6px">Suscribirse a actualizaciones</h3>
+  <div style="color:var(--muted);font-size:14px">Recibe un correo cuando haya un incidente o mantenimiento.</div>
+  <input type="email" id="subMail" placeholder="correo@empresa.com">
+  <div style="display:flex;gap:8px;justify-content:flex-end">
+    <button class="btn ghost" id="subCancel">Cancelar</button>
+    <button class="btn" id="subOk">Suscribirme</button>
+  </div>
+  <div id="subMsg" style="font-size:13px;color:var(--ok);margin-top:10px"></div>
+</div></div>
+
+<script>
+/* ===== Datos (edítalos aquí) ===== */
+const DATA = {
+  groups: [
+    { name: 'Frontend', components: [
+      { name: 'Sitio web', desc: 'buildwiselabs.net', status: 'operational' },
+      { name: 'Panel de flota', desc: 'Mapa, flota, alertas y reportes', status: 'operational' },
+      { name: 'Inicio de sesión', desc: 'Autenticación de usuarios', status: 'operational' },
+      { name: 'Página de inicio / CDN', desc: 'Activos estáticos e imágenes', status: 'degraded' },
+    ]},
+    { name: 'Actualizaciones de servidor', components: [
+      { name: 'Parches del sistema (Debian)', desc: 'Actualizaciones de seguridad del SO', status: 'maintenance' },
+      { name: 'API / Backend', desc: 'Node.js · endpoints del panel', status: 'operational' },
+      { name: 'Base de datos', desc: 'Respaldos y réplicas', status: 'operational' },
+      { name: 'Servidor GPS (Traccar)', desc: 'Recepción de rastreadores Teltonika', status: 'operational' },
+    ]},
+    { name: 'Soporte programado', components: [
+      { name: 'Mesa de ayuda', desc: 'Correo y chat, L–V 9:00–18:00 (GMT-7)', status: 'operational' },
+      { name: 'Ventanas de mantenimiento', desc: 'Sábados 23:00–01:00 (GMT-7)', status: 'operational' },
+    ]},
+  ],
+  active: [
+    { title: 'Carga lenta de imágenes en la página de inicio', state: 'monitoring', label: 'Monitoreando',
+      updates: [
+        ['Monitoreando', 'Aplicamos una corrección en la caché de la CDN y vemos mejoría. Seguimos observando.', -2],
+        ['Identificado', 'Detectamos que algunos activos estáticos no se están sirviendo desde caché.', -5],
+        ['Investigando', 'Estamos revisando reportes de carga lenta en la página de inicio.', -7],
+      ]},
+  ],
+  scheduled: [
+    { title: 'Actualización de seguridad del sistema operativo (Debian)', state: 'scheduled', label: 'Programado', start: 6, hours: 2,
+      text: 'Aplicaremos parches de seguridad al servidor. Se espera una breve interrupción (menos de 5 minutos) del panel y la API al reiniciar servicios.' },
+    { title: 'Despliegue de nueva versión del frontend', state: 'scheduled', label: 'Programado', start: 13, hours: 1,
+      text: 'Publicación del rediseño del panel. No se espera interrupción; puede ser necesario recargar la página (Ctrl+Shift+R).' },
+    { title: 'Mantenimiento de la base de datos', state: 'progress', label: 'En curso', start: 0, hours: 1,
+      text: 'Optimización de índices y verificación de respaldos. El rendimiento puede variar durante la ventana.' },
+  ],
+  past: [
+    { day: -1, title: 'Actualización de servidor completada', label: 'Resuelto', text: 'Se aplicaron los parches de seguridad del kernel sin impacto para los usuarios.' },
+    { day: -3, title: 'Intermitencia en el inicio de sesión', label: 'Resuelto', text: 'Un pico de solicitudes provocó errores 502 durante 14 minutos. Se amplió la capacidad del proxy.' },
+    { day: -9, title: 'Despliegue del frontend con rollback', label: 'Resuelto', text: 'Una versión del panel se revirtió por un error en el mapa. Servicio restablecido.' },
+    { day: -12, title: null },
+    { day: -15, title: 'Latencia alta en el servidor GPS', label: 'Resuelto', text: 'Reinicio del servicio Traccar tras acumulación de conexiones.' },
+  ],
+  days: 90,
+  // [componente] -> días con incidente: {índice_de_día_hacia_atrás: estado}
+  history: { 'Página de inicio / CDN': {0:'degraded',1:'degraded',20:'partial'}, 'Inicio de sesión': {3:'partial',41:'degraded'},
+             'Parches del sistema (Debian)': {0:'maintenance',6:'maintenance',34:'maintenance'}, 'Servidor GPS (Traccar)': {15:'degraded',58:'partial'},
+             'API / Backend': {3:'degraded',74:'major'}, 'Panel de flota': {9:'partial'}, 'Base de datos': {27:'maintenance'},
+             'Ventanas de mantenimiento': {13:'maintenance',27:'maintenance',55:'maintenance'}, 'Mesa de ayuda': {}, 'Sitio web': {88:'nodata'} },
+};
+
+/* ===== Render ===== */
+const LABEL = { operational:'Operativo', degraded:'Rendimiento degradado', partial:'Interrupción parcial', major:'Interrupción mayor', maintenance:'En mantenimiento' };
+const RANK = { operational:0, maintenance:1, degraded:2, partial:3, major:4 };
+const FILL = { degraded:.98, partial:.93, major:.8, maintenance:1, nodata:null };
+const $ = s => document.querySelector(s);
+const now = new Date();
+const addDays = n => new Date(now.getTime() + n*864e5);
+const fmtDate = d => d.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'});
+const fmtDateTime = d => d.toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+
+function worst(list){ return list.reduce((a,b)=> RANK[b]>RANK[a]?b:a,'operational'); }
+function uptimeOf(name){
+  const h = DATA.history[name]||{}; let good=0,n=0;
+  for(let i=0;i<DATA.days;i++){ const s=h[i]; if(s==='nodata') continue; n++; good += s ? (FILL[s]??1) : 1; }
+  return n? (good/n*100) : 100;
+}
+function bars(name){
+  const h = DATA.history[name]||{};
+  let out='';
+  for(let i=DATA.days-1;i>=0;i--){
+    const s=h[i]||'operational', d=addDays(-i);
+    const tip = s==='nodata' ? 'No hay datos para este día' : s==='operational' ? 'Sin interrupciones registradas este día' : LABEL[s==='maintenance'?'maintenance':s];
+    out += `<span class="bar ${s==='operational'?'':s}"><span class="tip">${fmtDate(d)}<br>${tip}</span></span>`;
+  }
+  return out;
+}
+
+const all = DATA.groups.flatMap(g=>g.components);
+const overall = worst(all.map(c=>c.status));
+const b = $('#banner');
+if(overall==='operational'){ $('#bannerTxt').textContent='Todos los sistemas operativos'; }
+else if(overall==='maintenance'){ b.classList.add('maint'); $('#bannerTxt').textContent='Mantenimiento programado en curso'; }
+else { b.classList.add('warn'); $('#bannerTxt').textContent = overall==='degraded'?'Algunos sistemas con rendimiento degradado':'Algunos sistemas con interrupciones'; }
+
+$('#active').innerHTML = DATA.active.map(i=>`
+  <div class="card incident"><h3>${i.title}</h3>
+    <span class="tag ${i.state}">${i.label}</span>
+    ${i.updates.map(u=>`<p class="upd"><b>${u[0]}</b> – ${u[1]}<time>${fmtDateTime(addDays(u[2]/24))}</time></p>`).join('')}
+  </div>`).join('');
+
+$('#groups').innerHTML = DATA.groups.map((g,i)=>{
+  const st = worst(g.components.map(c=>c.status));
+  return `<details class="card group" ${i<2?'open':''}>
+    <summary>${g.name}<span class="st ${st}">${LABEL[st]}</span></summary>
+    ${g.components.map(c=>`
+      <div class="comp"><div class="row"><span class="name">${c.name}</span><span class="desc">· ${c.desc}</span>
+        <span class="st ${c.status}" style="margin-left:auto">${LABEL[c.status]}</span></div>
+        <div class="bars">${bars(c.name)}</div>
+        <div class="bars-foot"><span>Hace ${DATA.days} días</span><span>${uptimeOf(c.name).toFixed(2)} % de disponibilidad</span><span>Hoy</span></div>
+      </div>`).join('')}
+  </details>`;
+}).join('');
+$('#upAvg').innerHTML = `Disponibilidad de los últimos ${DATA.days} días: <b>${(all.reduce((a,c)=>a+uptimeOf(c.name),0)/all.length).toFixed(2)} %</b>`;
+
+$('#sched').innerHTML = DATA.scheduled.map(m=>{
+  const s=addDays(m.start); s.setUTCHours(6,0,0,0); const e=new Date(s.getTime()+m.hours*36e5);
+  return `<div class="card maint-item"><h3>${m.title}</h3><span class="tag ${m.state}">${m.label}</span>
+    <p><b>${fmtDateTime(s)}</b> – <b>${fmtDateTime(e)}</b></p><p>${m.text}</p>
+    <p style="font-size:12px">Publicado el ${fmtDate(addDays(m.start-5))}</p></div>`;
+}).join('');
+
+$('#past').innerHTML = DATA.past.map(p=>`
+  <div class="day">${fmtDate(addDays(p.day))}</div>
+  ${p.title? `<div class="card past"><h3>${p.title}</h3><span class="tag resolved">${p.label}</span><p class="upd">${p.text}</p></div>`
+           : `<div class="noinc">Sin incidentes reportados.</div>`}`).join('');
+
+/* ===== Interacción ===== */
+const modal=$('#modal');
+$('#subBtn').onclick=()=>{ modal.classList.add('on'); $('#subMsg').textContent=''; };
+$('#subCancel').onclick=()=>modal.classList.remove('on');
+modal.onclick=e=>{ if(e.target===modal) modal.classList.remove('on'); };
+$('#subOk').onclick=()=>{ const v=$('#subMail').value.trim(); $('#subMsg').style.color=/^\S+@\S+\.\S+$/.test(v)?'var(--ok)':'var(--major)'; $('#subMsg').textContent=/^\S+@\S+\.\S+$/.test(v)?'Listo (demostración): aún no hay servicio de correo conectado.':'Escribe un correo válido.'; };
+$('#themeBtn').onclick=()=>{
+  const r=document.documentElement, dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+};
+</script>
+</body>
+</html>

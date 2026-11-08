@@ -1,0 +1,45 @@
+
+/*sim3d-debian*/
+#sim-view{--panel:255 255 255;--raise:245 246 247;--line:210 211 215;--fg:34 34 34;--muted:90 90 90;--ink:255 255 255;--bg:255 255 255;--accent:38 71 91;background:#fff;color:#222;font-family:sans-serif}
+#sim-view header{background:#f5f6f7!important;border-bottom:1px solid #d2d3d7}
+#sim-view h2,#sim-view h3{font-family:sans-serif!important;font-weight:normal!important;color:#000}
+#sim-view .text-accent{color:#0035c7!important;text-decoration:underline}
+#sim-view .btn{border-radius:2px!important;background:#efefef;border:1px solid #767676;color:#0035c7;box-shadow:none;font-family:sans-serif}
+#sim-view .btn:hover{background:#fff;text-decoration:underline}
+#sim-view .btn-primary{background:#26475b!important;color:#fff!important;border:0!important}
+#sim-view input,#sim-view select{border-radius:2px!important;border:1px solid #767676!important;background:#fff!important;color:#222!important;box-shadow:none!important}
+#sim-view input:focus,#sim-view select:focus{background:#ffffcb!important;outline:none!important}
+#sim-view [role=tablist]{background:#f5f6f7;border-bottom:1px solid #d2d3d7}
+#sim-view [role=tab]{border-radius:0;border-bottom-width:0!important;border-left:1px solid transparent;border-right:1px solid transparent;color:#0035c7!important;text-decoration:underline}
+#sim-view [role=tab][aria-selected=true]{background:#fff;border-left-color:#d2d3d7;border-right-color:#d2d3d7;font-weight:bold;color:#000!important;text-decoration:none}
+#sim-view table{border-collapse:collapse}
+#sim-view thead th{background:#f5f6f7;color:#222;font-weight:bold;border-bottom:1px solid #d2d3d7}
+#sim-view tbody tr{border-bottom:1px solid #eee}
+#sim-view tbody tr:hover{background:#f5f6f7}
+#sim-view .rounded-lg,#sim-view .rounded-md,#sim-view .rounded-xl{border-radius:0!important}
+#sim-view .text-crit,#sim-view [class*="text-crit"]{color:#a80030!important}
+#sim-view .font-mono{font-family:sans-serif!important}
+#scene-view{--panel:255 255 255;--raise:245 246 247;--line:210 211 215;--fg:34 34 34;--muted:90 90 90;--ink:255 255 255;--bg:255 255 255;--accent:38 71 91;background:#fff;color:#222;font-family:sans-serif}
+#scene-view header{background:#f5f6f7!important;border-bottom:1px solid #d2d3d7}
+#scene-view h2,#scene-view h3{font-family:sans-serif!important;font-weight:normal!important;color:#000}
+#scene-view .text-accent{color:#0035c7!important;text-decoration:underline}
+#scene-view .btn{border-radius:2px!important;background:#efefef;border:1px solid #767676;color:#0035c7;box-shadow:none;font-family:sans-serif}
+#scene-view .btn:hover{background:#fff;text-decoration:underline}
+#scene-view .btn-primary{background:#26475b!important;color:#fff!important;border:0!important}
+#scene-view input,#scene-view select{border-radius:2px!important;border:1px solid #767676!important;background:#fff!important;color:#222!important;box-shadow:none!important}
+#scene-view input:focus,#scene-view select:focus{background:#ffffcb!important;outline:none!important}
+#scene-view [role=tablist]{background:#f5f6f7;border-bottom:1px solid #d2d3d7}
+#scene-view [role=tab]{border-radius:0;border-bottom-width:0!important;border-left:1px solid transparent;border-right:1px solid transparent;color:#0035c7!important;text-decoration:underline}
+#scene-view [role=tab][aria-selected=true]{background:#fff;border-left-color:#d2d3d7;border-right-color:#d2d3d7;font-weight:bold;color:#000!important;text-decoration:none}
+#scene-view table{border-collapse:collapse}
+#scene-view thead th{background:#f5f6f7;color:#222;font-weight:bold;border-bottom:1px solid #d2d3d7}
+#scene-view tbody tr{border-bottom:1px solid #eee}
+#scene-view tbody tr:hover{background:#f5f6f7}
+#scene-view .rounded-lg,#scene-view .rounded-md,#scene-view .rounded-xl{border-radius:0!important}
+#scene-view .text-crit,#scene-view [class*="text-crit"]{color:#a80030!important}
+#scene-view .font-mono{font-family:sans-serif!important}
+#root.dh-mapmode #sim-view,#root.dh-mapmode #scene-view{top:calc(45px + var(--dh-top,127px))!important;bottom:var(--dh-bot,40px)!important;left:0!important;right:0!important;height:auto!important;z-index:36}
+#scene-view [data-stage]{background:#0f1416}
+#sim-view h2,#scene-view h2{color:#000!important}
+#sim-view .eyebrow,#scene-view .eyebrow{color:#54638c;font-family:sans-serif}
+@media (max-width:700px){#sim-view header .btn span,#scene-view header .btn{font-size:12px}#scene-view header{padding:8px}#scene-view [data-stage]{min-height:50vh}}

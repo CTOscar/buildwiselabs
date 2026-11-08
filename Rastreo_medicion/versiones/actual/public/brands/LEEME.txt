@@ -1,0 +1,10 @@
+Logotipos de marcas de tractor
+==============================
+Coloca aquí el logotipo oficial de cada marca (SVG o PNG con fondo transparente),
+obtenido con permiso de uso (kit de marca del distribuidor o del fabricante).
+
+1. Copia el archivo, p. ej.  john-deere.svg
+2. Regístralo en src/lib/brands.js  ->  LOGOS = { 'john-deere': 'john-deere.svg' }
+
+Slugs: john-deere, massey-ferguson, new-holland, case-ih, kubota, mahindra, valtra, otra
+Sin archivo, el panel muestra un monograma (JD, MF, NH...).
