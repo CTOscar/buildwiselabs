@@ -1,7 +1,7 @@
 # Plan: portar al fuente lo que solo existe en el bundle
 
 **Fecha:** 8 de noviembre de 2026
-**Estado:** pasos 1, 2 y 3 hechos; paso 4 analizado (falta decidir A o B); paso 5 pendiente.
+**Estado:** pasos 1, 2 y 3 hechos; paso 4 en curso por la opción B (portada hecha, ver abajo); paso 5 pendiente.
 
 ## Punto de partida
 
@@ -69,6 +69,11 @@
 Caminos reales:
 - **B directa (recomendada):** módulo `features/home` en el fuente, con la maquetación Debian (`dh-*`, 39 clases, sacadas de `patch/home.css`) y la lógica de datos de `home.js` (clima, noticias, KPIs, listas, Earth), abriendo páginas con `setView` en vez de `.jd-*`.
 - **A′ (portar el shell del bundle):** llevar el menú `jd-*` (rail, barra superior, menú de herramientas) al fuente y después copiar los scripts. Es casi portar toda la UI del bundle.
+
+**Avance de la opción B (módulo `features/home`):**
+- **Hecho:** portada "Inicio" como módulo (`src/features/home/`: `home.js`, `weather.js`, `news.js`, `fleet.js`, `earth.js`, `helpers.js`) con la maquetación Debian (`src/styles/home.css`, 505 reglas extraídas del CSS del bundle y acotadas a `#home-view`). Es la pestaña "Portada" del módulo Inicio (`view: 'home'`). Incluye cabecera con búsqueda, navbar, migas con reloj, portada con logo, KPIs, carrusel (equipo, pronóstico, precipitación, alertas, trabajo), clima, Earth, noticias, alertas, lotes y pie. 15 pruebas nuevas.
+- **Falta:** página **Status** (`statuspage.js`, 24 KB), menú **Tools**, **búsqueda global** (`gsRun`: tractores, IMEI, lotes, combustible, alertas…), **campana** y ventana de **perfil** (el fuente tiene su propio perfil), páginas propias de Lotes/Alertas/Reportes con estilo Debian (el fuente usa sus vistas), **costeo de diésel** semanal, `mapx.js` (herramientas extra del mapa) y que la app **arranque en la portada** (hoy arranca en Resumen).
+- Las URLs `/brand/login-campo.webp` (953 KB, fondo de la portada) y el logo HD se copiaron a `public/brand/`.
 
 **Pendientes del bundle al portar:**
 - `mapx.js:478` ejecuta `setInterval(place, 800)`, que gasta batería en celular: corregirlo.

@@ -11,6 +11,7 @@ export const MODULES = [
 
 // tab: aparece como pestaña del módulo. parent: pestaña que se marca cuando la vista es una subpantalla.
 export const VIEWS = [
+  { view: 'home', module: 'inicio', label: 'Portada', tab: true },
   { view: 'fleet', module: 'inicio', label: 'Resumen', tab: true },
   { view: 'alerts', module: 'inicio', label: 'Alertas', tab: true },
   { view: 'lotes', module: 'plan', label: 'Rutas y geocercas', tab: true },

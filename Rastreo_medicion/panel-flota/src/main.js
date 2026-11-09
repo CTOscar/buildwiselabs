@@ -1,4 +1,5 @@
 import './styles/main.css';
+import './styles/home.css';
 import { createClient } from './api/index.js';
 import { state, notify, applyMessage, setEngineToday } from './features/fleet/store.js';
 import { renderShell } from './components/shell.js';
@@ -14,6 +15,7 @@ import { showLogin } from './features/login/login.js';
 import { initProfile } from './features/profile/profile.js';
 import { initSimulator } from './features/simulator/simulator.js';
 import { initStats } from './features/stats/stats.js';
+import { initHome } from './features/home/home.js';
 import { initView3d } from './features/escena3d/view3d.js';
 import { initFenceSettings, initDeviceSettings } from './features/settings/settings.js';
 import { startOfToday } from './lib/format.js';
@@ -73,6 +75,7 @@ async function boot() {
   initProfile(client, { onLogout });
   initFenceSettings(client);
   initDeviceSettings(client);
+  initHome();
   initStats(client);
   initSimulator();
   initView3d();
