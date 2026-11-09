@@ -8,13 +8,13 @@ Panel de flota agrícola (Las Cabras, Sinaloa) de BuildWise Labs. Piloto con 3 t
 | Carpeta | Qué es |
 |---|---|
 | `panel-flota-api/` | Backend Express + MySQL (`/api/panel`): usuarios, sesiones, ajustes, historial |
-| `versiones/2026-11-07_recuperado/` | **Proyecto oficial.** Build compilado y parcheado a mano (con `home.js`, `mapx.js`, `statuspage.js`). No hay código fuente modular: se trabaja sobre el bundle y sus parches (`patch/`). Sin desplegar en producción |
+| `versiones/nuevas/2026-11-07_recuperado/` | **Proyecto oficial.** Build compilado y parcheado a mano (con `home.js`, `mapx.js`, `statuspage.js`). No hay código fuente modular: se trabaja sobre el bundle y sus parches (`patch/`). Sin desplegar en producción |
 | `versiones/antiguas/panel-flota/` | Fuente Vite del panel, **archivado** (versión anterior al bundle, con intentos de portar API, login social, combustible, portada y Status). Solo consulta; ver `versiones/antiguas/LEEME.md` |
 | `docs/` | Documentación técnica (ver abajo) |
 
 ## Comandos
 
-- Panel oficial (bundle): no se compila. Se edita `versiones/2026-11-07_recuperado/panelpack/` (y sus scripts `patch/*.cjs`) y se publica esa carpeta.
+- Panel oficial (bundle): no se compila. Se edita `versiones/nuevas/2026-11-07_recuperado/panelpack/` (y sus scripts `patch/*.cjs`) y se publica esa carpeta.
 - Fuente archivado (`versiones/antiguas/panel-flota/`): `npm install`, `npm run dev`, `npm run build`, `npm test`. Ya no es la base de trabajo.
 - API (`panel-flota-api/`): `npm start`, `npm run dev`, `npm test` (sin MySQL), `npm run check:db`,
   `npm run sync:traccar`. Requiere `.env` (copiar de `.env.example`).
@@ -42,6 +42,6 @@ Panel de flota agrícola (Las Cabras, Sinaloa) de BuildWise Labs. Piloto con 3 t
 - `docs/SERVICE-WORKER-PLAN.md`: plan de service worker
 - `docs/Enlaces_utiles.md`: enlaces de referencia
 - `panel-flota-api/README.md`: rutas, despliegue en Hostinger, OAuth, pendientes
-- `versiones/LEEME.md` y `versiones/2026-11-07_recuperado/LEEME.md`: estado de las versiones
+- `versiones/LEEME.md` y `versiones/nuevas/2026-11-07_recuperado/LEEME.md`: estado de las versiones
 
 @panel-flota-api/README.md

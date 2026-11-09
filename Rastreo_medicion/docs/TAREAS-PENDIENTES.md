@@ -4,11 +4,11 @@
 
 ## 1. Recuperar el código fuente del panel y mejorar su velocidad
 
-**Estado: DESCARTADO (8 nov 2026).** Se decidió que el bundle `versiones/2026-11-07_recuperado/` es el proyecto oficial y que `panel-flota` (fuente) queda archivado en `versiones/antiguas/panel-flota/`. Lo de abajo es contexto histórico; las mejoras de velocidad se aplicarían sobre el bundle (el service worker se puede agregar junto a él, sin tocar el JS minificado: ver `SERVICE-WORKER-PLAN.md`).
+**Estado: DESCARTADO (8 nov 2026).** Se decidió que el bundle `versiones/nuevas/2026-11-07_recuperado/` es el proyecto oficial y que `panel-flota` (fuente) queda archivado en `versiones/antiguas/panel-flota/`. Lo de abajo es contexto histórico; las mejoras de velocidad se aplicarían sobre el bundle (el service worker se puede agregar junto a él, sin tocar el JS minificado: ver `SERVICE-WORKER-PLAN.md`).
 
 ### Situación
 
-- `versiones/2026-11-07_recuperado/panelpack/` es un **bundle compilado y minificado**, sin `src/`, `package.json` ni sourcemaps. No se puede reconstruir el fuente de forma automática.
+- `versiones/nuevas/2026-11-07_recuperado/panelpack/` es un **bundle compilado y minificado**, sin `src/`, `package.json` ni sourcemaps. No se puede reconstruir el fuente de forma automática.
 - La carpeta `panel-flota/` (fuente viejo, nunca commiteada) se **borró** del árbol de trabajo. Sigue en el historial de git: el commit `1b4339ff` tiene 33 archivos de `Rastreo_medicion/panel-flota/src`.
   Se recupera con `git checkout 1b4339ff -- Rastreo_medicion/panel-flota` (desde `E:\PYME`).
 - El fuente viejo **no tiene** `api/panel`, el login con Google o Apple, `getRoute`, la vista de combustible, `home.js` ni `statuspage.js`. Esas piezas solo existen minificadas en el bundle recuperado.

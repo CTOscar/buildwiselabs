@@ -1,7 +1,7 @@
 # Service worker y seguridad · Panel de Flota
 
 **Fecha:** 8 de noviembre de 2026
-**Base de trabajo:** el **bundle compilado** `versiones/2026-11-07_recuperado/panelpack/`
+**Base de trabajo:** el **bundle compilado** `versiones/nuevas/2026-11-07_recuperado/panelpack/`
 **Estado:** plan y código **propuestos, aún no aplicados**. No se ha creado ningún archivo en `panelpack/`.
 
 > El fuente completo del panel está perdido (ver sección 1). Por eso todo se hace *junto* al bundle, sin editar el JS minificado.

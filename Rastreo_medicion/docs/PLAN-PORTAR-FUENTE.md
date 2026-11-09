@@ -1,4 +1,4 @@
-> **ARCHIVADO (8 nov 2026).** Se decidió no continuar este plan: el bundle `versiones/2026-11-07_recuperado/` es el proyecto oficial
+> **ARCHIVADO (8 nov 2026).** Se decidió no continuar este plan: el bundle `versiones/nuevas/2026-11-07_recuperado/` es el proyecto oficial
 > y el fuente quedó en `versiones/antiguas/panel-flota/`. Lo hecho (pasos 1 a 4 parcial) sigue en git y en esa carpeta. Se conserva como referencia.
 
 # Plan: portar al fuente lo que solo existe en el bundle
@@ -9,7 +9,7 @@
 ## Punto de partida
 
 - `Rastreo_medicion/panel-flota/` es el fuente de `versiones/actual` del commit `a169f2af` (71 pruebas). CORRECCIÓN: el commit `22908269` había restaurado por error una versión más vieja (`1b4339ff`); el `e44f9476` lo corrigió.
-- `versiones/2026-11-07_recuperado/panelpack/` es el **bundle minificado** (sin sourcemaps). De ahí hay que leer lo que falta. Producción sigue con el bundle.
+- `versiones/nuevas/2026-11-07_recuperado/panelpack/` es el **bundle minificado** (sin sourcemaps). De ahí hay que leer lo que falta. Producción sigue con el bundle.
 - Al fuente le faltan: `api/panel`, login con Google/Apple, `getRoute`, vista de combustible y velocidad, `home.js` y `statuspage.js`.
 - Una copia de trabajo anterior del fuente (71 pruebas) se borró por error de contexto y no se pudo recuperar entera. Esta restaurada tiene 61 pruebas. Probablemente la diferencia es pequeña, pero no está confirmada.
 - Backend de referencia: `panel-flota-api/` (rutas en su `README.md`).

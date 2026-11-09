@@ -1,6 +1,6 @@
 # Versiones antiguas
 
-Solo para consulta. **No es la base de trabajo**: el proyecto oficial es `../2026-11-07_recuperado/` (bundle compilado y parcheado).
+Solo para consulta. **No es la base de trabajo**: el proyecto oficial es `../nuevas/2026-11-07_recuperado/` (bundle compilado y parcheado).
 
 ## `panel-flota/` (archivado el 8 nov 2026)
 
