@@ -1,7 +1,7 @@
 # Plan: portar al fuente lo que solo existe en el bundle
 
 **Fecha:** 8 de noviembre de 2026
-**Estado:** paso 1 hecho (ver abajo); pasos 2 a 5 pendientes.
+**Estado:** pasos 1 y 2 hechos; pasos 3 a 5 pendientes.
 
 ## Punto de partida
 
@@ -30,7 +30,7 @@
 - Pruebas: cliente con `fetch` simulado (éxito, 401, errores de validación).
 - **Listo cuando:** se puede registrar, entrar, editar perfil, subir foto y salir contra la API real o `npm start` de `panel-flota-api`.
 
-## Paso 2 · Login con Google y Apple
+## Paso 2 · Login con Google y Apple (HECHO)
 
 **Depende del paso 1.**
 
