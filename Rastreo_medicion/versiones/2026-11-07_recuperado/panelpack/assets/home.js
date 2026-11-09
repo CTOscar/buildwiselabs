@@ -29,11 +29,11 @@
     ['cur', 'Corrientes', 'ocean/surface/currents'], ['sst', 'Temp. del mar', 'ocean/surface/currents/overlay=sea_surface_temp'], ['ssta', 'Anomalía del mar', 'ocean/surface/currents/overlay=sea_surface_temp_anomaly'],
     ['bleach', 'Blanqueamiento', 'ocean/surface/level/overlay=bleaching_alert_area'], ['wave', 'Oleaje', 'ocean/primary/waves/overlay=significant_wave_height'],
   ];
-  var EARTH_VIEWS = [['rosario', 'El Rosario', -105.88, 22.99, 5000], ['pacifico', 'Pacífico mexicano', -106, 21, 2600], ['mexico', 'México', -102, 23, 1700], ['mundo', 'Mundo', -103.33, 20.58, 450]];
+  var EARTH_VIEWS = [['rosario', 'El Rosario', -105.9012, 22.73834, 5000], ['pacifico', 'Pacífico mexicano', -106, 21, 2600], ['mexico', 'México', -102, 23, 1700], ['mundo', 'Mundo', -103.33, 20.58, 450]];
   var earth = { layer: 'bleach', view: 'pacifico', proj: 'orthographic', on: false };
   function earthUrl() {
     var L = EARTH_LAYERS.filter(function (x) { return x[0] === earth.layer; })[0], V = EARTH_VIEWS.filter(function (x) { return x[0] === earth.view; })[0];
-    return EARTH_BASE + L[2] + '/' + earth.proj + '=' + V[2] + ',' + V[3] + ',' + V[4] + '/loc=-105.878,22.998';
+    return EARTH_BASE + L[2] + '/' + earth.proj + '=' + V[2] + ',' + V[3] + ',' + V[4] + '/loc=-105.9012,22.73834';
   }
   var EARTH_URL = earthUrl();
   function earthCtl() {
@@ -47,7 +47,7 @@
     var a = document.getElementById('dh-earthlink'); if (a) a.href = earthUrl();
     var eb = document.getElementById('dh-earth'); if (eb && eb.querySelector('iframe')) earthFrame(eb); // Earth no reacciona a cambios de hash dentro del iframe: se recarga con el nuevo estado
   }
-  var DEFAULT_LL = [22.998, -105.878];
+  var DEFAULT_LL = [22.73834, -105.9012];
   var TOPICS = [
     { id: 'agro', label: 'Agro Sinaloa', q: 'agricultura Sinaloa' },
     { id: 'clima', label: 'Clima', q: 'pronóstico clima Sinaloa' },
@@ -241,6 +241,21 @@
     m = a.match(/CIRCLE\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*,\s*([\d.]+)\s*\)/i);
     return m ? Math.PI * Math.pow(+m[3], 2) / 1e4 : 0;
   }
+  // Malla del lote: vértices, perímetro (m) y centro, a partir del WKT de Traccar ("lat lon").
+  function geoMesh(g) {
+    var a = g.area || '', m = a.match(/POLYGON\s*\(\((.+)\)\)/i), c = a.match(/CIRCLE\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*,\s*([\d.]+)\s*\)/i);
+    if (m) {
+      var pts = m[1].split(',').map(function (t) { return t.trim().split(/\s+/).map(Number); }).filter(function (p) { return p.length >= 2 && isFinite(p[0]) && isFinite(p[1]); });
+      if (pts.length > 1 && pts[0][0] === pts[pts.length - 1][0] && pts[0][1] === pts[pts.length - 1][1]) pts.pop();
+      if (pts.length < 3) return null;
+      var la = pts.reduce(function (s, p) { return s + p[0]; }, 0) / pts.length, lo = pts.reduce(function (s, p) { return s + p[1]; }, 0) / pts.length;
+      var xy = pts.map(function (p) { return [p[1] * 111320 * Math.cos(la * Math.PI / 180), p[0] * 110540]; }), per = 0;
+      xy.forEach(function (p, i) { var q = xy[(i + 1) % xy.length]; per += Math.hypot(q[0] - p[0], q[1] - p[1]); });
+      return { kind: 'Polígono', pts: pts, per: per, c: [la, lo] };
+    }
+    if (c) return { kind: 'Círculo', pts: [], per: 2 * Math.PI * +c[3], c: [+c[1], +c[2]], r: +c[3] };
+    return null;
+  }
   function loteStats() {
     var w = P().w, pos = [...w.positions.values()];
     return (w.geofences || []).map(function (g) {
@@ -250,6 +265,27 @@
   }
 
   /* --- Lotes --- */
+  function meshHtml(sel) {
+    var g = sel.g, at = g.attributes || {}, mesh = geoMesh(g), m = function (l, v) { return '<div class="dh-m"><small>' + l + '</small><b>' + v + '</b></div>'; };
+    var h = '<h3 style="margin:1.2em 0 .4em">Malla del lote</h3><div class="dh-metrics">' +
+      m('Cultivo', at.cultivo ? esc(at.cultivo) : '—') + m('Etapa', at.etapa ? esc(at.etapa) : '—') + m('Responsable', at.responsable ? esc(at.responsable) : '—') + m('Superficie registrada', at.superficie ? esc(at.superficie) + ' ha' : '—') + m('Superficie de la malla', fmt(sel.ha, 2) + ' ha') + m('Hectáreas por tractor', sel.n ? fmt((+at.superficie || sel.ha) / sel.n, 1) + ' ha' : '—') + m('Horas máx. por tractor', at.horasMax ? esc(at.horasMax) + ' h' : 'Sin límite') + m('Alertas de lote', [at.alertaEntrada && 'entrada', at.alertaSalida && 'salida'].filter(Boolean).join(' y ') || 'Ninguna');
+    if (mesh) h += m('Tipo', mesh.kind) + m('Perímetro', fmt(mesh.per, 0) + ' m') + (mesh.pts.length ? m('Vértices', mesh.pts.length) : m('Radio', fmt(mesh.r, 0) + ' m')) + m('Centro', mesh.c[0].toFixed(5) + ', ' + mesh.c[1].toFixed(5));
+    h += '</div>';
+    if (!mesh) return h + '<p class="dh-note">Este lote no tiene una malla (polígono) dibujada.</p>';
+    if (mesh.pts.length) h += '<details style="margin-top:8px"><summary>Ver vértices de la malla</summary><ol class="dh-note" style="font-family:monospace;padding-left:2em">' + mesh.pts.map(function (p) { return '<li>' + p[0].toFixed(5) + ', ' + p[1].toFixed(5) + '</li>'; }).join('') + '</ol></details>';
+    return h;
+  }
+  function logHtml(sel) {
+    var w = P().w, ids = {}; sel.ids.forEach(function (id) { ids[id] = 1; });
+    var ev = (w.events || []).filter(function (e) { return e.geofenceId === sel.g.id || ids[e.deviceId]; })
+      .map(function (e) { return { e: e, i: evInfo(e), at: new Date(e.eventTime).getTime() }; }).sort(function (a, b) { return b.at - a.at; }).slice(0, 15);
+    var h = '<h3 style="margin:1.2em 0 .4em">Registros del lote</h3>';
+    if (!ev.length) return h + emptyBox('Sin registros recientes', 'No hay eventos de este lote ni de sus tractores.');
+    return h + '<ul class="dh-list">' + ev.map(function (x) {
+      return '<li><span class="dh-dot ' + (x.i.high ? 'crit' : '') + '"></span><div><b><a href="#" data-hm-event="' + x.e.deviceId + '">' + esc(devName(x.e.deviceId)) + ' — ' + esc(x.i.label) + '</a></b><small>' +
+        new Date(x.at).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }) + ' · ' + ago(x.at) + '</small></div></li>';
+    }).join('') + '</ul>';
+  }
   function buildLotes() {
     var L = loteStats();
     if (!L.some(function (x) { return x.g.id === state.lote; })) state.lote = L[0] ? L[0].g.id : null;
@@ -268,7 +304,7 @@
       detail = '<div class="dh-detail"><div class="dh-metrics">' + m('Tractores dentro', sel.n) + m('En marcha', sel.run) + m('Horas motor hoy', fmt(sel.hours, 1) + ' h') + m('Superficie', fmt(sel.ha, 1) + ' ha') + m('Promedio por tractor', fmt(sel.n ? sel.hours / sel.n : 0, 1) + ' h') + m('Eficiencia', fmt(sel.n ? sel.run / sel.n * 100 : 0) + ' %') + '</div>' +
         (tr.length ? '<ul class="dh-list" style="margin-top:10px">' + tr.map(function (t) {
           return '<li><span class="dh-dot ' + (t.st === 'running' ? 'ok' : t.st === 'nosignal' ? 'crit' : '') + '"></span><div><b><a href="#" data-hm-event="' + t.id + '">' + esc(devName(t.id)) + '</a></b><small>' + STATUS_LBL[t.st] + '</small></div><em>' + fmt(t.h, 1) + ' h</em></li>';
-        }).join('') + '</ul>' : emptyBox('Sin tractores en este lote', 'Ahora mismo ningún tractor reporta posición dentro del lote.')) + '</div>' +
+        }).join('') + '</ul>' : emptyBox('Sin tractores en este lote', 'Ahora mismo ningún tractor reporta posición dentro del lote.')) + meshHtml(sel) + logHtml(sel) + '</div>' +
         '<div class="dh-actions"><a href="#" class="dh-btn" data-hm-map="' + sel.g.id + '">Ver en el mapa</a><a href="#" class="dh-other" data-hm-page="reportes">Reportes</a></div>';
     }
     var table = '<div class="tabular"><table><thead><tr><th>Lote</th><th>Tractores</th><th>En marcha</th><th>Horas hoy</th><th>Superficie</th></tr></thead><tbody>' + L.map(function (x) {

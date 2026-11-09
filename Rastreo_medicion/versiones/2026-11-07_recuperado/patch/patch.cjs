@@ -15,7 +15,9 @@ function rep(a, b, label) {
 }
 // 1. API del panel en mismo origen (proxy local) + sesión de desarrollo sin login
 rep('VITE_PANEL_API_URL:"https://api-panelpack.buildwiselabs.net"', 'VITE_PANEL_API_URL:"same-origin"', 'api');
-rep('getSession:()=>i.getSession(),getPhoto', 'getSession:async()=>({id:1,name:"Desarrollo Local",email:"dev@localhost",phone:"",role:"admin",attributes:{role:"admin"}}),getPhoto', 'sesion');
+// (Desactivado 8-nov-2026: este parche saltaba el login con una sesion falsa "Desarrollo Local".
+//  Con la API del panel conectada, el panel debe pedir login real.)
+// rep('getSession:()=>i.getSession(),getPhoto', 'getSession:async()=>({id:1,name:"Desarrollo Local",email:"dev@localhost",phone:"",role:"admin",attributes:{role:"admin"}}),getPhoto', 'sesion');
 require('./registro.cjs')(rep);
 // 2. Capa híbrida
 rep('sat:()=>yt.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:17,attribution:"Imágenes &copy; Esri"})},Yp=',

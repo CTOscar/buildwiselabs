@@ -869,3 +869,18 @@
 
 
 #root.dh-profbusy #panel{visibility:hidden}
+
+/* Móvil: el header de Inicio (buscador + enlaces + migas) queda fijo arriba al hacer scroll */
+@media (max-width:1023px){
+  #home-view:not(.dh-map) #dh-header{position:sticky;top:0;z-index:40;background-color:#fff}
+}
+
+/* Móvil: los filtros del mapa (#chips) no se encimen en el header cuando Inicio está abierto (solo van en modo mapa) */
+@media (max-width:1023px){
+  #root:not(.dh-mapmode):has(#home-view:not([hidden]):not(.dh-map)) #chips{display:none!important}
+}
+
+/* Móvil: el panel "Flota" (hoja inferior) no sube más allá del header, para que su manija y título (cerrar/contraer) queden visibles */
+@media (max-width:1023px){
+  #root.dh-mapmode #panel{max-height:calc(100% - 45px - var(--dh-top,93px) - var(--dh-bot,41px) - 8px)}
+}
