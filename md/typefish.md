@@ -18,8 +18,8 @@
 2. Requisitos e instalación
 3. Arquitectura técnica
 4. Configuración y perfiles
-5. Uso de la CLI (TypeFish)
-6. Uso de la GUI (TypeFishGUI)
+5. Uso de la CLI (toCLI)
+6. Uso de la GUI (toGui)
 7. Reportes
 8. Buenas prácticas y seguridad operativa
 

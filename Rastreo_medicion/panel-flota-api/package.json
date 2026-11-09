@@ -1,0 +1,23 @@
+{
+  "name": "panel-flota-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API del panel de flota (Las Cabras): usuarios, perfiles, ajustes e historial en MySQL",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test \"test/*.test.mjs\"",
+    "check:db": "node scripts/check-db.mjs",
+    "sync:traccar": "node scripts/sync-traccar.mjs",
+    "dev:memory": "node scripts/dev-memory.mjs"
+  },
+  "dependencies": {
+    "dotenv": "16.6.1",
+    "express": "4.22.3",
+    "mysql2": "3.24.6"
+  }
+}

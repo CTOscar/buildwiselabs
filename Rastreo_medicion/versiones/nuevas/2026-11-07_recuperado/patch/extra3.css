@@ -1,0 +1,21 @@
+
+/*debian-tools*/
+/* Sin líneas rojas decorativas */
+#home-view #dh-navbar{border-bottom:0}
+#appbar{border-bottom:1px solid #d2d3d7!important}
+#appbar .jd-dd,#appbar .jd-orgpop,#dh-bell,#dh-gs,#chips{border-top:1px solid #d2d3d7!important}
+#chips .fchip[aria-pressed=true]{box-shadow:none}
+#appbar .jd-row.is-active,#appbar .jd-row.is-active:hover{box-shadow:none}
+#home-view .row.dh-on{border-left:4px solid #d2d3d7}
+
+/* Tools vive en la barra de navegación Debian: el botón del header se oculta, el menú sigue siendo el mismo */
+.jd-top>.jd-has-dd>.jd-tools{display:none}
+#home-view[hidden] ~ * .jd-tools,#root:has(#home-view[hidden]) .jd-top>.jd-has-dd>.jd-tools{display:flex}
+#home-view #dh-navbar li.dh-tools a:link,#home-view #dh-navbar li.dh-tools a:visited{font-weight:bold}
+#home-view #dh-navbar li.dh-tools a[aria-expanded=true]{background-color:#f5f6f7;border-left:1px solid #d2d3d7;border-right:1px solid #d2d3d7}
+#home-view .project-news.dh-hit{background:#ffffcb;outline:1px solid #d2d3d7}
+
+/* Botón de enlaces del header: queda como ancla invisible del panel "Enlaces del proyecto" (se abre desde Tools > Comenzar) */
+.jd-top>.jd-item:has([data-links-btn]){position:fixed!important;visibility:hidden;width:1px;height:1px;overflow:hidden;display:block!important}
+.jd-top>.jd-item:has([data-links-btn])+.jd-vline{display:none!important}
+@media (min-width:1024px){#chips .fchip.lg\:hidden{display:none}}
