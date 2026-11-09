@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens: claro por defecto, oscuro según el sistema */
+@layer base {
+  /* Colores BuildWise Labs: malva (#9D6B99) como acento, azul marino y casi negro de buildwiselabs.net,
+     degradado magenta→azul del isotipo. */
+  :root {
+    --ink: 236 237 242;
+    --panel: 255 255 255;
+    --raise: 243 243 247;
+    --line: 223 224 232;
+    --fg: 18 21 32;
+    --muted: 92 98 117;
+    --accent: 126 79 123;
+    --accent-ink: 255 255 255;
+    --brand-magenta: 224 0 232;
+    --brand-blue: 10 88 240;
+    --navy: 22 34 61;
+    --ok: 28 150 94;
+    --warn: 196 132 0;
+    --crit: 214 69 58;
+    --info: 47 111 214;
+    --sheet-h: 46vh;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: 12 14 20;
+      --panel: 21 24 36;
+      --raise: 30 35 51;
+      --line: 42 48 66;
+      --fg: 234 236 244;
+      --muted: 147 164 194;
+      --accent: 176 128 172;
+      --accent-ink: 12 14 20;
+      --ok: 63 191 134;
+      --warn: 242 193 58;
+      --crit: 239 90 74;
+      --info: 92 147 240;
+      color-scheme: dark;
+    }
+  }
+  html,
+  body {
+    @apply h-full bg-ink text-fg font-sans antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-sm font-medium text-fg transition hover:bg-raise disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn[aria-pressed='true'],
+  .btn-primary {
+    @apply border-accent bg-accent font-semibold text-accent-ink hover:bg-accent/90;
+  }
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-widest text-muted;
+  }
+  /* Botón flotante redondo del mapa */
+  .fab {
+    @apply grid h-10 w-10 place-items-center rounded-full bg-panel text-fg shadow-float ring-1 ring-line/60 transition hover:bg-raise;
+  }
+  /* Chip de filtro (estilo chips de categorías) */
+  .fchip {
+    @apply inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-panel px-3.5 text-sm font-medium text-fg shadow-float ring-1 ring-line/60 transition hover:bg-raise;
+  }
+  .fchip[aria-pressed='true'] {
+    @apply bg-fg text-panel ring-fg;
+  }
+  /* Botón de acción circular de la tarjeta (Centrar, 3D, Seguir…) */
+  .action {
+    @apply grid justify-items-center gap-1.5 text-xs font-medium text-fg;
+  }
+  .action > span:first-child {
+    @apply grid h-11 w-11 place-items-center rounded-full border border-line text-accent transition;
+  }
+  .action:hover > span:first-child {
+    @apply bg-raise;
+  }
+  .action[aria-pressed='true'] > span:first-child {
+    @apply border-accent bg-accent text-accent-ink;
+  }
+  .rail-btn {
+    @apply grid w-14 justify-items-center gap-1 rounded-2xl py-1.5 text-[11px] font-medium text-muted transition hover:text-fg;
+  }
+  .rail-btn > span:first-child {
+    @apply grid h-8 w-14 place-items-center rounded-full transition;
+  }
+  .rail-btn:hover > span:first-child {
+    @apply bg-raise;
+  }
+  .rail-btn[aria-current='true'] {
+    @apply text-fg;
+  }
+  .rail-btn[aria-current='true'] > span:first-child {
+    @apply bg-accent/20 text-accent;
+  }
+
+  /* Marcadores del mapa */
+  .mk {
+    @apply relative grid h-8 w-8 place-items-center rounded-full border-[3px] bg-panel font-mono text-[10px] font-semibold text-fg shadow-float;
+    transition: transform 0.15s;
+  }
+  .mk::after {
+    content: '';
+    @apply absolute -bottom-[7px] left-1/2 h-0 w-0 -translate-x-1/2 border-x-[5px] border-t-[6px] border-x-transparent;
+    border-top-color: inherit;
+  }
+  /* Logotipo de la marca dentro del pin */
+  .mk-logo {
+    @apply grid h-full w-full place-items-center overflow-hidden rounded-full bg-white text-black;
+  }
+  .mk-running {
+    @apply border-ok;
+  }
+  .mk-idle {
+    @apply border-muted;
+  }
+  .mk-nosignal {
+    @apply border-crit;
+  }
+  .mk-sel {
+    @apply z-10 scale-125 border-accent bg-accent text-accent-ink;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Leaflet */
+.leaflet-container {
+  background: rgb(var(--ink)) !important;
+  font-family: theme('fontFamily.sans');
+}
+@media (prefers-color-scheme: dark) {
+  .layer-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.92) saturate(0.6);
+  }
+}
+.leaflet-control-attribution {
+  background: rgb(var(--panel) / 0.85) !important;
+  color: rgb(var(--muted)) !important;
+  font-size: 10px;
+}
+.leaflet-control-attribution a {
+  color: rgb(var(--fg)) !important;
+}
+.leaflet-tooltip.fence-tip {
+  background: rgb(var(--panel));
+  color: rgb(var(--fg));
+  border: 1px solid rgb(var(--line));
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+  font-weight: 500;
+}
+.leaflet-tooltip.fence-tip::before {
+  display: none;
+}
+
+/* Pines de la escena 3D */
+.pin3d {
+  @apply absolute left-0 top-0 grid h-6 w-6 place-items-center rounded-full border-2 border-accent font-mono text-[11px] font-semibold text-accent;
+  background: rgba(15, 20, 22, 0.9);
+}
+.pin3d:hover,
+.pin3d.sel {
+  @apply bg-accent text-accent-ink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Simulador de instalación (diagrama SVG de cableado) */
+.sim {
+  --w-power: 207 58 44;
+  --w-gnd: 42 47 44;
+  --w-sig: 201 132 0;
+  --w-can: 35 134 90;
+  --w-ble: 44 105 207;
+  --w-cell: 126 79 123;
+  --comp: var(--panel);
+  --comp-line: 154 160 175;
+  --off: 200 204 214;
+}
+@media (prefers-color-scheme: dark) {
+  .sim {
+    --w-power: 239 90 74;
+    --w-gnd: 201 208 201;
+    --w-sig: 242 193 58;
+    --w-can: 63 191 134;
+    --w-ble: 92 147 240;
+    --w-cell: 176 128 172;
+    --comp-line: 77 87 104;
+    --off: 58 64 82;
+  }
+}
+.sim svg text { font-family: theme('fontFamily.sans'); fill: rgb(var(--fg)); }
+.sim svg .lbl { font-size: 13px; font-weight: 600; }
+.sim svg .sub { font-size: 11px; fill: rgb(var(--muted)); font-family: theme('fontFamily.mono'); }
+.sim svg .zone { fill: none; stroke: rgb(var(--comp-line)); stroke-dasharray: 5 5; }
+.sim svg .zone-t { font-family: theme('fontFamily.display'); font-size: 15px; font-weight: 600; fill: rgb(var(--muted)); letter-spacing: .06em; text-transform: uppercase; }
+.sim svg .comp { fill: rgb(var(--comp)); stroke: rgb(var(--comp-line)); stroke-width: 1.5; }
+.sim svg .dev { fill: rgb(var(--comp)); stroke: rgb(var(--fg)); stroke-width: 2; }
+.sim svg .wire { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke: rgb(var(--off)); transition: stroke .25s; }
+.sim svg .wire.on.power { stroke: rgb(var(--w-power)); }
+.sim svg .wire.on.gnd { stroke: rgb(var(--w-gnd)); }
+.sim svg .wire.on.sig { stroke: rgb(var(--w-sig)); }
+.sim svg .wire.on.can { stroke: rgb(var(--w-can)); }
+.sim svg .wire.on.ble { stroke: rgb(var(--w-ble)); }
+.sim svg .wire.on.cell { stroke: rgb(var(--w-cell)); }
+.sim svg .wire.ble, .sim svg .wire.cell { stroke-dasharray: 6 6; stroke-width: 2.5; }
+.sim svg .wire.on.flow { stroke-dasharray: 10 8; animation: sim-flow 1s linear infinite; }
+.sim svg .wire.on.ble, .sim svg .wire.on.cell { animation: sim-flow 1.2s linear infinite; }
+@keyframes sim-flow { to { stroke-dashoffset: -36; } }
+.sim svg .fuse { fill: rgb(var(--comp)); stroke: rgb(var(--fg)); stroke-width: 1.5; }
+.sim svg .hide { display: none; }
+.sim svg .sim-pulse { fill: rgb(var(--w-cell)); opacity: 0; }
+.sim svg .sim-pulse.go { animation: sim-ping .9s ease-out; }
+@keyframes sim-ping { 0% { opacity: .9; r: 4; } 100% { opacity: 0; r: 22; } }
+.sim svg .fuel { fill: rgb(var(--w-sig)); opacity: .35; transition: y .4s, height .4s; }
+.sim svg .seal { fill: none; stroke: rgb(var(--muted)); stroke-width: 2; }
+.sim svg .led { fill: rgb(var(--off)); }
+.sim svg .led.on { fill: rgb(var(--ok)); }
+.sim svg .led.alarm { fill: rgb(var(--crit)); }
+@media (prefers-reduced-motion: reduce) { .sim svg .wire { animation: none !important; } }
+
+/* Logotipo dentro del pin (fuera de @layer para ganarle a Leaflet) */
+.leaflet-marker-icon .mk-logo img {
+  width: 19px;
+  height: 19px;
+  max-width: 19px !important;
+  object-fit: contain;
+}
+.leaflet-marker-icon .mk-logo img.cover {
+  width: 100%;
+  height: 100%;
+  max-width: 100% !important;
+  object-fit: cover;
+}
