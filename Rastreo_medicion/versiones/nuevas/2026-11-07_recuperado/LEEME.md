@@ -21,3 +21,19 @@ y parcheado a mano. No es código fuente: no tiene `src/` ni `package.json`.
 - API del panel: `../../../panel-flota-api` (`/api/panel`, MySQL).
 - Noticias: backend de `buildwiselabs.net` (`/api/news`, categoría `agro`).
 - Posiciones en vivo: Traccar (`/api/session`, `/api/devices`, `/api/positions`, `/api/socket`).
+
+## Publicar en Hostinger
+
+El bundle de trabajo usa `same-origin` (`/api/panel`, con el proxy local). En Hostinger la API vive en
+`api-panelpack.buildwiselabs.net`, así que se arma una copia con la dirección cambiada:
+
+```bash
+cd versiones/nuevas/2026-11-07_recuperado
+node patch/make-deploy.cjs          # API de producción, datos simulados
+node patch/make-deploy.cjs --live   # además, Traccar real (VITE_USE_MOCK=false)
+```
+
+Genera `deploy-hostinger/` (sin `*.bak*`; no se versiona) y no toca `panelpack/`. Sube **el contenido** de esa carpeta
+a `public_html` de `panelpack.buildwiselabs.net`. Antes, en la API: `ALLOWED_ORIGINS` con
+`https://panelpack.buildwiselabs.net`, `PANEL_URL` igual, y en Google Cloud el URI
+`https://api-panelpack.buildwiselabs.net/api/panel/auth/google/callback`.

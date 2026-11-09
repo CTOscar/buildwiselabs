@@ -1,2 +1,5 @@
 # Respaldos locales de los parches al bundle (git ya es el respaldo)
 *.bak-*
+
+# Carpeta generada por patch/make-deploy.cjs (se regenera cuando haga falta)
+deploy-hostinger/
