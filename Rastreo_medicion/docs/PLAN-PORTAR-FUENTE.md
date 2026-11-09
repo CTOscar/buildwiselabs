@@ -1,7 +1,7 @@
 # Plan: portar al fuente lo que solo existe en el bundle
 
 **Fecha:** 8 de noviembre de 2026
-**Estado:** pasos 1, 2 y 3 hechos; pasos 4 y 5 pendientes.
+**Estado:** pasos 1, 2 y 3 hechos; paso 4 analizado (falta decidir A o B); paso 5 pendiente.
 
 ## Punto de partida
 
@@ -45,11 +45,28 @@
 - Agregar al cliente y a `mock.js` (misma interfaz) y crear la vista con d3 reutilizando `barChart.js` donde sirva.
 - **Listo cuando:** se ve el historial de combustible y velocidad de un tractor, con datos del mock y de la API.
 
-## Paso 4 · `home.js` y `statuspage.js`
+## Paso 4 · `home.js`, `mapx.js` y `statuspage.js` (ANALIZADO, sin portar)
 
-- Son páginas sueltas del bundle sin fuente modular. Leerlas y decidir si van como módulos del panel o como páginas aparte.
-- `home.js`: dashboard con noticias desde `https://buildwiselabs.net/api/news` (categoría `agro`; en producción aún da 400).
-- `mapx.js:478` tiene un `setInterval(place, 800)` que gasta batería: corregirlo al portar.
+**Hallazgo:** no están minificados. Son scripts a mano, legibles, que se cargan con `<script defer>` en `index.html` junto a `jquery.min.js` y se enganchan al panel por **`window.__pf`** (lo expone el bundle). El fuente aún no lo expone.
+
+| Script | Tamaño | Qué hace | Se engancha con |
+|---|---|---|---|
+| `home.js` | 91 KB | Página "Inicio" (réplica de debian.org): clima (Open-Meteo), noticias (`rss2json`), carrusel, migas, Earth, validación de contraseña (`window.__pwOk`/`__pwReq`) | `__pf.w.positions`, `__pf.subscribe`, `window.__pfHome`, `window.__pfStatus` |
+| `mapx.js` | 42 KB | Herramientas extra del mapa: rastro por velocidad, calor, etiquetas, radar, reproducción de ruta, paradas, NDVI, agrupación, seguimiento, pantalla completa | `window.L`, `__pf.select`, `__pf.w`, `__pf.subscribe`, contenedor `#map` |
+| `statuspage.js` | 24 KB | Página "Status" (estilo statuspage de Hostinger), estado en `localStorage` (`pf-status-v1`) | `__pf.At` (estado de unidad), `__pf.w`, `window.__pfStatus` |
+
+`__pf` expone: `w` (estado), `subscribe`, `select`, `At` (estado de unidad: en marcha / apagado / sin señal).
+
+**Decisión pendiente (elegir):**
+- **A (rápida):** copiar los 3 scripts a `panel-flota/public/`, exponer `window.__pf = { w: state, subscribe, select, At: statusOf }` en `main.js` y añadir las etiquetas `<script defer>` a `index.html`. Funciona igual que hoy, pero sigue siendo código "pegado" (jQuery, `window.*`).
+- **B (limpia):** reescribir cada uno como módulo ES (`features/home`, `features/map/extra.js`, `features/status`) importando `store.js`. Más trabajo; mejor mantenimiento. `mapx.js` es el que más gana.
+- Recomendación: **A ahora** (para igualar al bundle) y **B después**, módulo por módulo.
+
+**Ojo al integrar `home.js`:** el menú del bundle (`go(g)` con `window.__pfHome.show("inicio")`, subpestañas `jd-sub`, "Ver todo…") lo inyectan los parches `patch/*.cjs`; el fuente tiene otra navegación (`nav.js` con módulos). Hay que decidir cómo se abre "Inicio" y "Status" en esa navegación.
+
+**Pendientes del bundle al portar:**
+- `mapx.js:478` ejecuta `setInterval(place, 800)`, que gasta batería en celular: corregirlo.
+- `home.js` usa `api.rss2json.com`: cambiar a `/api/news` propio (categoría `agro`; en producción aún da 400).
 
 ## Paso 5 · Rehacer las mejoras de velocidad
 
