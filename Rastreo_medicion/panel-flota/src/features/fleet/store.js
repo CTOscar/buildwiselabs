@@ -22,7 +22,7 @@ export const state = {
   follow: false,
   trails: new Map(), // deviceId -> [[lat, lon, ms]] recorrido de la sesión
   sim: { id: null, speed: 1 }, // recorrido simulado activo (solo modo simulado)
-  chips: { status: null, nivel: null, sonda: false },
+  chips: { status: null, nivel: null, sonda: false, group: null, marca: null },
 };
 
 const subs = new Set();
@@ -131,6 +131,8 @@ export function matches(id) {
   if (c.status && statusOf(id) !== c.status) return false;
   if (c.nivel && d.attributes?.nivel !== c.nivel) return false;
   if (c.sonda && !d.attributes?.sondaBLE) return false;
+  if (c.marca && d.attributes?.marca !== c.marca) return false;
+  if (c.group && groupOf(id) !== c.group) return false;
   const q = state.query;
   if (q && !d.name.toLowerCase().includes(q) && !String(d.uniqueId).includes(q)) return false;
   return true;
@@ -140,6 +142,11 @@ export function fenceNameOf(id) {
   const p = state.positions.get(id);
   const gid = p?.geofenceIds?.[0];
   return state.geofences.find((g) => g.id === gid)?.name || null;
+}
+
+// Grupo de la unidad = rancho donde está (nombre del lote antes de ' · ').
+export function groupOf(id) {
+  return fenceNameOf(id)?.split(' · ')[0] || 'Fuera de rancho';
 }
 
 export function select(id) {

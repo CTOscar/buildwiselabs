@@ -4,10 +4,9 @@ import { state, subscribe, notify, select, statusOf, matches, mapApi } from '../
 import { escapeHtml } from '../../lib/format.js';
 import { brandPin } from '../../lib/brands.js';
 import { icon as svgIcon } from '../../components/icons.js';
+import { initMapTools, loadSettings, saveSettings } from './tools.js';
 
 const MK = { running: 'mk mk-running', idle: 'mk mk-idle', nosignal: 'mk mk-nosignal' };
-const RAIL = 72;
-const PANEL = 408;
 
 // Capas base. OSM y Esri para desarrollo; en producción usar un proveedor con contrato.
 const LAYERS = {
@@ -18,11 +17,17 @@ const LAYERS = {
       maxZoom: 19,
       attribution: 'Imágenes &copy; Esri',
     }),
-};
-// Miniatura del botón de capas: muestra la capa a la que se cambiaría.
-const THUMB = {
-  sat: 'background: radial-gradient(circle at 30% 30%, #6b7d3d 0 18%, transparent 19%), radial-gradient(circle at 75% 65%, #8a7a4a 0 22%, transparent 23%), linear-gradient(135deg, #4d6230, #7a6f45 50%, #3e5228)',
-  map: 'background: linear-gradient(90deg, transparent 46%, #fff 46% 54%, transparent 54%), linear-gradient(20deg, transparent 60%, #f6d58a 60% 66%, transparent 66%), #e9ece6',
+  // Híbrido: imagen satelital con calles y nombres encima.
+  hyb: () =>
+    L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Imágenes &copy; Esri',
+      }),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+      }),
+    ]),
 };
 
 // Geocercas de Traccar en WKT con orden "lat lon".
@@ -59,25 +64,28 @@ function styleFence(shape, g) {
 
 const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
-// Espacio que tapan el riel, el panel o la hoja inferior: el mapa centra en lo visible.
+// Espacio que tapa el panel de unidad (capa lateral en escritorio): el mapa centra en lo visible.
 function padding() {
-  if (isDesktop()) return { tl: [RAIL + (state.panelOpen ? PANEL : 0) + 40, 90], br: [80, 40] };
-  const sheet = document.getElementById('panel')?.offsetHeight || 0;
-  return { tl: [30, 130], br: [70, sheet + 30] };
+  const drawer = isDesktop() && state.view === 'device' ? 470 : 0;
+  return { tl: [40, 40], br: [40 + drawer, 40] };
 }
 
 export function initMap() {
   const el = document.getElementById('map');
   const map = L.map(el, { zoomControl: false, attributionControl: true, worldCopyJump: true });
-  let base = LAYERS[state.layer]().addTo(map);
+  // Configuración del mapa (persistida en el navegador).
+  const cfg = loadSettings();
+  state.layer = cfg.layer;
+  el.classList.toggle('layer-map', cfg.layer === 'map');
+  let base = LAYERS[cfg.layer]().addTo(map);
 
   state.geofences.forEach((g) => {
     const shape = parseArea(g.area);
     if (!shape) return;
     shape.bindTooltip(escapeHtml(g.name), { className: 'fence-tip', sticky: true, direction: 'top' });
     styleFence(shape, g);
-    shape.on('click', () => fitFence(g.id));
-    shape.addTo(map);
+    shape.on('click', () => !map._measuring && fitFence(g.id));
+    if (cfg.fences) shape.addTo(map);
     g._shape = shape;
   });
 
@@ -116,10 +124,10 @@ export function initMap() {
   function drawTrail() {
     const id = state.selected;
     const t = id != null ? state.trails.get(id) || [] : [];
-    const key = `${id}:${t.length}:${t[t.length - 1]?.[2] || ''}`;
+    const key = `${id}:${t.length}:${t[t.length - 1]?.[2] || ''}:${cfg.trail}`;
     if (key === trailKey) return;
     trailKey = key;
-    if (t.length < 2) {
+    if (t.length < 2 || !cfg.trail) {
       [trailGlow, trail, trailStart].forEach((l) => map.hasLayer(l) && l.remove());
       return;
     }
@@ -153,10 +161,12 @@ export function initMap() {
       if (!m) {
         m = L.marker(ll, { icon: icon(dev, st, sel), title: dev?.name, riseOnHover: true });
         m.on('click', () => {
+          if (map._measuring) return;
           select(id);
           focusDevice(id);
         });
         m._key = key;
+        if (cfg.labels) setLabel(m, dev);
         markers.set(id, m);
       } else {
         const cur = m._to || [m.getLatLng().lat, m.getLatLng().lng];
@@ -221,28 +231,39 @@ export function initMap() {
     map.fitBounds(pts, { paddingTopLeft: pad.tl, paddingBottomRight: pad.br });
   } else map.setView([22.998422, -105.878478], 14);
 
-  // Controles flotantes
-  const thumb = document.getElementById('layer-thumb');
-  const label = document.getElementById('layer-label');
-  const toggleLayer = () => {
-    state.layer = state.layer === 'map' ? 'sat' : 'map';
-    map.removeLayer(base);
-    base = LAYERS[state.layer]().addTo(map);
-    el.classList.toggle('layer-map', state.layer === 'map');
-    notify();
-  };
-  document.getElementById('layer-btn').addEventListener('click', toggleLayer);
-  document.getElementById('ctl-layer-sm').addEventListener('click', toggleLayer);
-  document.getElementById('ctl-zin').addEventListener('click', () => map.zoomIn());
-  document.getElementById('ctl-zout').addEventListener('click', () => map.zoomOut());
-  document.getElementById('ctl-fit').addEventListener('click', fitAll);
+  // Etiquetas permanentes con el nombre de la unidad.
+  function setLabel(m, dev) {
+    m.unbindTooltip();
+    if (cfg.labels && dev?.name) m.bindTooltip(escapeHtml(dev.name), { permanent: true, direction: 'bottom', offset: [0, 4], className: 'unit-lbl' });
+  }
+
+  // Aplica un cambio de configuración (panel de capas / configuración).
+  function applyConfig(patch) {
+    const prev = { ...cfg };
+    Object.assign(cfg, patch);
+    saveSettings(cfg);
+    if (cfg.layer !== prev.layer) {
+      map.removeLayer(base);
+      base = LAYERS[cfg.layer]().addTo(map);
+      state.layer = cfg.layer;
+      el.classList.toggle('layer-map', cfg.layer === 'map');
+    }
+    if (cfg.fences !== prev.fences) {
+      state.geofences.forEach((g) => {
+        if (!g._shape) return;
+        if (cfg.fences) g._shape.addTo(map);
+        else g._shape.remove();
+      });
+    }
+    if (cfg.labels !== prev.labels) markers.forEach((m, id) => setLabel(m, state.devices.get(id)));
+    if (cfg.trail !== prev.trail) drawTrail();
+  }
+
+  initMapTools(map, { settings: cfg, update: applyConfig, fitAll });
 
   let lastFollow = null;
   subscribe(() => {
     sync();
-    const next = state.layer === 'map' ? 'sat' : 'map';
-    thumb.style.cssText = THUMB[next];
-    label.textContent = next === 'sat' ? 'Satélite' : 'Mapa';
     // Modo seguir: el mapa acompaña al tractor seleccionado.
     if (state.follow && state.selected != null) {
       const p = state.positions.get(state.selected);

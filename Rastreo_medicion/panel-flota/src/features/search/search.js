@@ -12,16 +12,15 @@ const STATUS_CHIPS = [
 export function initSearch() {
   const box = document.getElementById('searchbox');
   box.innerHTML = `
-    <form id="search-form" role="search" class="flex h-12 items-center gap-1 rounded-full bg-panel pl-1.5 pr-2 shadow-float ring-1 ring-line/60 focus-within:ring-2 focus-within:ring-accent/60">
-      <button type="button" id="menu-btn" class="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted hover:bg-raise hover:text-fg lg:hidden" aria-label="Abrir menú">${icon('menu')}</button>
-      <span class="hidden h-10 w-10 shrink-0 place-items-center text-muted lg:grid">${icon('search')}</span>
+    <form id="search-form" role="search" class="flex h-11 items-center gap-1 rounded-full bg-raise pl-1.5 pr-2 ring-1 ring-line/60 focus-within:ring-2 focus-within:ring-accent/60">
+      <span class="grid h-10 w-10 shrink-0 place-items-center text-muted">${icon('search')}</span>
       <label for="q" class="sr-only">Buscar tractor o lote</label>
       <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Buscar tractor, IMEI o lote"
         class="h-full min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden" />
       <button type="button" id="q-clear" class="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-muted hover:bg-raise hover:text-fg" aria-label="Borrar búsqueda">${icon('x')}</button>
-      <button type="submit" class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-accent hover:bg-raise lg:hidden" aria-label="Buscar">${icon('search')}</button>
+      <button type="submit" class="sr-only">Buscar</button>
     </form>
-    <div id="suggest" class="mt-2 hidden overflow-hidden rounded-2xl bg-panel py-2 shadow-float ring-1 ring-line/60" role="listbox" aria-label="Sugerencias"></div>`;
+    <div id="suggest" class="absolute inset-x-0 top-full z-50 mt-2 hidden overflow-hidden rounded-2xl bg-panel py-2 shadow-panel ring-1 ring-line" role="listbox" aria-label="Sugerencias"></div>`;
 
   const form = box.querySelector('#search-form');
   const q = box.querySelector('#q');
@@ -104,7 +103,6 @@ export function initSearch() {
     q.dispatchEvent(new Event('input'));
     q.focus();
   });
-  box.querySelector('#menu-btn').addEventListener('click', () => window.dispatchEvent(new Event('open-drawer')));
 
   // Chips de filtro
   const chipsEl = document.getElementById('chips');
@@ -117,7 +115,7 @@ export function initSearch() {
     if (k === 'status') c.status = c.status === v ? null : v;
     if (k === 'nivel') c.nivel = c.nivel === v ? null : v;
     if (k === 'sonda') c.sonda = !c.sonda;
-    if (k === 'clear') state.chips = { status: null, nivel: null, sonda: false };
+    if (k === 'clear') state.chips = { status: null, nivel: null, sonda: false, group: null, marca: null };
     notify();
   });
 
@@ -129,7 +127,7 @@ export function initSearch() {
     const c = state.chips;
     const counts = { running: 0, idle: 0, nosignal: 0 };
     state.devices.forEach((_, id) => counts[statusOf(id)]++);
-    const any = c.status || c.nivel || c.sonda;
+    const any = c.status || c.nivel || c.sonda || c.group || c.marca;
     const html = [
       `<button type="button" class="fchip" data-chip="links:1" aria-haspopup="true" aria-expanded="${links.isOpen()}" aria-pressed="${links.isOpen()}">
         ${icon('external', 'h-4 w-4')}Enlaces<span class="transition-transform ${links.isOpen() ? '' : 'rotate-180'}">${icon('chevronUp', 'h-4 w-4')}</span></button>`,
