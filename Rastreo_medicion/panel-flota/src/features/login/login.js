@@ -129,7 +129,8 @@ function loginScreen(app, client, done) {
   } catch {
     /* nada */
   }
-  const mock = client.mode === 'mock';
+  // El aviso de cuenta demo solo aplica sin API del panel (con API las cuentas son reales).
+  const mock = client.mode === 'mock' && !client.panel;
   app.innerHTML = frame(`
     <div class="text-center">
       <h1 class="mb-2 font-display text-3xl font-bold tracking-tight">Bienvenido de nuevo</h1>

@@ -16,9 +16,11 @@ import { initSimulator } from './features/simulator/simulator.js';
 import { initView3d } from './features/escena3d/view3d.js';
 import { initFenceSettings, initDeviceSettings } from './features/settings/settings.js';
 import { startOfToday } from './lib/format.js';
+import { setPhotoClient } from './lib/photo.js';
 
 const app = document.getElementById('app');
 const client = createClient();
+setPhotoClient(client);
 state.mode = client.mode;
 
 async function boot() {

@@ -2,6 +2,7 @@ import { state, subscribe, notify, setView, select } from '../features/fleet/sto
 import { icon } from './icons2.js';
 import { logoMark, wordmark } from './brand.js';
 import { initials } from '../features/profile/profile.js';
+import { applyPhotos } from '../lib/photo.js';
 import { mountAppsLauncher } from './apps.js';
 import { MODULES, tabsOf, moduleOf, activeTab, pageOf } from './nav.js';
 import { stateBlock } from './ui.js';
@@ -170,7 +171,9 @@ export function renderShell(app, { onLogout }) {
   const paintAvatar = () =>
     app.querySelectorAll('[data-avatar]').forEach((a) => {
       a.textContent = initials(state.user?.name);
+      if (state.user?.id != null) a.dataset.photoUser = state.user.id;
       a.title = state.user?.name ? `Mi perfil · ${state.user.name}` : 'Mi perfil';
+      applyPhotos(null, a.parentNode);
     });
   paintAvatar();
   window.addEventListener('user-updated', paintAvatar);
