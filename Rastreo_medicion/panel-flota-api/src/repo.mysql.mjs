@@ -179,6 +179,16 @@ export function createRepo(pool) {
         speed: r.speed_knots,
         attributes: { ...(r.fuel != null ? { fuel: r.fuel } : {}), ignition: !!r.ignition },
       })),
+    // Muestras crudas de varios tractores en un rango, ordenadas por tractor y hora (para el resumen de combustible).
+    samplesRange: async ({ from, to, deviceIds }) =>
+      (
+        await q(
+          `SELECT device_id, fix_time, speed_knots, fuel FROM position_samples
+           WHERE fix_time BETWEEN ? AND ? ${deviceIds?.length ? 'AND device_id IN (?)' : ''}
+           ORDER BY device_id, fix_time LIMIT 3000000`,
+          [from, to, ...(deviceIds?.length ? [deviceIds] : [])],
+        )
+      ).map((r) => ({ deviceId: r.device_id, fixTime: r.fix_time, speed: r.speed_knots, fuel: r.fuel })),
     // Cargas (sube >= minL) y descargas (baja >= minL con el tractor detenido) calculadas en la base.
     fuelEvents: async ({ from, to, deviceIds, minL = 20 }) => {
       const rows = await q(

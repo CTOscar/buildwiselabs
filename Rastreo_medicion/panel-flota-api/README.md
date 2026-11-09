@@ -24,7 +24,7 @@ cp .env.example .env      # llena DB_USER, DB_PASSWORD, DB_NAME (una base MySQL 
 npm install
 npm run check:db          # prueba la conexión y cada consulta; no deja datos
 npm start                 # http://localhost:3000/api/panel/health
-npm test                  # 12 pruebas de reglas y permisos (sin necesitar MySQL)
+npm test                  # pruebas del resumen de combustible y su ruta (sin necesitar MySQL)
 ```
 
 ## Publicar en Hostinger
@@ -74,6 +74,7 @@ O deja corriendo `npm run sync:traccar`, que copia `/api/positions` de Traccar c
 | `GET /devices`, `PUT /devices/:id`, `GET /fences`, `PUT /fences/:id` | sesión |
 | `POST /samples` | clave de envío o sesión |
 | `GET /route`, `GET /fuel-events` | sesión |
+| `GET /fuel-summary?from&to&deviceId=…` (resumen por tractor y día: consumo, cargas, descargas, velocidad y horas; máx. 31 días) | sesión |
 
 ## Acceso con Google y Apple
 

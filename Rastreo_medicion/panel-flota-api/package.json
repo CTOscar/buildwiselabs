@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test test/api.test.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
     "check:db": "node scripts/check-db.mjs",
     "sync:traccar": "node scripts/sync-traccar.mjs",
     "dev:memory": "node scripts/dev-memory.mjs"
