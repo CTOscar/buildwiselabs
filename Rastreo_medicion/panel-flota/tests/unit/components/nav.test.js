@@ -14,6 +14,6 @@ describe('navegación', () => {
   });
   it('una subpantalla marca la pestaña de su padre', () => {
     expect(activeTab('lote')).toBe('lotes');
-    expect(tabsOf('inicio').map((t) => t.view)).toEqual(['home', 'fleet', 'alerts']);
+    expect(tabsOf('inicio').map((t) => t.view)).toEqual(['home', 'fleet', 'alerts', 'status']);
   });
 });

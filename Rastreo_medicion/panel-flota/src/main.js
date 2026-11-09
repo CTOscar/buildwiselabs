@@ -1,5 +1,6 @@
 import './styles/main.css';
 import './styles/home.css';
+import './styles/status.css';
 import { createClient } from './api/index.js';
 import { state, notify, applyMessage, setEngineToday } from './features/fleet/store.js';
 import { renderShell } from './components/shell.js';

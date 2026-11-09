@@ -160,7 +160,7 @@ describe('portada (humo)', () => {
     const { initHome, PAGE_VIEW } = await import('../../../src/features/home/home.js');
     initHome();
     const view = document.getElementById('home-view');
-    expect(view.querySelectorAll('#dh-navbar a[data-hm-page]')).toHaveLength(7);
+    expect(view.querySelectorAll('#dh-navbar a[data-hm-page]')).toHaveLength(8);
     state.view = 'home';
     notify();
     await new Promise((r) => setTimeout(r, 50));

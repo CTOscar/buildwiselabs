@@ -14,6 +14,7 @@ export const VIEWS = [
   { view: 'home', module: 'inicio', label: 'Portada', tab: true },
   { view: 'fleet', module: 'inicio', label: 'Resumen', tab: true },
   { view: 'alerts', module: 'inicio', label: 'Alertas', tab: true },
+  { view: 'status', module: 'inicio', label: 'Status', tab: true },
   { view: 'lotes', module: 'plan', label: 'Rutas y geocercas', tab: true },
   { view: 'lote', module: 'plan', parent: 'lotes' },
   { view: 'reports', module: 'analizar', label: 'Reportes', tab: true },

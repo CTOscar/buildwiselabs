@@ -7,10 +7,11 @@ import { num } from './helpers.js';
 import { DEFAULT_LL, errorBox, fetchWeather, fleetCentroid, weatherHtml } from './weather.js';
 import { NEWS_CATS, fetchNews, newsHtml, onNewsImageError } from './news.js';
 import { fleetHtml } from './fleet.js';
+import { createStatusPage } from '../status/status.js';
 import { earthControlsHtml, earthFrameHtml, earthUrl, initialEarth } from './earth.js';
 
-// Páginas de la portada -> vistas del panel. 'estado' (Status) aún no está portada.
-export const PAGE_VIEW = { mapa: 'fleet', lotes: 'lotes', alertas: 'alerts', reportes: 'reports', costeo: 'stats', combustible: 'stats', simulador: 'sim', vista3d: '3d' };
+// Páginas de la portada -> vistas del panel. 'estado' es la página Status, que se pinta en este mismo marco.
+export const PAGE_VIEW = { mapa: 'fleet', lotes: 'lotes', alertas: 'alerts', reportes: 'reports', costeo: 'stats', combustible: 'stats', simulador: 'sim', vista3d: '3d', estado: 'status' };
 const GO_VIEW = { fleet: 'fleet', sim: 'sim', stats: 'stats' };
 const WEATHER_TTL = 10 * 60000;
 
@@ -39,6 +40,7 @@ const NAV = [
   ['combustible', 'Combustible y velocidad', 'Combustible'],
   ['simulador', 'Simulador de instalación', 'Simulador'],
   ['vista3d', 'Tractor en 3D', 'Vista 3D'],
+  ['estado', 'Estado del servicio', 'Status'],
 ];
 
 function startHtml(earth) {
@@ -108,6 +110,16 @@ export function initHome() {
   const news = {}; // categoría -> datos
   let topic = 'agro';
   let wasVisible = false;
+  let page = null; // 'inicio' | 'estado': qué hay dentro de #dh-content
+  const fleetLive = () => {
+    const c = { running: 0, idle: 0, nosignal: 0 };
+    state.devices.forEach((_, id) => {
+      const k = statusOf(id);
+      c[k] = (c[k] || 0) + 1;
+    });
+    return state.devices.size ? c : null;
+  };
+  const status = createStatusPage(view, { getLive: fleetLive });
   const painted = {}; // id -> último HTML, para no repintar lo que no cambió
 
   const put = (id, html) => {
@@ -298,11 +310,34 @@ export function initHome() {
     if (Date.now() - weather.at > WEATHER_TTL) loadWeather(true);
   }, 15000);
 
+  const crumb = (text) => {
+    const el = $('#dh-crumb');
+    if (el) el.textContent = text;
+  };
+
   subscribe(() => {
-    const show = state.view === 'home';
-    view.hidden = !show;
-    if (!show) {
+    const want = state.view === 'status' ? 'estado' : state.view === 'home' ? 'inicio' : null;
+    view.hidden = !want;
+    if (!want) {
       wasVisible = false;
+      return;
+    }
+    if (want !== page) {
+      // Cambia el contenido del marco: la portada se vuelve a armar y se descarta lo ya pintado.
+      page = want;
+      Object.keys(painted).forEach((k) => delete painted[k]);
+      if (want === 'estado') {
+        status.render();
+        crumb('Inicio / Status');
+      } else {
+        $('#dh-content').innerHTML = startHtml(earth);
+        crumb('Inicio');
+      }
+      wasVisible = false;
+      view.scrollTop = 0;
+    }
+    if (want === 'estado') {
+      if (!wasVisible) wasVisible = true;
       return;
     }
     renderFleet();
