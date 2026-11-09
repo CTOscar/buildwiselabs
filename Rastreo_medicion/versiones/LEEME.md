@@ -1,7 +1,10 @@
 # Versiones del Panel de Flota
 
-Se conserva una sola versión: **`2026-11-07_recuperado/`** (despliegue compilado y parcheado, con
-`home.js` y `statuspage.js`). Su backend es `../panel-flota-api` (API Express + MySQL, `/api/panel`).
+**Proyecto oficial: `2026-11-07_recuperado/`** (despliegue compilado y parcheado, con `home.js`, `mapx.js` y
+`statuspage.js`). Su backend es `../panel-flota-api` (API Express + MySQL, `/api/panel`).
+
+**`antiguas/`** guarda versiones anteriores solo para consulta. Hoy tiene `antiguas/panel-flota/`, el fuente Vite
+(ver `antiguas/LEEME.md`). No es la base de trabajo.
 
 ## Lo que se borró (8 nov 2026)
 

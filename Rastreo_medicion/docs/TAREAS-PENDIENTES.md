@@ -4,7 +4,7 @@
 
 ## 1. Recuperar el código fuente del panel y mejorar su velocidad
 
-**Estado:** en pausa. No se ha hecho ningún cambio en el repositorio por esto.
+**Estado: DESCARTADO (8 nov 2026).** Se decidió que el bundle `versiones/2026-11-07_recuperado/` es el proyecto oficial y que `panel-flota` (fuente) queda archivado en `versiones/antiguas/panel-flota/`. Lo de abajo es contexto histórico; las mejoras de velocidad se aplicarían sobre el bundle (el service worker se puede agregar junto a él, sin tocar el JS minificado: ver `SERVICE-WORKER-PLAN.md`).
 
 ### Situación
 
@@ -47,6 +47,6 @@ Se hicieron y probaron (build y 71 pruebas en verde), pero no se commitearon. Ha
 
 ### Otros pendientes relacionados
 
-- Actualizar `CLAUDE.md`: todavía describe `panel-flota/` como el código fuente del panel.
+- ~~Actualizar `CLAUDE.md`~~ (hecho el 8 nov 2026: el bundle es el proyecto oficial).
 - Mezcla de cambios sin commitear en el repo (`E:\PYME`): decidir qué subir de `Rastreo_medicion/` (`CLAUDE.md`, docs, tests de `panel-flota-api/`, cambios del build recuperado). Los `.bak-*` son respaldos locales y no deberían subirse.
 - Aviso de "Actualizar" cuando haya versión nueva del service worker (el plan lo proponía; no se hizo).

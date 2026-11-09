@@ -7,22 +7,22 @@ Panel de flota agrícola (Las Cabras, Sinaloa) de BuildWise Labs. Piloto con 3 t
 
 | Carpeta | Qué es |
 |---|---|
-| `panel-flota/` | Código fuente del panel (Vite + JS vanilla, Tailwind, Leaflet, d3, three). Ver su `README.md` |
 | `panel-flota-api/` | Backend Express + MySQL (`/api/panel`): usuarios, sesiones, ajustes, historial |
-| `versiones/2026-11-07_recuperado/` | Build compilado y parcheado a mano (con `home.js`, `statuspage.js`). **No es código fuente**; sin desplegar en producción |
+| `versiones/2026-11-07_recuperado/` | **Proyecto oficial.** Build compilado y parcheado a mano (con `home.js`, `mapx.js`, `statuspage.js`). No hay código fuente modular: se trabaja sobre el bundle y sus parches (`patch/`). Sin desplegar en producción |
+| `versiones/antiguas/panel-flota/` | Fuente Vite del panel, **archivado** (versión anterior al bundle, con intentos de portar API, login social, combustible, portada y Status). Solo consulta; ver `versiones/antiguas/LEEME.md` |
 | `docs/` | Documentación técnica (ver abajo) |
 
 ## Comandos
 
-- Panel (`panel-flota/`): `npm run dev`, `npm run build`, `npm test` (Jest), `npm run test:coverage`.
-  `VITE_USE_MOCK=false` usa Traccar real; por defecto usa datos simulados. `VITE_PANEL_API_URL` apunta a la API.
+- Panel oficial (bundle): no se compila. Se edita `versiones/2026-11-07_recuperado/panelpack/` (y sus scripts `patch/*.cjs`) y se publica esa carpeta.
+- Fuente archivado (`versiones/antiguas/panel-flota/`): `npm install`, `npm run dev`, `npm run build`, `npm test`. Ya no es la base de trabajo.
 - API (`panel-flota-api/`): `npm start`, `npm run dev`, `npm test` (sin MySQL), `npm run check:db`,
   `npm run sync:traccar`. Requiere `.env` (copiar de `.env.example`).
 
 ## Arquitectura clave
 
-- `panel-flota/src/api/index.js` elige entre `mock.js` y `traccar.js` (misma interfaz). Migrar a GPS real
-  no requiere cambiar el panel.
+- En el fuente archivado, `src/api/index.js` elige entre `mock.js` y `traccar.js` (misma interfaz). El bundle oficial
+  trae lo mismo ya compilado (`VITE_USE_MOCK`, `VITE_PANEL_API_URL`).
 - Traccar es la fuente de posiciones en vivo; `panel-flota-api` guarda historial y todo lo propio del panel.
 - Producción: `panelpack.buildwiselabs.net` (Hostinger); API en `api-panelpack.buildwiselabs.net`.
 - La primera cuenta registrada en la API queda como administradora.

@@ -4,7 +4,7 @@
 **Fase:** piloto con **3 tractores** (2 John Deere + 1 New Holland)
 **Fecha:** 7 de noviembre de 2026
 
-> Los endpoints de Traccar, los puertos y los nombres de atributos están tomados de `panel-flota/README.md` y del código. Hay que confirmarlos contra la versión de Traccar que se instale y contra el manual del modelo de rastreador comprado.
+> Los endpoints de Traccar, los puertos y los nombres de atributos están tomados de `versiones/antiguas/panel-flota/README.md` y del código. Hay que confirmarlos contra la versión de Traccar que se instale y contra el manual del modelo de rastreador comprado.
 
 ---
 
@@ -143,7 +143,7 @@ Los datos por J1939 (RPM, temperatura del refrigerante, presión de aceite, acel
 
 ### 7.1 En desarrollo
 
-En `panel-flota/.env`:
+En `versiones/antiguas/panel-flota/.env` (o en las variables del build del bundle):
 
 ```
 VITE_USE_MOCK=false

@@ -1,3 +1,6 @@
+> **ARCHIVADO (8 nov 2026).** Se decidió no continuar este plan: el bundle `versiones/2026-11-07_recuperado/` es el proyecto oficial
+> y el fuente quedó en `versiones/antiguas/panel-flota/`. Lo hecho (pasos 1 a 4 parcial) sigue en git y en esa carpeta. Se conserva como referencia.
+
 # Plan: portar al fuente lo que solo existe en el bundle
 
 **Fecha:** 8 de noviembre de 2026
