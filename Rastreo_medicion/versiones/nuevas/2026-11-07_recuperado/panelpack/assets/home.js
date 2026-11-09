@@ -115,7 +115,7 @@
           '<li><a href="#" data-hm-page="lotes" title="Lotes y geocercas">Lotes</a></li>' +
           '<li><a href="#" data-hm-page="alertas" title="Alertas de la flota">Alertas</a></li>' +
           '<li><a href="#" data-hm-page="reportes" title="Reportes de horas y recorridos">Reportes</a></li>' +
-          '<li><a href="#" data-hm-page="combustible" title="Combustible y velocidad">Combustible</a></li>' +
+          '<li><a href="#" data-hm-page="costeo" title="Costeo de diésel: costo por tractor, consumo, cargas, descargas y velocidad">Costeo de diésel</a></li>' +
           '<li><a href="#" data-hm-page="simulador" title="Simulador de instalación">Simulador</a></li>' +
           '<li><a href="#" data-hm-page="vista3d" title="Tractor en 3D">Vista 3D</a></li>' +
           '<li><a href="#" data-hm-page="estado" title="Estado del servicio">Status</a></li>' +
@@ -151,6 +151,13 @@
       .on('click', '[data-hm-event]', function (e) { stop(e); openDevice(Number(this.dataset.hmEvent)); })
       .on('click', '[data-hm-map]', function (e) { stop(e); openLote(Number(this.dataset.hmMap)); })
       .on('click', '[data-hm-go]', function (e) { stop(e); nav(this.dataset.hmGo); })
+      .on('click', '[data-co-week]', function (e) { stop(e); var n = Number(this.dataset.coWeek); state.coWeek = n ? Math.min(0, (state.coWeek || 0) + n) : 0; state.coDay = null; coPage(); })
+      .on('click', '[data-co-day]', function () { var d = this.dataset.coDay; state.coDay = state.coDay === d ? null : d; coRender(); if (state.coDay) { var pn = $('#co-daypanel', view); if (pn) pn.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } })
+      .on('keydown', '[data-co-day]', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } })
+      .on('click', '[data-co-day-close]', function (e) { stop(e); state.coDay = null; coRender(); })
+      .on('click', '[data-co-sel]', function () { coPick(Number(this.dataset.coSel)); })
+      .on('keydown', '[data-co-sel]', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); coPick(Number(this.dataset.coSel), true); } })
+      .on('input', '#co-price', function () { var v = parseFloat(this.value); if (!(v > 0)) return; state.coPrice = v; if (P().cfg) P().cfg.dieselPrice = v; try { localStorage.setItem(CO_PKEY, String(v)); } catch (er) { /* sin almacenamiento */ } coRender(); })
       .on('click', '[data-gs-i]', function (e) { stop(e); gsGo(gsFlat[Number(this.dataset.gsI)]); })
       .on('click', '[data-gs-jump]', function (e) { stop(e); var ge = document.getElementById(this.dataset.gsJump); if (ge) ge.scrollIntoView({ behavior: 'smooth', block: 'start' }); })
       .on('click', '[data-hm-slide]', function (e) { stop(e); var r = $('#dh-s' + this.dataset.hmSlide, view); if (r) { r.checked = true; $('.wrapper', view).scrollIntoView({ behavior: 'smooth', block: 'center' }); } })
@@ -197,7 +204,7 @@
           '<p class="dh-note">Visualización de viento, clima y océano · <a id="dh-earthlink" href="' + earthUrl() + '" target="_blank" rel="noopener">earth.nullschool.net</a></p></div>' +
           item('cloud', 'data-hm-slide="2"', 'Pronóstico', 'Próximos 7 días y probabilidad de lluvia') +
           item('rain', 'data-hm-slide="3"', 'Precipitación', 'Registrada y esperada por día') +
-          item('fuel', 'data-hm-go="stats"', 'Combustible y velocidad', 'Consumo, cargas y descargas') +
+          item('fuel', 'data-hm-page="costeo"', 'Costeo de diésel', 'Costo por tractor, consumo, cargas y descargas') +
           item('sim', 'data-hm-go="sim"', 'Más...', 'Simulador de instalación del rastreador') +
         '</div>' +
       '</div>' +
@@ -213,9 +220,9 @@
   /* ---------- páginas con componente propio (misma arquitectura de Debian) ----------
    * Cada enlace de la navbar renderiza su componente dentro de #dh-content:
    *   inicio · lotes · alertas · reportes. Mapa, Simulador y Vista 3D abren sus vistas de la app. */
-  var PAGE_TITLE = { inicio: 'Inicio', mapa: 'Data Center', lotes: 'Lotes', alertas: 'Alertas', reportes: 'Reportes', buscar: 'Búsqueda', combustible: 'Combustible y velocidad', simulador: 'Simulador de instalación', vista3d: 'Vista 3D', estado: 'Status' };
+  var PAGE_TITLE = { inicio: 'Inicio', mapa: 'Data Center', lotes: 'Lotes', alertas: 'Alertas', reportes: 'Reportes', buscar: 'Búsqueda', costeo: 'Costeo de diésel', simulador: 'Simulador de instalación', vista3d: 'Vista 3D', estado: 'Status' };
   // Páginas que viven dentro del marco Debian y dejan visible una vista de la app (rail = vista de la app).
-  var FRAMES = { mapa: { t: 'Data Center' }, combustible: { rail: 'stats', t: 'Combustible y velocidad' }, simulador: { rail: 'sim', t: 'Simulador de instalación' }, vista3d: { rail: '3d', t: 'Vista 3D' } };
+  var FRAMES = { mapa: { t: 'Data Center' }, simulador: { rail: 'sim', t: 'Simulador de instalación' }, vista3d: { rail: '3d', t: 'Vista 3D' } };
   var STATUS_LBL = { running: 'En marcha', idle: 'Apagado', nosignal: 'Sin señal' };
   var P = function () { return window.__pf; };
   var devList = function () { return [...P().w.devices.values()]; };
@@ -371,7 +378,7 @@
     { t: 'Alertas', s: 'Eventos y avisos de tus tractores', k: 'alertas eventos avisos notificaciones', go: ['page', 'alertas'] },
     { t: 'Reportes', s: 'Horas de motor, utilización y combustible', k: 'reportes reporte horas motor utilizacion promedio informe', go: ['page', 'reportes'] },
     { t: 'Reportes detallados', s: 'Recorridos, eventos y resúmenes por rango de fechas', k: 'reportes reporte recorridos eventos resumenes rango fechas informe detallado', go: ['nav', 'reports'] },
-    { t: 'Combustible y velocidad', s: 'Consumo, cargas, descargas y velocidad', k: 'combustible velocidad consumo cargas descargas diesel litros', go: ['nav', 'stats'] },
+    { t: 'Costeo de diésel', s: 'Costo semanal de combustible por tractor: cargas, litros, horas y costo por hora', k: 'costeo costo costos diesel combustible consumo gasto precio litro litros cargas descargas horas semana semanal', go: ['page', 'costeo'] },
     { t: 'Simulador de instalación', s: 'Prueba de instalación del dispositivo', k: 'simulador instalacion dispositivo gps', go: ['nav', 'sim'] },
     { t: 'Vista 3D', s: 'Tractor en 3D', k: 'vista 3d tractor modelo', go: ['nav', '3d'] },
     { t: 'Status', s: 'Estado del servicio, incidentes y mantenimiento programado', k: 'status estado servicio incidentes mantenimiento disponibilidad uptime soporte', go: ['page', 'estado'] },
@@ -651,8 +658,211 @@
       '<div class="row"><div class="column">' + colHead('Combustible', 'Los 10 tractores con menor nivel') + table + '</div></div>' +
       '<div class="row">' +
         '<div class="column column-left">' + item('list', 'data-hm-go="reports"', 'Reportes detallados', 'Recorridos, eventos y resúmenes por rango de fechas') + '</div>' +
-        '<div class="column column-right">' + item('fuel', 'data-hm-go="stats"', 'Combustible y velocidad', 'Consumo, cargas, descargas y velocidad') + '</div>' +
+        '<div class="column column-right">' + item('fuel', 'data-hm-page="costeo"', 'Costeo de diésel', 'Costo semanal, consumo, cargas, descargas y velocidad') + '</div>' +
       '</div>';
+  }
+
+  /* --- Costeo de diésel: costo semanal de combustible por tractor ---
+   * Historial por día con api.getRoute (el mismo de "Combustible y velocidad") y sus mismos umbrales:
+   * litros usados = bajas de nivel menores a 20 L; carga = sube 20 L o más; descarga = baja 20 L o más con el tractor detenido.
+   * Horas = tiempo con ignición encendida (si el historial no trae ignición: tiempo en movimiento). */
+  var CO_OFF = '-07:00', CO_DAY = 864e5, CO_LIVE = 5 * 60000, CO_PKEY = 'pf-diesel-price';
+  var co = { cache: new Map(), queue: [], busy: 0, t: 0 };
+  var coSum = function (a) { return a.reduce(function (s, x) { return s + x; }, 0); };
+  var coDay = function (ms) { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(ms)); };
+  var coMoney = function (n, d) { return isFinite(n) ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }).format(n) : '—'; };
+  var coNum = function (n, d) { return isFinite(n) ? new Intl.NumberFormat('es-MX', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }).format(n) : '—'; };
+  var coKey = function (id, day) { return id + '|' + day; };
+  function coPrice() {
+    if (state.coPrice > 0) return state.coPrice;
+    var v = NaN; try { v = parseFloat(localStorage.getItem(CO_PKEY)); } catch (e) { /* sin almacenamiento */ }
+    var c = P().cfg;
+    if (!(v > 0)) v = c && c.dieselPrice > 0 ? c.dieselPrice : 24;
+    if (c) c.dieselPrice = v;
+    return (state.coPrice = v);
+  }
+  // Los 7 días (lunes a domingo, hora de Mazatlán) de la semana elegida.
+  function coWeek() {
+    var d = new Date(coDay(Date.now()) + 'T12:00:00' + CO_OFF), mon = d.getTime() - ((d.getUTCDay() + 6) % 7) * CO_DAY + (state.coWeek || 0) * 7 * CO_DAY, days = [];
+    for (var i = 0; i < 7; i++) days.push(coDay(mon + i * CO_DAY));
+    return days;
+  }
+  function coRange(days) {
+    var f = function (k, y) { var d = new Date(k + 'T12:00:00Z'); return d.getUTCDate() + ' ' + d.toLocaleDateString('es-MX', { month: 'short', timeZone: 'UTC' }).replace('.', '') + (y ? ' ' + d.getUTCFullYear() : ''); };
+    return f(days[0], days[0].slice(0, 4) !== days[6].slice(0, 4)) + ' – ' + f(days[6], true);
+  }
+  var coBrand = function (s) { return String(s || '').split('-').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); };
+  function coDevs() {
+    var w = P().w;
+    return devList().filter(function (d) { var p = w.positions.get(d.id); return p && p.attributes && typeof p.attributes.fuel === 'number'; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name, 'es', { numeric: true }); });
+  }
+  // Un día de historial -> litros usados, horas, cargas y descargas.
+  // Hora local (Mazatlán, UTC-7) de una marca de tiempo.
+  function coHr(t) { return new Date(t - 7 * 36e5).getUTCHours(); }
+  function coNice(m) { var p = Math.pow(10, Math.floor(Math.log10(m))), n = m / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
+  var CO_W = 640, CO_H = 190, CO_L = 42, CO_R = 10, CO_T = 16, CO_B = 24;
+  function coAxisX(g) {
+    for (var h = 0; h <= 24; h += 3) { var x = CO_L + (CO_W - CO_L - CO_R) * h / 24; g += '<text x="' + x + '" y="' + (CO_H - 8) + '" text-anchor="middle">' + ('0' + (h % 24)).slice(-2) + 'h</text>'; }
+    return g;
+  }
+  // Barras: litros usados en cada hora del día.
+  function coBarsSvg(vals) {
+    var mx = coNice(Math.max.apply(null, vals.concat([0.5]))), bw = (CO_W - CO_L - CO_R) / vals.length, top = Math.max.apply(null, vals), pk = vals.indexOf(top), g = '', i, y;
+    for (i = 0; i <= 4; i++) { y = CO_T + (CO_H - CO_T - CO_B) * (1 - i / 4); g += '<line x1="' + CO_L + '" x2="' + (CO_W - CO_R) + '" y1="' + y + '" y2="' + y + '" class="co-grid"/><text x="' + (CO_L - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + coNum(mx * i / 4, mx < 4 ? 1 : 0) + '</text>'; }
+    vals.forEach(function (v, hh) {
+      var bh = (CO_H - CO_T - CO_B) * v / mx, x = CO_L + hh * bw + 2;
+      g += '<rect x="' + x + '" y="' + (CO_H - CO_B - bh) + '" width="' + (bw - 4) + '" height="' + (v > 0 ? Math.max(bh, 1) : 0) + '"' + (hh === pk && v > 0 ? ' class="co-pk"' : '') + '><title>' + ('0' + hh).slice(-2) + ':00 · ' + coNum(v, 1) + ' L</title></rect>';
+    });
+    if (top > 0) g += '<text x="' + (CO_L + pk * bw + bw / 2) + '" y="' + (CO_H - CO_B - (CO_H - CO_T - CO_B) * top / mx - 4) + '" text-anchor="middle" class="co-pkl">' + coNum(top, 1) + ' L</text>';
+    return '<svg class="co-svg" viewBox="0 0 ' + CO_W + ' ' + CO_H + '" role="img" aria-label="Litros usados por hora">' + coAxisX(g) + '</svg>';
+  }
+  // Línea: nivel del tanque durante el día, con cargas y descargas marcadas.
+  function coLineSvg(pts, evs, t0) {
+    if (pts.length < 2) return '<p class="dh-note">Sin lecturas de nivel suficientes este día.</p>';
+    var fs = pts.map(function (p) { return p[1]; }), lo = Math.floor(Math.min.apply(null, fs) / 10) * 10, hi = Math.ceil(Math.max.apply(null, fs) / 10) * 10; if (hi - lo < 10) hi = lo + 10;
+    var xs = function (t) { return CO_L + (CO_W - CO_L - CO_R) * Math.max(0, Math.min(1, (t - t0) / 864e5)); };
+    var ys = function (f) { return CO_T + (CO_H - CO_T - CO_B) * (1 - (f - lo) / (hi - lo)); };
+    var g = '', i, y, d = pts.map(function (p, k) { return (k ? 'L' : 'M') + xs(p[0]).toFixed(1) + ' ' + ys(p[1]).toFixed(1); }).join('');
+    for (i = 0; i <= 4; i++) { y = CO_T + (CO_H - CO_T - CO_B) * (1 - i / 4); g += '<line x1="' + CO_L + '" x2="' + (CO_W - CO_R) + '" y1="' + y + '" y2="' + y + '" class="co-grid"/><text x="' + (CO_L - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + coNum(lo + (hi - lo) * i / 4) + '</text>'; }
+    g += '<path d="' + d + 'L' + xs(pts[pts.length - 1][0]).toFixed(1) + ' ' + (CO_H - CO_B) + 'L' + xs(pts[0][0]).toFixed(1) + ' ' + (CO_H - CO_B) + 'Z" class="co-area"/><path d="' + d + '" class="co-line"/>';
+    (evs || []).forEach(function (e) {
+      var near = pts.reduce(function (b, p) { return Math.abs(p[0] - e.t) < Math.abs(b[0] - e.t) ? p : b; }, pts[0]), x = xs(e.t), yy = ys(near[1]);
+      g += '<line x1="' + x + '" x2="' + x + '" y1="' + CO_T + '" y2="' + (CO_H - CO_B) + '" class="co-ev co-' + e.k + '"/><circle cx="' + x + '" cy="' + yy + '" r="4" class="co-dot co-' + e.k + '"><title>' + (e.k === 'load' ? 'Carga +' : 'Descarga −') + coNum(e.L) + ' L · ' + ('0' + coHr(e.t)).slice(-2) + ':00</title></circle>';
+    });
+    return '<svg class="co-svg" viewBox="0 0 ' + CO_W + ' ' + CO_H + '" role="img" aria-label="Nivel del tanque durante el día">' + coAxisX(g) + '</svg>';
+  }
+  // Detalle de un día: estadísticas y gráficas de litros del tractor elegido.
+  function coDayPanel(r, price) {
+    var x = r.days.filter(function (d) { return d.day === state.coDay && d.v; })[0]; if (!x || !x.v.hr) return '';
+    var v = x.v, dt = new Date(x.day + 'T12:00:00Z'), lbl = dt.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    var wk = r.days.filter(function (d) { return d.v && d.v.L > 0; }), avg = wk.length ? coSum(wk.map(function (d) { return d.v.L; })) / wk.length : 0;
+    var cmp = avg > 0 ? (v.L / avg - 1) * 100 : NaN, top = Math.max.apply(null, v.hr), pk = v.hr.indexOf(top), act = v.hh.filter(function (ms) { return ms > 0; }).length;
+    var m = function (l, val, cls) { return '<div class="dh-m"><small>' + l + '</small><b' + (cls ? ' class="' + cls + '"' : '') + '>' + val + '</b></div>'; };
+    var t0 = new Date(x.day + 'T00:00:00' + CO_OFF).getTime();
+    return '<div class="co-daypanel" id="co-daypanel"><div class="co-dhead"><h3>Litros · ' + esc(lbl) + ' <small>· ' + esc(r.d.name) + '</small></h3><a href="#" data-co-day-close>Cerrar</a></div>' +
+      '<div class="dh-metrics">' + m('Litros usados', coNum(v.L, 1) + ' L') + m('Horas de motor', coNum(v.h, 1) + ' h') + m('Consumo', v.h > 0 ? coNum(v.L / v.h, 1) + ' L/h' : '—') + m('Costo del día', coMoney(v.L * price)) +
+        m('Cargas', v.loads.length ? '+' + coNum(coSum(v.loads)) + ' L · ' + v.loads.length : 'Ninguna') + m('Descargas', v.drains.length ? '−' + coNum(coSum(v.drains)) + ' L · ' + v.drains.length : 'Ninguna', v.drains.length ? 'co-bad' : '') +
+        m('Contra el promedio de la semana', isFinite(cmp) ? (cmp >= 0 ? '+' : '−') + coNum(Math.abs(cmp)) + ' %' : '—') + m('Hora de mayor consumo', top > 0 ? ('0' + pk).slice(-2) + ':00 · ' + coNum(top, 1) + ' L' : '—') + m('Horas con motor encendido', act + ' de 24') + '</div>' +
+      '<h4 class="co-ch">Litros usados por hora</h4>' + coBarsSvg(v.hr) +
+      '<h4 class="co-ch">Nivel del tanque durante el día (L)</h4>' + coLineSvg(v.pts, v.evs, t0) +
+      '<p class="dh-note">Las barras suman solo el consumo (bajas menores a 20 L). Las líneas verticales marcan cargas (verde) y descargas (rojo) de combustible.</p></div>';
+  }
+  function coAnalyze(rows) {
+    var s = (rows || []).map(function (p) { var a = p.attributes || {}; return { t: new Date(p.fixTime).getTime(), kmh: (Number(p.speed) || 0) * 1.852, fuel: typeof a.fuel === 'number' ? a.fuel : null, ign: a.ignition === true }; })
+      .filter(function (x) { return isFinite(x.t); }).sort(function (a, b) { return a.t - b.t; });
+    var hasIgn = s.some(function (x) { return x.ign; }), r = { L: 0, ms: 0, loads: [], drains: [], hr: [], hh: [], evs: [], pts: [] };
+    for (var q = 0; q < 24; q++) { r.hr.push(0); r.hh.push(0); }
+    for (var i = 1; i < s.length; i++) {
+      var a = s[i - 1], b = s[i], dt = Math.min(b.t - a.t, 15 * 60000);
+      if (dt > 0 && (hasIgn ? a.ign : a.kmh > 0)) { r.ms += dt; r.hh[coHr(a.t)] += dt; }
+      if (a.fuel == null || b.fuel == null) continue;
+      if (a.fuel - b.fuel >= 20 && b.kmh < 1) { r.drains.push(Math.round(a.fuel - b.fuel)); r.evs.push({ t: b.t, k: 'drain', L: Math.round(a.fuel - b.fuel) }); }
+      else if (b.fuel - a.fuel >= 20) { r.loads.push(Math.round(b.fuel - a.fuel)); r.evs.push({ t: b.t, k: 'load', L: Math.round(b.fuel - a.fuel) }); }
+      else if (b.fuel < a.fuel) { r.L += a.fuel - b.fuel; r.hr[coHr(b.t)] += a.fuel - b.fuel; }
+    }
+    r.h = r.ms / 36e5;
+    r.pts = s.filter(function (x, i) { return x.fuel != null && i % 3 === 0; }).map(function (x) { return [x.t, x.fuel]; });
+    return r;
+  }
+  // Pide el historial que falta (4 a la vez). Los días pasados se guardan; el de hoy se renueva cada 5 min.
+  function coLoad() {
+    var api = P().api; if (!api || typeof api.getRoute !== 'function') return;
+    var now = Date.now(), today = coDay(now), days = coWeek().filter(function (d) { return d <= today; });
+    co.queue = co.queue.filter(function (j) { var keep = days.indexOf(j[1]) >= 0; if (!keep) co.cache.delete(coKey(j[0], j[1])); return keep; });
+    coDevs().forEach(function (d) {
+      days.forEach(function (day) {
+        var k = coKey(d.id, day), c = co.cache.get(k);
+        if (c && (c.st === 'loading' || c.ref || (c.st === 'error' && now - c.at < 60000) || (c.st === 'ok' && (day < today || now - c.at < CO_LIVE)))) return;
+        if (c && c.st === 'ok') c.ref = true; else co.cache.set(k, { st: 'loading', at: now });
+        co.queue.push([d.id, day]);
+      });
+    });
+    while (co.busy < 4 && co.queue.length) coWork();
+  }
+  function coWork() {
+    var job = co.queue.shift(); if (!job) return;
+    co.busy++;
+    var id = job[0], day = job[1], from = new Date(day + 'T00:00:00' + CO_OFF), to = new Date(Math.min(Date.now(), new Date(day + 'T23:59:59' + CO_OFF).getTime()));
+    Promise.resolve().then(function () { return P().api.getRoute(id, from, to); })
+      .then(function (rows) { co.cache.set(coKey(id, day), { st: 'ok', at: Date.now(), v: coAnalyze(rows) }); })
+      .catch(function () { var c = co.cache.get(coKey(id, day)); if (c && c.st === 'ok') c.ref = false; else co.cache.set(coKey(id, day), { st: 'error', at: Date.now() }); })
+      .then(function () { co.busy--; coWork(); clearTimeout(co.t); co.t = setTimeout(coRender, co.busy ? 300 : 0); });
+  }
+  function coStats() {
+    var w = P().w, days = coWeek(), today = coDay(Date.now()), pending = 0, fences = {};
+    (w.geofences || []).forEach(function (g) { fences[g.id] = g.name; });
+    var rows = coDevs().map(function (d) {
+      var at = d.attributes || {}, p = w.positions.get(d.id), gid = p && p.geofenceIds && p.geofenceIds[0];
+      var sub = [at.labor || at.actividad || at.implemento, gid && fences[gid]].filter(Boolean).join(' · ') || [coBrand(at.marca), at.modelo].filter(Boolean).join(' ');
+      var r = { d: d, sub: sub, L: 0, h: 0, loads: 0, loadL: 0, worked: 0, loaded: 0, days: [] };
+      days.forEach(function (day) {
+        var c = day > today ? { st: 'future' } : co.cache.get(coKey(d.id, day)) || { st: 'loading' }, v = c.v || null;
+        if (c.st === 'loading' && !v) pending++;
+        if (v) { r.loaded++; r.L += v.L; r.h += v.h; r.loads += v.loads.length; r.loadL += coSum(v.loads); if (v.h >= 0.1 || v.L >= 1) r.worked++; }
+        r.days.push({ day: day, st: c.st, v: v });
+      });
+      return r;
+    });
+    return { days: days, rows: rows, pending: pending };
+  }
+  function coDetail(r, price) {
+    var today = coDay(Date.now()), max = Math.max.apply(null, r.days.map(function (x) { return x.v ? x.v.L : 0; }).concat([1]));
+    var cards = r.days.map(function (x) {
+      var dt = new Date(x.day + 'T12:00:00Z'), lbl = dt.toLocaleDateString('es-MX', { weekday: 'short', timeZone: 'UTC' }).replace('.', '') + ' ' + dt.getUTCDate(), v = x.v, body;
+      lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+      if (v) body = '<span class="co-barbox"><i style="height:' + (v.L > 0 ? Math.max(4, v.L / max * 100) : 0) + '%"></i></span><b>' + coNum(v.L) + ' L</b><small>' + coNum(v.h, 1) + ' h</small><small>' + coMoney(v.L * price) + '</small>' +
+        (v.loads.length ? '<em class="co-load">+' + coNum(coSum(v.loads)) + ' L carga' + (v.loads.length > 1 ? 's' : '') + '</em>' : '') +
+        (v.drains.length ? '<em class="co-drain">−' + coNum(coSum(v.drains)) + ' L descarga</em>' : '');
+      else body = '<span class="co-barbox"></span><b>' + (x.st === 'future' ? '—' : x.st === 'error' ? 'Sin datos' : '…') + '</b><small>' + (x.st === 'error' ? 'no se pudo cargar' : x.st === 'future' ? 'por venir' : 'cargando') + '</small>';
+      return '<li class="co-day' + (x.st === 'future' ? ' co-fut' : '') + (x.day === today ? ' co-today' : '') + (v && x.day === state.coDay ? ' co-pick' : '') + '"' + (v ? ' data-co-day="' + x.day + '" tabindex="0" role="button" aria-pressed="' + (x.day === state.coDay) + '" title="Ver gráficas de litros"' : '') + '><span class="co-dn">' + lbl + (x.day === today ? ' · hoy' : '') + '</span>' + body + '</li>';
+    }).join('');
+    return '<div class="co-dhead" id="co-detail"><h3>Detalle diario · ' + esc(r.d.name) + (r.sub ? ' <small>· ' + esc(r.sub) + '</small>' : '') + '</h3><a href="#" data-hm-event="' + r.d.id + '">Ver en el mapa</a></div><ul class="co-days">' + cards + '</ul>' + (state.coDay ? coDayPanel(r, price) : '<p class="dh-note">Toca un día para ver sus estadísticas y gráficas de litros.</p>');
+  }
+  function coBody() {
+    var S = coStats(), price = coPrice(), rows = S.rows;
+    if (!rows.length) return '<div class="co-wrap">' + emptyBox('Sin tractores con sonda de combustible', 'El costeo usa el nivel de combustible del historial de cada tractor. Ninguno reporta lectura de combustible por ahora.') + '</div>';
+    var T = rows.reduce(function (a, r) { a.L += r.L; a.h += r.h; a.loads += r.loads; a.loadL += r.loadL; return a; }, { L: 0, h: 0, loads: 0, loadL: 0 });
+    var avgCh = T.h > 0 ? T.L * price / T.h : NaN;
+    if (!rows.some(function (r) { return r.d.id === state.coSel; })) state.coSel = rows[0].d.id;
+    var sel = rows.filter(function (r) { return r.d.id === state.coSel; })[0];
+    var none = !rows.some(function (r) { return r.loaded; }), kpi = function (l, v) { return '<div class="co-kpi"><small>' + l + '</small><b>' + (none ? '…' : v) + '</b></div>'; };
+    var th = function (t, left) { return '<th' + (left ? '' : ' class="co-n"') + '>' + t + '</th>'; };
+    var td = function (v, cls) { return '<td class="co-n' + (cls ? ' ' + cls : '') + '">' + v + '</td>'; };
+    var body = rows.map(function (r) {
+      var cost = r.L * price, ch = r.h > 0 ? cost / r.h : NaN, hi = isFinite(ch) && isFinite(avgCh) && ch > avgCh * 1.2, on = r.d.id === state.coSel, wait = !r.loaded;
+      var cell = function (v, cls) { return td(wait ? '…' : v, cls); };
+      return '<tr data-co-sel="' + r.d.id + '" class="co-row' + (on ? ' co-on' : '') + '" tabindex="0"' + (on ? ' aria-current="true"' : '') + '><td><b>' + esc(r.d.name) + '</b>' + (r.sub ? '<small>' + esc(r.sub) + '</small>' : '') + '</td>' +
+        cell(r.loads) + td(coMoney(price, 2)) + cell(coMoney(r.loadL * price)) + cell(r.worked ? coNum(r.h / r.worked, 1) : '—') + cell(r.worked ? coNum(r.L / r.worked) : '—') +
+        cell(coNum(r.h, 1)) + cell(coMoney(ch), hi ? 'co-hi' : '') + cell(coNum(r.L) + ' L') + cell(coMoney(cost), 'co-strong') + '</tr>';
+    }).join('');
+    return '<div class="co-wrap">' +
+      '<div class="co-head"><h2>Resumen semanal · ' + coRange(S.days) + '</h2><span>' + rows.length + (rows.length === 1 ? ' tractor' : ' tractores') + ' · toca una fila para ver el detalle diario' + (S.pending ? ' · <b>cargando historial (' + S.pending + ')…</b>' : '') + '</span></div>' +
+      '<div class="co-kpis">' + kpi('Total litros', coNum(T.L) + ' L') + kpi('Total costo', coMoney(T.L * price)) + kpi('Horas trabajadas', coNum(T.h, 1) + ' h') + kpi('Costo prom. por hora', coMoney(avgCh)) + '</div>' +
+      '<div class="tabular co-table"><table><thead><tr>' + th('Tractor', 1) + th('Cargas/<br>sem') + th('Costo/<br>litro') + th('Costo<br>cargas') + th('Horas/<br>día') + th('L/día<br>usados') + th('Horas/<br>sem') + th('Costo/<br>hora') + th('Total<br>litros') + th('Total<br>costo') + '</tr></thead>' +
+        '<tbody>' + body + '</tbody><tfoot><tr><td>Total</td>' + td(T.loads) + td('') + td(coMoney(T.loadL * price)) + td('') + td('') + td(coNum(T.h, 1)) + td(coMoney(avgCh)) + td(coNum(T.L) + ' L') + td(coMoney(T.L * price)) + '</tr></tfoot></table></div>' +
+      coDetail(sel, price) +
+      '<p class="dh-note co-note">Litros usados: bajas del nivel de la sonda menores a 20 L. Carga: el nivel sube 20 L o más. Descarga: baja de 20 L o más con el tractor detenido (no cuenta como consumo). Horas: tiempo con el motor encendido. Costo = litros usados × $/L · Costo cargas = litros cargados × $/L. En rojo: costo por hora 20 % o más arriba del promedio de la flota.</p>' +
+      '</div>';
+  }
+  function buildCosteo() {
+    var wk = state.coWeek || 0;
+    return splash('Costeo de diésel') +
+      '<div class="co-tools"><p class="dh-topics"><a href="#" data-co-week="-1">« Semana anterior</a>|<a href="#" data-co-week="0"' + (wk ? '' : ' aria-current="true"') + '>Esta semana</a>|' + (wk < 0 ? '<a href="#" data-co-week="1">Semana siguiente »</a>' : '<span class="co-off">Semana siguiente »</span>') + '</p>' +
+      '<label class="co-price">$/L <input id="co-price" type="number" inputmode="decimal" min="0" step="0.1" value="' + coPrice() + '" aria-label="Precio del diésel por litro"></label></div>' +
+      '<div id="co-body">' + coBody() + '</div>';
+  }
+  function coRender(focusSel) {
+    if (!state.visible || state.page !== 'costeo') return;
+    var b = $('#co-body', view); if (!b) return;
+    var top = view.scrollTop; b.innerHTML = coBody(); view.scrollTop = top;
+    if (focusSel) { var tr = $('[data-co-sel="' + state.coSel + '"]', view); if (tr) tr.focus(); }
+  }
+  function coPage() { $('#dh-content', view).innerHTML = buildCosteo(); coLoad(); }
+  function coPick(id, kb) {
+    state.coSel = id; coRender(kb);
+    var dd = $('#co-detail', view); if (dd) { var r = dd.getBoundingClientRect(); if (r.top > window.innerHeight - 120) dd.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   }
 
   /* --- Cambio de página y renderizado --- */
@@ -661,7 +871,7 @@
     var prevPage = state.page;
     state.page = p;
     var c = $('#dh-content', view);
-    c.innerHTML = p === 'inicio' ? buildInicio() : FRAMES[p] ? '' : p === 'buscar' ? buildBuscar() : p === 'lotes' ? buildLotes() : p === 'alertas' ? buildAlertas() : p === 'estado' && window.__pfStatus ? window.__pfStatus.html() : buildReportes();
+    c.innerHTML = p === 'inicio' ? buildInicio() : FRAMES[p] ? '' : p === 'buscar' ? buildBuscar() : p === 'lotes' ? buildLotes() : p === 'alertas' ? buildAlertas() : p === 'costeo' ? buildCosteo() : p === 'estado' && window.__pfStatus ? window.__pfStatus.html() : buildReportes();
     var frame = !!FRAMES[p];
     view.classList.toggle('dh-map', frame); root.classList.toggle('dh-mapmode', frame); setActive(p);
     var sp = $('#dh-mapsplash h1', view); if (sp) sp.textContent = frame ? FRAMES[p].t : 'Data Center';
@@ -679,12 +889,14 @@
     if (cr) cr.innerHTML = p === 'inicio' ? 'Inicio' : '<a href="#" data-hm-page="inicio">Inicio</a> / ' + PAGE_TITLE[p];
     if (!keep) view.scrollTop = 0;
     if (p === 'inicio') { heroWire(); renderKpis(); renderFleet(); renderWeather(); loadNews(false); }
+    if (p === 'costeo') coLoad();
   }
   // Refresca los datos en vivo de la página visible (sin perder filtros ni selección).
   function refreshPage() {
     if (!state.visible) return;
     if (state.page === 'inicio') { renderFleet(); return; }
     if (FRAMES[state.page] || state.page === 'estado') return;
+    if (state.page === 'costeo') return coLoad();
     var top = view.scrollTop;
     $('#dh-content', view).innerHTML = state.page === 'buscar' ? buildBuscar() : state.page === 'lotes' ? buildLotes() : state.page === 'alertas' ? buildAlertas() : buildReportes();
     view.scrollTop = top;
@@ -696,7 +908,7 @@
 
   /* ---------- navegación ---------- */
   function railClick(v) { var b = $('#rail [data-view="' + v + '"]') || $('#appbar a[data-view="' + v + '"]'); if (b) b.click(); }
-  function nav(g) { if (g === 'fleet') return setPage('mapa'); if (g === 'stats') return show('combustible'); if (g === 'sim') return show('simulador'); if (g === '3d') return show('vista3d'); hide(); railClick(g); }
+  function nav(g) { if (g === 'fleet') return setPage('mapa'); if (g === 'stats') return show('costeo'); if (g === 'sim') return show('simulador'); if (g === '3d') return show('vista3d'); hide(); railClick(g); }
   // Reserva el espacio del marco (header + banner arriba, pie abajo) para que el mapa no quede tapado.
   function measure() {
     var h = ($('#dh-header', view) || {}).offsetHeight + ($('#dh-mapsplash', view) || {}).offsetHeight, f = ($('#dh-footer', view) || {}).offsetHeight;
@@ -931,7 +1143,7 @@
   }
   function init() {
     root = document.getElementById('root');
-    build(); renderKpis();
+    build(); renderKpis(); try { coPrice(); } catch (e) { /* sin estado */ }
     window.__pfHome = { show: show, hide: hide };
     document.addEventListener('click', function (e) {
       // Campana: las alertas se muestran ahí mismo (ventana bajo el icono), no en el panel izquierdo.
@@ -948,15 +1160,16 @@
       if (al) { e.preventDefault(); e.stopPropagation(); closeMenus(); show('alertas'); return; }
       var pgm = e.target.closest('.jd-toolsmenu [data-go="lotes"], .jd-toolsmenu [data-go="reports"]');
       if (pgm) { e.preventDefault(); e.stopPropagation(); closeMenus(); show(pgm.dataset.go === 'lotes' ? 'lotes' : 'reportes'); return; }
+      if (e.target.closest('.jd-toolsmenu [data-go="costeo"]')) { e.preventDefault(); e.stopPropagation(); closeMenus(); show('costeo'); return; }
       var st0 = e.target.closest('.jd-toolsmenu [data-go="stats"], .jd-toolsmenu [data-go="sim"], .jd-toolsmenu [data-go="3d"]');
-      if (st0) { e.preventDefault(); e.stopPropagation(); closeMenus(); show({ stats: 'combustible', sim: 'simulador', '3d': 'vista3d' }[st0.dataset.go]); return; }
+      if (st0) { e.preventDefault(); e.stopPropagation(); closeMenus(); show({ stats: 'costeo', sim: 'simulador', '3d': 'vista3d' }[st0.dataset.go]); return; }
       // Cerrar una vista de la app (Volver al mapa) -> Data Center; abrir 3D desde el simulador/tractor -> el marco sigue a Vista 3D
       if (e.target.closest('[data-act="stats-close"],[data-act="sim-close"],[data-act="v3-close"]') && state.visible && FRAMES[state.page] && state.page !== 'mapa') { setTimeout(function () { setPage('mapa'); }, 30); return; }
       if (!state.visible || state.keep) return;
       if (e.target.closest('#rail .menu-btn, #appbar a[data-view], .jd-top [data-go="lotes"], .jd-top [data-go="reports"], .jd-top [data-go="stats"], .jd-top [data-go="sim"], .jd-top [data-go="3d"]')) hide();
     }, true);
     window.addEventListener('hashchange', function () { if (state.visible && Date.now() > (state.hashOk || 0)) hide(); });
-    setInterval(function () { if (!state.visible) return; clock(); if (Date.now() - state.wAt > 10 * 60000) loadWeather(true); }, 15000);
+    setInterval(function () { if (!state.visible) return; clock(); if (state.page === 'costeo') coLoad(); if (Date.now() - state.wAt > 10 * 60000) loadWeather(true); }, 15000);
     gsWire();
     var jt = document.querySelector('.jd-title'); if (jt) jt.textContent = 'panelpack.net';
     jq(view).on('scroll', function () { var h = $('#dh-splash.dh-hero', view); if (h) h.style.setProperty('--sy', Math.min(1.2, view.scrollTop / 500).toFixed(3)); });

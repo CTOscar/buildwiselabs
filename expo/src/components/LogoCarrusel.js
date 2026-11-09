@@ -24,7 +24,9 @@ const BUILDWISE_ASPECTO = 1430 / 262; // mismo recorte que BuildWiseLogo
 const VELOCIDAD = 45; // px por segundo
 
 const LOGOS = [
-  { id: 'buildwise', nombre: 'BuildWise Labs', imagen: require('../../assets/buildwise-light.png') },
+  { id: 'buildwise', nombre: 'BuildWise Labs', imagen: require('../../assets/buildwise-light.png'), aspecto: BUILDWISE_ASPECTO },
+  // TypeFish Suite: logotipo propio (texto "[typefish]"), ya trae su nombre como BuildWise.
+  { id: 'typefish', nombre: 'TypeFish Suite', imagen: require('../../assets/typefish-mark.png'), aspecto: 357 / 131 },
   { id: 'vscode', nombre: 'Visual Studio Code', svg: svgDe('VS Code') },
   { id: 'debian', nombre: 'Debian', svg: svgDe('Debian') },
   { id: 'microsoft', nombre: 'Microsoft', svg: svgDe('Microsoft 365') },
@@ -44,7 +46,7 @@ function Logo({ logo, chico, color }) {
         source={logo.imagen}
         tintColor={color}
         resizeMode="contain"
-        style={{ height: alto, width: alto * BUILDWISE_ASPECTO }}
+        style={{ height: alto, width: alto * (logo.aspecto || BUILDWISE_ASPECTO) }}
         accessibilityLabel={`Logo de ${logo.nombre}`}
       />
     );

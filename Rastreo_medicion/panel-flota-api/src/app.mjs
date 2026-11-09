@@ -2,6 +2,7 @@
 import express from 'express';
 import { hashPassword, verifyPassword, newToken, sha256, isEmail, strongPassword, createLimiter } from './security.mjs';
 import { registerOAuth } from './oauth.mjs';
+import { summarizeSamples } from './fuel-summary.mjs';
 
 const COOKIE = 'pf_sid';
 const DAY = 864e5;
@@ -52,6 +53,8 @@ export function createApp({ repo, config, status }) {
     next();
   });
   app.use(express.json({ limit: '2mb' }));
+  // Sesión, usuarios y tractores nunca deben quedar en la caché del navegador ni de un proxy.
+  app.use('/api/panel', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
   const clientIp = (req) => req.ip || req.socket?.remoteAddress || '';
   const ua = (req) => String(req.headers['user-agent'] || '').slice(0, 255);
@@ -131,11 +134,14 @@ export function createApp({ repo, config, status }) {
   registerOAuth(r, { repo, config, express, startSession, logLogin: (e) => repo.logLogin(e), clientIp, ua, cleanName: (v) => str(v, 120) || 'Usuario' });
 
   r.get('/session', needAuth, (req, res) => res.json(repo.publicUser(req.user)));
-  r.delete('/session', wrap(async (req, res) => {
+  // Cerrar sesión: DELETE /session (estándar) y POST /logout (alias para proxies o servidores locales que no reenvían DELETE).
+  const endSession = wrap(async (req, res) => {
     if (req.sessionHash) await repo.deleteSession(req.sessionHash);
     clearCookie(res);
     res.sendStatus(204);
-  }));
+  });
+  r.delete('/session', endSession);
+  r.post('/logout', endSession);
 
   // Perfil: cada quien edita el suyo; un administrador puede editar cualquiera.
   r.put('/users/:id', needAuth, wrap(async (req, res) => {
@@ -294,6 +300,17 @@ export function createApp({ repo, config, status }) {
       .filter((n) => Number.isInteger(n) && n > 0)
       .slice(0, 500);
     res.json(await repo.fuelEvents({ from, to, deviceIds: ids }));
+  }));
+
+  // Resumen por tractor y día (consumo, cargas, descargas, velocidad y horas en movimiento), calculado aquí
+  // para no mandar al navegador todas las muestras. Ej.: GET /fuel-summary?from=...&to=...&deviceId=1&deviceId=2
+  r.get('/fuel-summary', needAuth, wrap(async (req, res) => {
+    const from = toDate(req.query.from);
+    const to = toDate(req.query.to);
+    if (!from || !to || to < from) return res.status(400).json({ error: 'Parámetros no válidos' });
+    if (to - from > 31 * DAY) return res.status(400).json({ error: 'El periodo máximo es de 31 días' });
+    const ids = [].concat(req.query.deviceId || []).map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 500);
+    res.json(summarizeSamples(await repo.samplesRange({ from, to, deviceIds: ids })));
   }));
 
   app.use('/api/panel', r);
