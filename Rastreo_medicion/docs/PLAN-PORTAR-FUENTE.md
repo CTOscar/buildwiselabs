@@ -64,6 +64,12 @@
 
 **Ojo al integrar `home.js`:** el menú del bundle (`go(g)` con `window.__pfHome.show("inicio")`, subpestañas `jd-sub`, "Ver todo…") lo inyectan los parches `patch/*.cjs`; el fuente tiene otra navegación (`nav.js` con módulos). Hay que decidir cómo se abre "Inicio" y "Status" en esa navegación.
 
+**Hallazgo posterior (la opción A no sirve tal cual):** `home.js` no arranca solo. Espera `#root`, `.jd-top` y `window.__pf` (revisa 150 veces cada 200 ms y se rinde) y se cuelga del menú del bundle (`#rail`, `.jd-toolsmenu`, `#menu-btn`, `#searchbox`, `[data-theme-btn]`). Ese menú (`jd-*`) lo arman el bundle minificado y los parches de `patch/` (`gen-nav.cjs`, `home.css`, `extra3..9.css`, `deere.css`). El fuente tiene otra navegación (`nav.js`), así que copiar los scripts los dejaría **inertes, sin error visible**.
+
+Caminos reales:
+- **B directa (recomendada):** módulo `features/home` en el fuente, con la maquetación Debian (`dh-*`, 39 clases, sacadas de `patch/home.css`) y la lógica de datos de `home.js` (clima, noticias, KPIs, listas, Earth), abriendo páginas con `setView` en vez de `.jd-*`.
+- **A′ (portar el shell del bundle):** llevar el menú `jd-*` (rail, barra superior, menú de herramientas) al fuente y después copiar los scripts. Es casi portar toda la UI del bundle.
+
 **Pendientes del bundle al portar:**
 - `mapx.js:478` ejecuta `setInterval(place, 800)`, que gasta batería en celular: corregirlo.
 - `home.js` usa `api.rss2json.com`: cambiar a `/api/news` propio (categoría `agro`; en producción aún da 400).
