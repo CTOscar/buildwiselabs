@@ -1,7 +1,7 @@
 # Plan: portar al fuente lo que solo existe en el bundle
 
 **Fecha:** 8 de noviembre de 2026
-**Estado:** pasos 1 y 2 hechos; pasos 3 a 5 pendientes.
+**Estado:** pasos 1, 2 y 3 hechos; pasos 4 y 5 pendientes.
 
 ## Punto de partida
 
@@ -39,7 +39,7 @@
 - Manejar el regreso del callback y los errores (correo no verificado, cuenta ligada).
 - **Listo cuando:** con las variables de Google/Apple definidas en la API, el login con proveedor entra a la misma cuenta aunque cambie el correo.
 
-## Paso 3 · Combustible y `getRoute`
+## Paso 3 · Combustible y `getRoute` (HECHO)
 
 - Leer en el bundle `getRoute` (`GET /route`) y `GET /fuel-events`, y la vista "Combustible y velocidad".
 - Agregar al cliente y a `mock.js` (misma interfaz) y crear la vista con d3 reutilizando `barChart.js` donde sirva.

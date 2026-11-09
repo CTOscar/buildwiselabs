@@ -13,6 +13,7 @@ import { initScene3dModal } from './features/escena3d/modal.js';
 import { showLogin } from './features/login/login.js';
 import { initProfile } from './features/profile/profile.js';
 import { initSimulator } from './features/simulator/simulator.js';
+import { initStats } from './features/stats/stats.js';
 import { initView3d } from './features/escena3d/view3d.js';
 import { initFenceSettings, initDeviceSettings } from './features/settings/settings.js';
 import { startOfToday } from './lib/format.js';
@@ -72,6 +73,7 @@ async function boot() {
   initProfile(client, { onLogout });
   initFenceSettings(client);
   initDeviceSettings(client);
+  initStats(client);
   initSimulator();
   initView3d();
   initScene3dModal();

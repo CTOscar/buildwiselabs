@@ -174,7 +174,7 @@ export function setView(view) {
 }
 
 // Enfocar mapa: lo implementa el módulo del mapa.
-export const mapApi = { focusDevice: () => {}, fitFence: () => {}, fitAll: () => {}, restyleFence: () => {} };
+export const mapApi = { focusDevice: () => {}, fitFence: () => {}, fitAll: () => {}, restyleFence: () => {}, setEventMarks: () => {}, focusPoint: () => {} };
 
 // Abre los ajustes de un tractor (tuerca en la lista de Flota).
 export function openDeviceSettings(id) {

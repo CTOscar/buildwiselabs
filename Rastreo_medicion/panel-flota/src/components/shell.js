@@ -134,6 +134,7 @@ export function renderShell(app, { onLogout }) {
 
         <!-- Simulador y Vista 3D: ocupan el área de contenido -->
         <section id="sim-view" hidden aria-label="Simulador de instalación" class="absolute inset-0 z-[5] overflow-y-auto bg-ink"></section>
+        <section id="stats-view" hidden aria-label="Combustible y velocidad" class="absolute inset-0 z-[5] bg-ink"></section>
         <section id="scene-view" hidden aria-label="Tractor en 3D" class="absolute inset-0 z-[5] bg-ink"></section>
       </main>
     </div>

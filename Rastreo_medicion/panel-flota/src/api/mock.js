@@ -286,6 +286,35 @@ export function createMockClient() {
     },
     getSummary: () => delay([...engineToday].map(([deviceId, engineHours]) => ({ deviceId, engineHours }))),
     getEvents: () => delay(history),
+    // Recorrido simulado de un tractor con sonda: un punto cada 5 min, consumo, una carga y una descarga.
+    getRoute: (deviceId, from, to) => {
+      const start = new Date(from).getTime();
+      const end = Math.min(new Date(to).getTime(), Date.now());
+      const pos = positions.get(deviceId);
+      if (typeof pos?.attributes?.fuel !== 'number' || end <= start) return delay([]);
+      const rows = [];
+      let seed = (deviceId * 9301 + 49297) % 233280;
+      const next = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+      let fuel = 120 + next() * 120;
+      const steps = Math.min(Math.floor((end - start) / 300000), 600);
+      for (let i = 0; i <= steps; i++) {
+        const hour = (new Date(start + i * 300000).getUTCHours() + 17) % 24; // hora local aproximada
+        const working = hour >= 7 && hour < 17;
+        const moving = working && next() > 0.25;
+        if (working) fuel -= moving ? 0.5 + next() * 0.6 : 0.1;
+        if (i === Math.floor(steps * 0.45) && steps > 20) fuel += 90; // carga
+        if (i === Math.floor(steps * 0.8) && steps > 20) fuel -= 45; // descarga con el tractor detenido
+        fuel = Math.max(5, fuel);
+        rows.push({
+          fixTime: new Date(start + i * 300000).toISOString(),
+          latitude: pos.latitude + Math.sin(i / 9) * 0.002,
+          longitude: pos.longitude + Math.cos(i / 9) * 0.002,
+          speed: moving ? 3 + next() * 3 : 0,
+          attributes: { fuel: Math.round(fuel * 10) / 10, ignition: working },
+        });
+      }
+      return delay(rows);
+    },
 
     connect(onMessage, onStatus) {
       onStatus('connecting');

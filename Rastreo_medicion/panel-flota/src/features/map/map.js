@@ -222,7 +222,26 @@ export function initMap() {
     styleFence(g._shape, g);
     g._shape.setTooltipContent(escapeHtml(g.name));
   }
-  Object.assign(mapApi, { focusDevice, fitFence, fitAll, restyleFence });
+  // Cargas y descargas de combustible (vista Combustible y velocidad): puntos sobre el mapa.
+  const eventLayer = L.layerGroup().addTo(map);
+  const money = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
+  function setEventMarks(events = []) {
+    eventLayer.clearLayers();
+    events.forEach((e) => {
+      if (!Number.isFinite(e.lat) || !Number.isFinite(e.lon)) return;
+      const drain = e.type === 'drain';
+      const color = drain ? '#d6453a' : '#1c965e';
+      L.circleMarker([e.lat, e.lon], { radius: 8, color, weight: 2, fillColor: color, fillOpacity: 0.45 })
+        .bindPopup(`<b>${drain ? 'Descarga' : 'Carga'} · ${e.liters} L</b><br>${new Date(e.t).toLocaleString('es-MX', { timeZone: 'America/Mazatlan' })}<br>≈ ${money.format(e.cost || 0)}`)
+        .addTo(eventLayer);
+    });
+  }
+  function focusPoint(lat, lon) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const pad = padding();
+    map.flyToBounds([[lat, lon]], { paddingTopLeft: pad.tl, paddingBottomRight: pad.br, duration: 0.8, maxZoom: 17 });
+  }
+  Object.assign(mapApi, { focusDevice, fitFence, fitAll, restyleFence, setEventMarks, focusPoint });
 
   sync();
   const pts = [...state.positions.values()].map((p) => [p.latitude, p.longitude]);

@@ -16,6 +16,7 @@ export const VIEWS = [
   { view: 'lotes', module: 'plan', label: 'Rutas y geocercas', tab: true },
   { view: 'lote', module: 'plan', parent: 'lotes' },
   { view: 'reports', module: 'analizar', label: 'Reportes', tab: true },
+  { view: 'stats', module: 'analizar', label: 'Combustible y velocidad', tab: true },
   { view: 'soon', module: 'mantenimiento', label: 'Resumen', tab: true },
   { view: 'tractor', module: 'configuracion' },
   { view: 'sim', module: 'configuracion', label: 'Simulador', tab: true },

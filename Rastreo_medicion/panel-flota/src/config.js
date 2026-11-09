@@ -8,6 +8,8 @@ export const config = {
   // API propia del panel (/api/panel): cuentas, perfil, foto, ajustes e historial.
   // 'same-origin' = misma dirección que el panel; vacío = sin API (solo Traccar/mock).
   panelApi: env.VITE_PANEL_API_URL === 'same-origin' ? '/' : (env.VITE_PANEL_API_URL || '').replace(/\/$/, ''),
+  // Precio del diésel (MXN por litro) para estimar el costo de las descargas.
+  dieselPrice: Number(env.VITE_DIESEL_PRICE) || 24,
   tz: 'America/Mazatlan',
   // Sin reporte en este tiempo = "sin señal". Detenido reporta cada 30 min.
   offlineAfterMin: 35,
